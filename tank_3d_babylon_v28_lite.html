@@ -27,7 +27,12 @@ body.sel #sel{display:block}
 #selP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}
 #selP .dots{text-align:center;margin-bottom:8px;letter-spacing:.4em}
 #go{display:block;width:100%;font-size:20px;letter-spacing:.3em;padding:10px;border-radius:999px;border:2px solid #fff;background:rgba(150,50,40,.9);color:#fff}
-@media (min-aspect-ratio:13/10){#selP{left:auto;right:12px;top:48px;bottom:auto;transform:none;width:min(400px,46vw);max-height:calc(100vh - 60px);overflow:auto}#selR{right:calc(min(400px,46vw) + 24px)}}
+#go{position:sticky;bottom:0}
+#selP{max-height:calc(100vh - 60px);max-height:calc(100dvh - 60px);overflow:auto} /* Safariはツールバー分100vhが大きいのでdvh(実際の表示高さ)を使う */
+@media (min-aspect-ratio:13/10){#selP{left:auto;right:12px;top:44px;bottom:auto;transform:none;width:min(380px,44vw);max-height:calc(100vh - 54px);max-height:calc(100dvh - 54px)}#selR{right:calc(min(380px,44vw) + 24px)}}
+@media (max-height:620px){#sel h2{font-size:15px;top:8px}#selP{padding:9px 12px}#selP .nm{font-size:17px}#selP .nt{font-size:11px}#selP .sp{font-size:10.5px;margin:2px 0 5px}
+ #selP .bars{gap:2px 8px;font-size:10.5px}#selP .bar{height:6px}#selP .ft{font-size:10.5px;line-height:1.4;margin:5px 0 7px}#selP .dots{margin-bottom:4px;font-size:11px}#go{font-size:16px;padding:6px}
+ #sel .arw{width:44px;height:44px;font-size:20px}}
 button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4a8;color:#fff}
 .stick{position:fixed;bottom:24px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4)}
 .knob{position:absolute;left:40px;top:40px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.6)}
@@ -102,7 +107,7 @@ body.sel #snd{top:auto;bottom:12px}
 <script>
 // 起動エラーを画面に表示(コンソールが無効化されているため)
 const showErr=m=>{const d=document.createElement('div');d.style.cssText='position:fixed;left:8px;right:8px;top:90px;z-index:200;background:rgba(0,0,0,.8);color:#ff8;font:12px monospace;padding:8px;white-space:pre-wrap';d.textContent='ERROR: '+m;document.body.appendChild(d);};
-addEventListener('error',e=>showErr(e.message+' @'+e.lineno));addEventListener('unhandledrejection',e=>showErr(String(e.reason&&e.reason.stack||e.reason)));
+addEventListener('error',e=>{if(!e.error&&!e.lineno&&/^Script error\.?$/.test(e.message||''))return;showErr(e.message+' @'+e.lineno);}); // 詳細のない外部スクリプト(ブラウザ拡張など)のエラーは表示しないaddEventListener('unhandledrejection',e=>showErr(String(e.reason&&e.reason.stack||e.reason)));
 const MOBILE=matchMedia('(pointer:coarse)').matches;
 const setLoad=(p,t)=>{document.getElementById('ldfill').style.width=Math.round(p*100)+'%';document.getElementById('ldtx').textContent=t+'  '+Math.round(p*100)+'%';};
 const tick=(p,t)=>{setLoad(p,t);return new Promise(r=>setTimeout(r,30));};
