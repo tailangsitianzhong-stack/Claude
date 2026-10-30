@@ -102,7 +102,8 @@ scene.clearColor=new BABYLON.Color4(.8,.77,.7,1);
 scene.fogMode=BABYLON.Scene.FOGMODE_EXP2;scene.fogDensity=0.0026;scene.fogColor=new BABYLON.Color3(.8,.77,.7);
 const cam=new BABYLON.FreeCamera('cam',new BABYLON.Vector3(0,22,-18),scene);
 const hl=new BABYLON.HemisphericLight('h',new BABYLON.Vector3(0,1,0),scene);hl.intensity=.7;
-const sun=new BABYLON.DirectionalLight('s',new BABYLON.Vector3(-.5,-1,-.4),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=.9;sun.diffuse=new BABYLON.Color3(1,.93,.8);
+const SUN=new BABYLON.Vector3(.55,.62,.45).normalize(); // 太陽の方向(地面→太陽)
+const sun=new BABYLON.DirectionalLight('s',SUN.negate(),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=.9;sun.diffuse=new BABYLON.Color3(1,.93,.8);
 sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-55;sun.orthoRight=55;sun.orthoTop=55;sun.orthoBottom=-55;sun.shadowMinZ=1;sun.shadowMaxZ=320;
 const sg=new BABYLON.ShadowGenerator(MOBILE?256:1024,sun);sg.usePoissonSampling=!MOBILE;
 if(MOBILE)scene.shadowsEnabled=false; // スマホは影なし(シェーダー軽量化)
@@ -156,16 +157,27 @@ function texMat(d,n,c){const m=new BABYLON.StandardMaterial('tm',scene);m.diffus
  await tick(.55,'テクスチャを生成中(金属・植物)');
  // 汚れた金属・ゴム
  {const N=256,a=vnoise(N,64,31),b=vnoise(N,16,32),c=vnoise(N,128,33);T.metal=mk(paint(N,i=>{const v=.82+(a[i]-.5)*.2+(b[i]-.5)*.22+(c[i]-.5)*.1;return [v,v,v*.97];}),3,3,4);}
- // ヤシの幹(輪状の節)と葉(アルファ付き)
+ // ヤシの幹(輪状の節)
  {const N=256,nz=vnoise(N,32,41),ring=vnoise(N,8,42);T.bark=mk(paint(N,(i,x,y)=>{const rg=Math.pow(Math.abs(Math.sin(y/N*6.283*14+ring[i]*3)),.5);const v=.55+rg*.3+(nz[i]-.5)*.2;return [v*.8,v*.62,v*.42];}),1,1,4);}
- {const N=256,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.strokeStyle='#4a5a1e';x.lineWidth=Math.max(2,N/64);x.beginPath();x.moveTo(N/2,0);x.lineTo(N/2,N);x.stroke();
-  for(let i=0;i<24;i++){const y=i*N/24;x.strokeStyle=i%2?'#56701f':'#47601a';x.lineWidth=Math.max(1.5,N/85);x.beginPath();x.moveTo(N/2,y);x.lineTo(N*.04,y+N*.07);x.moveTo(N/2,y);x.lineTo(N*.96,y+N*.07);x.stroke();}
-  T.frond=mk(c,1,1,4);T.frond.hasAlpha=true;}
- // 空(砂塵で霞んだ地平線)
- {const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,512);
-  g.addColorStop(0,'#5f86b8');g.addColorStop(.28,'#9bb4cc');g.addColorStop(.47,'#d3c7ae');g.addColorStop(.5,'#cfc4ad');g.addColorStop(1,'#cfc4ad');x.fillStyle=g;x.fillRect(0,0,1024,512);
-  const r=rnd(5);for(let i=0;i<60;i++){x.fillStyle='rgba(255,255,255,'+(.03+r()*.05)+')';x.beginPath();x.ellipse(r()*1024,40+r()*170,60+r()*130,5+r()*14,0,0,6.283);x.fill();}
-  T.sky=mk(c,1,1,1);}
+ // 日干しレンガ(廃墟): 目地・レンガごとの色ムラ・汚れ
+ {const N=256,st=fbm(N,6,4,51),hh=new Float32Array(N*N),bh=N/8,bw=N/4;
+  const hs=(a,b)=>{const v=Math.sin(a*91.7+b*37.3)*43758.5;return v-Math.floor(v);};
+  T.brick=mk(paint(N,(i,x,y)=>{const row=Math.floor(y/bh),off=(row%2)*bw/2,col=Math.floor((x+off)/bw),my=y%bh,mx=(x+off)%bw;
+   const mortar=my<3||mx<3,v=(mortar?.78:.92+(hs(row,col)-.5)*.16)+(st[i]-.5)*.22;hh[i]=mortar?0:.6+st[i]*.4;
+   return [v*.86,v*.72,v*.54];}),1,1,4);
+  T.brickN=mk(normalMap(N,hh,4),1,1,4);}
+ // ヤシの葉(押し出しリボン用): U=葉の長さ方向に葉軸、両側に細長い小葉
+ {const W=256,H=64,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),r=rnd(71);x.lineCap='round';
+  for(let i=0;i<46;i++){const u=6+i*5.4,l=H*.48*(.55+.45*Math.sin(Math.min(1,u/W*1.2)*Math.PI));
+   [-1,1].forEach(sd=>{x.strokeStyle='rgb('+(60+r()*30|0)+','+(95+r()*35|0)+','+(30+r()*15|0)+')';x.lineWidth=3.2;x.beginPath();x.moveTo(u,H/2);x.quadraticCurveTo(u+7,H/2+sd*l*.5,u+13+r()*4,H/2+sd*l);x.stroke();});}
+  x.strokeStyle='#6b6a2a';x.lineWidth=3;x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke();
+  T.leaf=mk(c,1,1,4);T.leaf.hasAlpha=true;}
+ // 枯れ草(アルファ付きの枝)
+ {const N=128,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),r=rnd(61);x.lineCap='round';
+  const br=(px,py,a,l,w)=>{if(l<4)return;const ex=px+Math.cos(a)*l,ey=py-Math.sin(a)*l;x.strokeStyle='rgb('+(110+r()*40|0)+','+(88+r()*30|0)+','+(60+r()*20|0)+')';x.lineWidth=w;x.beginPath();x.moveTo(px,py);x.lineTo(ex,ey);x.stroke();
+   br(ex,ey,a+.3+r()*.4,l*.68,w*.7);br(ex,ey,a-.3-r()*.4,l*.68,w*.7);};
+  for(let k=0;k<5;k++)br(N/2+(r()-.5)*20,N,Math.PI/2+(r()-.5)*.9,28+r()*10,3);
+  T.twig=mk(c,1,1,1);T.twig.hasAlpha=true;}
  await tick(.65,'空を作成中');
  // 砂煙の粒子
  {const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,0,32,32,32);
@@ -190,14 +202,86 @@ const ground=BABYLON.MeshBuilder.CreateGround('g',{width:B*2+10,height:B*2+10,su
  ground.updateVerticesData('position',P);ground.updateVerticesData('normal',N);ground.setVerticesData('color',C,true);}
 const gm=new BABYLON.StandardMaterial('gm',scene);gm.diffuseColor=BABYLON.Color3.White();gm.specularColor=BABYLON.Color3.Black();gm.diffuseTexture=T.sand;if(!MOBILE){gm.bumpTexture=T.sandN;gm.bumpTexture.level=.5;}
 ground.material=gm;ground.receiveShadows=true;ground.freezeWorldMatrix();
+{const og=BABYLON.MeshBuilder.CreateDisc('outer',{radius:1100,tessellation:48,sideOrientation:2},scene);og.rotation.x=Math.PI/2;og.position.y=.6; // マップ外の平原(霞に溶けて地平線になる)
+ const om=new BABYLON.StandardMaterial('om',scene);om.disableLighting=true;om.emissiveColor=new BABYLON.Color3(.6,.5,.37);om.specularColor=BABYLON.Color3.Black();om.emissiveTexture=T.sand.clone();om.emissiveTexture.uScale=om.emissiveTexture.vScale=260; // 照明なし(遠景なので固定色で十分)
+ og.material=om;og.isPickable=false;og.freezeWorldMatrix();}
 // 画面効果:トーンマッピング・コントラスト・ビネット
 {const ip=scene.imageProcessingConfiguration;if(MOBILE){ip.isEnabled=false;}else{ip.toneMappingEnabled=true;ip.toneMappingType=1;ip.exposure=1.15;ip.contrast=1.25;ip.vignetteEnabled=true;ip.vignetteWeight=1.6;ip.vignetteStretch=.3;}}
 hl.groundColor=new BABYLON.Color3(.4,.33,.24);
-{const sky=BABYLON.MeshBuilder.CreateSphere('sky',{diameter:2400,segments:MOBILE?10:16},scene),sm=new BABYLON.StandardMaterial('skym',scene);
- sm.disableLighting=true;sm.diffuseColor=BABYLON.Color3.Black();sm.specularColor=BABYLON.Color3.Black();sm.emissiveTexture=T.sky;sm.backFaceCulling=false;sm.fogEnabled=false;
- sky.material=sm;sky.infiniteDistance=true;sky.isPickable=false;}
+// ===== 空(GLSLシェーダー): 大気の色・太陽とハロー・流れる積雲と巻雲・砂塵の地平線 =====
+BABYLON.Effect.ShadersStore.skyVertexShader=`precision highp float;
+attribute vec3 position;uniform mat4 worldViewProjection;varying vec3 vDir;
+void main(){vDir=position;gl_Position=worldViewProjection*vec4(position,1.);}`;
+BABYLON.Effect.ShadersStore.skyFragmentShader=`precision highp float;
+varying vec3 vDir;uniform vec3 sunDir;uniform vec3 fogCol;uniform float time;
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<${MOBILE?4:6};i++){v+=a*n2(p);p=m*p;a*=.5;}return v;}
+void main(){
+ vec3 d=normalize(vDir);float h=d.y,mu=dot(d,sunDir),hp=max(h,0.);
+ vec3 col=mix(vec3(.66,.70,.76),vec3(.16,.34,.64),pow(hp,.32));      // 地平線→天頂のグラデーション
+ col=mix(col,fogCol,exp(-hp*28.)*.9);                                   // 砂塵で霞む地平線
+ col+=vec3(1.,.78,.5)*(pow(max(mu,0.),5.)*.16+pow(max(mu,0.),60.)*.3);   // 太陽まわりの暖色ハロー(ミー散乱)
+ if(h>0.){
+  vec2 uv=d.xz/(h+.1),w=vec2(time*.006,time*.0025);
+  float c=fbm(uv*1.1+w),cov=smoothstep(.5,.78,c);                      // 積雲
+  float cs=fbm(uv*1.1+w+sunDir.xz*.08);                                  // 太陽側へずらした密度で陰影
+  float lit=clamp(.75+(c-cs)*5.,.35,1.2);
+  vec3 cc=mix(vec3(.5,.5,.55),vec3(.95,.92,.88),lit);
+  cc+=vec3(1.,.8,.55)*pow(max(mu,0.),10.)*(1.-cov)*.9;                   // 太陽側の縁が光る
+  float fade=smoothstep(0.,.22,h);
+  col=mix(col,cc,cov*fade*.92);
+  float ci=fbm(vec2(uv.x*.5,uv.y*2.6)+w*2.5+7.);                         // 高空の巻雲(筋状)
+  col=mix(col,vec3(1.,.99,.97),smoothstep(.56,.9,ci)*.3*fade*(1.-cov));
+ }
+ col+=vec3(1.,.95,.85)*smoothstep(.99955,.99975,mu)*6.;                // 太陽本体(HDRで光る)
+ col+=vec3(1.,.9,.7)*pow(max(mu,0.),900.)*2.;
+ col=mix(col,fogCol,1.-smoothstep(-.06,.02,h));                         // 地平線より下は霞(smoothstepは edge0<edge1 で使う)
+ col+=(h21(gl_FragCoord.xy)-.5)/255.;                                   // 帯状ムラ防止のディザ
+ gl_FragColor=vec4(max(col,vec3(0.)),1.);
+}`;
+const skyMat=new BABYLON.ShaderMaterial('skym',scene,{vertex:'sky',fragment:'sky'},{attributes:['position'],uniforms:['worldViewProjection','sunDir','fogCol','time']});
+skyMat.backFaceCulling=false;skyMat.setVector3('sunDir',SUN);skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('time',0);
+{const sky=BABYLON.MeshBuilder.CreateSphere('sky',{diameter:2400,segments:MOBILE?16:32},scene);
+ sky.material=skyMat;sky.infiniteDistance=true;sky.isPickable=false;sky.applyFog=false;}
+// 遠景の山並み(Canvasで描いた3層の稜線。遠いほど霞ませる)
+const farMt=(()=>{
+ const W=2048,H=256,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const ridge=(u,sd,k)=>{let v=0;for(let i=1;i<=7;i++)v+=Math.sin(u*6.2832*i*k+sd*i*1.7)*(.5/i)+Math.sin(u*6.2832*(i*3+1)+sd*i*3.1)*(.12/i);return v;}; // 周期的なので継ぎ目なし
+ [[.38,1,'rgba(176,160,140,1)'],[.5,2,'rgba(160,138,112,1)'],[.62,3,'rgba(140,114,88,1)']].forEach(([base,sd,col])=>{
+  x.fillStyle=col;x.beginPath();x.moveTo(0,H);
+  for(let i=0;i<=W;i+=4){const u=i/W,v=ridge(u,sd,sd);x.lineTo(i,H*(base+.13*v+(sd===1?-.05:0)));}
+  x.lineTo(W,H);x.closePath();x.fill();});
+ // 下にいくほど霞の色へ
+ const g=x.createLinearGradient(0,H*.3,0,H);g.addColorStop(0,'rgba(204,196,178,0)');g.addColorStop(1,'rgba(204,196,178,.85)');
+ x.globalCompositeOperation='source-atop';x.fillStyle=g;x.fillRect(0,0,W,H);
+ const t=new BABYLON.DynamicTexture('mt',c,scene,true);t.hasAlpha=true;t.wrapU=1;t.update();t.level=.82;
+ const m=new BABYLON.StandardMaterial('mtm',scene);m.disableLighting=true;m.emissiveTexture=t;m.opacityTexture=t;m.diffuseColor=BABYLON.Color3.Black();m.specularColor=BABYLON.Color3.Black();m.backFaceCulling=false;m.fogEnabled=false;
+ const r=BABYLON.MeshBuilder.CreateCylinder('mt',{diameter:1800,height:150,tessellation:64,cap:0},scene);r.material=m;r.isPickable=false;r.applyFog=false;
+ return r;
+})();
+// レンズフレア(PCのみ。障害物に太陽が隠れると消える)
+let flareSrc=null;
+if(!MOBILE){
+ const tex=(f)=>{const c=document.createElement('canvas');c.width=c.height=128;f(c.getContext('2d'));return c.toDataURL();};
+ const soft=tex(x=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);});
+ const ring=tex(x=>{const g=x.createRadialGradient(64,64,40,64,64,62);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.6,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);});
+ const hex=tex(x=>{x.fillStyle='rgba(255,255,255,.45)';x.beginPath();for(let i=0;i<6;i++){const a=i/6*6.2832;x.lineTo(64+Math.cos(a)*56,64+Math.sin(a)*56);}x.fill();});
+ flareSrc=BABYLON.MeshBuilder.CreateBox('sunpt',{size:1},scene);flareSrc.isVisible=false;flareSrc.isPickable=false;
+ const fs=new BABYLON.LensFlareSystem('flare',flareSrc,scene);
+ fs.meshesSelectionPredicate=m=>m.isPickable&&m.isVisible&&m.isEnabled()&&!!m.metadata&&m.metadata.occ; // 遮蔽判定は障害物と戦車だけ(地面は重いので除外)
+ [[.45,0,'#ffe8c0',soft],[.14,.25,'#ffd090',hex],[.08,.45,'#a0c8ff',hex],[.22,.62,'#ffc080',ring],[.05,.8,'#ffffff',soft],[.16,1.05,'#c0e0ff',hex]]
+  .forEach(([sz,pos,cl,img])=>new BABYLON.LensFlare(sz,pos,BABYLON.Color3.FromHexString(cl),img,fs));
+}
+// 発光(曳光弾・閃光をにじませる。対象メッシュだけ登録して軽くする)
+const glow=new BABYLON.GlowLayer('glow',scene,{mainTextureRatio:MOBILE?.25:.5,blurKernelSize:MOBILE?16:32});glow.intensity=MOBILE?.6:.7;
+{const d=BABYLON.MeshBuilder.CreateBox('glowDummy',{size:.01},scene);d.isVisible=false;glow.addIncludedOnlyMesh(d);} // 登録リストが空だと全メッシュが対象になるので、常に1つ入れておく
+let skyT=0;
 if(!MOBILE)try{const pp=new BABYLON.DefaultRenderingPipeline('dp',false,scene,[cam]); // HDRは使わない(スマホで描画されない原因になるため)
- pp.fxaaEnabled=true;if(!MOBILE){pp.bloomEnabled=true;pp.bloomThreshold=.85;pp.bloomWeight=.3;pp.bloomKernel=24;pp.sharpenEnabled=true;pp.sharpen.edgeAmount=.25;}}catch(e){}
+ pp.fxaaEnabled=true;if(!MOBILE){pp.bloomEnabled=true;pp.bloomThreshold=.85;pp.bloomWeight=.3;pp.bloomKernel=24;pp.sharpenEnabled=true;pp.sharpen.edgeAmount=.25;
+  pp.chromaticAberrationEnabled=true;pp.chromaticAberration.aberrationAmount=6;pp.chromaticAberration.radialIntensity=.8; // 画面端のわずかな色ずれ
+  pp.grainEnabled=true;pp.grain.intensity=5;pp.grain.animated=true;}}catch(e){}                                             // フィルムグレイン
 const dust=new BABYLON.ParticleSystem('dust',MOBILE?80:200,scene);
 dust.particleTexture=T.puff;dust.emitter=new BABYLON.Vector3(0,0,0);dust.minEmitBox=new BABYLON.Vector3(-1.4,0,-2.6);dust.maxEmitBox=new BABYLON.Vector3(1.4,.2,-1.5);
 dust.color1=new BABYLON.Color4(.85,.75,.58,.5);dust.color2=new BABYLON.Color4(.75,.65,.5,.4);dust.colorDead=new BABYLON.Color4(.75,.65,.5,0);
@@ -205,7 +289,7 @@ dust.minSize=1.4;dust.maxSize=3.4;dust.minLifeTime=.7;dust.maxLifeTime=1.7;dust.
 dust.minEmitPower=.4;dust.maxEmitPower=1.2;dust.gravity=new BABYLON.Vector3(0,-.4,0);dust.blendMode=BABYLON.ParticleSystem.BLENDMODE_STANDARD;dust.start();
 
 function mat(r,g,b){const m=new BABYLON.StandardMaterial('m',scene);m.diffuseColor=new BABYLON.Color3(r,g,b);m.specularColor=new BABYLON.Color3(.1,.1,.1);return m;}
-const matDark=mat(.12,.12,.12),matRock=mat(.45,.45,.42),matBul=mat(1,.9,.2),matWheel=mat(.17,.17,.16),matGun=mat(.2,.21,.19);
+const matDark=mat(.12,.12,.12),matRock=mat(.45,.45,.42),matWheel=mat(.17,.17,.16),matGun=mat(.2,.21,.19);
 // 3色迷彩(緑・茶・黒)。部位ごとに色を振り分けてレオパルト風のまだら模様にする
 [matDark,matWheel,matGun].forEach(x=>{x.diffuseTexture=T.metal;});
 const camoSet=a=>a.map(t=>texMat(t));
@@ -215,39 +299,131 @@ const matWhite=mat(.93,.93,.93),matRed=mat(.78,.12,.1);
 const TS=MOBILE?8:14,NF=MOBILE?4:7;
 const wheelM=BABYLON.MeshBuilder.CreateCylinder('wheelM',{diameter:.72,height:.82,tessellation:TS},scene);
 wheelM.material=matWheel;wheelM.isVisible=false;wheelM.position.y=-50;
-matBul.emissiveColor=new BABYLON.Color3(1,.8,.1);
 
 // 障害物
 const obs=[];
-const rockMats=[[1,.92,.78],[.85,.7,.55],[1,.85,.7],[.7,.62,.55]].map(c=>texMat(T.rock,T.rockN,new BABYLON.Color3(...c))),trunkM=texMat(T.bark),palmM=texMat(T.frond);
-palmM.useAlphaFromDiffuseTexture=true;palmM.transparencyMode=1;palmM.alphaCutOff=.4;palmM.backFaceCulling=false;palmM.twoSidedLighting=true;
-function jitterMesh(m,sd){const P=m.getVerticesData('position');for(let k=0;k<P.length;k+=3){const f=.78+.3*Math.sin(P[k]*9.1+P[k+1]*7.3+P[k+2]*5.7+sd);P[k]*=f;P[k+1]*=f;P[k+2]*=f;}m.updateVerticesData('position',P);}
+const rockMats=[[1,.92,.78],[.85,.7,.55],[1,.85,.7],[.7,.62,.55]].map(c=>texMat(T.rock,T.rockN,new BABYLON.Color3(...c))),trunkM=texMat(T.bark);
+// --- 形状づくりの道具: 3Dノイズ・岩の変形・頂点カラー ---
+const hash3=(x,y,z)=>{const h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;return h-Math.floor(h);};
+function noise3(x,y,z){const ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=x-ix,fy=y-iy,fz=z-iz,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),w=fz*fz*(3-2*fz);
+  const l=(a,b,t)=>a+(b-a)*t,c=(dx,dy,dz)=>hash3(ix+dx,iy+dy,iz+dz);
+  return l(l(l(c(0,0,0),c(1,0,0),u),l(c(0,1,0),c(1,1,0),u),v),l(l(c(0,0,1),c(1,0,1),u),l(c(0,1,1),c(1,1,1),u),v),w);}
+const fbm3=(x,y,z,o=4)=>{let v=0,a=.5;for(let i=0;i<o;i++){v+=a*noise3(x,y,z);x*=2.03;y*=2.03;z*=2.03;a*=.5;}return v/(1-Math.pow(.5,o));};
+const sstep=(a,b,t)=>{t=Math.max(0,Math.min(1,(t-a)/(b-a)));return t*t*(3-2*t);};
+function finishGeo(m,P,colorFn){ // 法線を計算し直し、位置と法線から頂点カラー(陰影・汚れ)を付ける
+  const I=m.getIndices(),N=[];BABYLON.VertexData.ComputeNormals(P,I,N);
+  const C=[];for(let k=0;k<P.length;k+=3){const c=colorFn(P[k],P[k+1],P[k+2],N[k+1]);C.push(c[0],c[1],c[2],1);}
+  m.updateVerticesData('position',P);m.updateVerticesData('normal',N);m.setVerticesData('color',C);}
+// 岩: ノイズで膨らませ、ランダムな平面で切り落として割れ面を作る。下側は平らに
+function makeRock(sd,sub){
+  const m=BABYLON.MeshBuilder.CreateIcoSphere('rk',{radius:1,subdivisions:sub||(MOBILE?2:3),flat:true,updatable:true},scene);
+  const P=m.getVerticesData('position'),pl=[];
+  for(let k=0,n=2+(hash3(sd,1,2)*3|0);k<n;k++){const a=hash3(sd,k,3)*6.283,e=(hash3(sd,k,4)-.3)*.9,c=Math.cos(e);pl.push([Math.cos(a)*c,Math.sin(e),Math.sin(a)*c,.5+hash3(sd,k,5)*.3]);}
+  for(let k=0;k<P.length;k+=3){
+    let x=P[k],y=P[k+1],z=P[k+2];const f=.72+.5*fbm3(x*1.1+sd,y*1.1,z*1.1)+.1*noise3(x*4+sd,y*4,z*4);x*=f;y*=f;z*=f;
+    for(const q of pl){const d=x*q[0]+y*q[1]+z*q[2];if(d>q[3]){const e=d-q[3];x-=q[0]*e;y-=q[1]*e;z-=q[2]*e;}}
+    if(y<-.3)y=-.3+(y+.3)*.15;P[k]=x;P[k+1]=y;P[k+2]=z;}
+  finishGeo(m,P,(x,y,z,ny)=>{
+    let k=(.5+.5*sstep(-.3,.45,y))*(1+.14*Math.max(0,ny));                   // 接地部の陰り・上面の日焼け
+    const vn=fbm3(x*3+sd,y*.7,z*3,3);if(vn>.55)k*=1-(vn-.55)*.9;            // 砂漠ワニス(黒っぽい筋)
+    const sand=Math.max(0,ny-.55)/.45*sstep(.35,.7,noise3(x*5,y*5+sd,z*5));  // 上向きの面に積もった砂
+    return [k+(1.02-k)*sand,k+(.88-k)*sand,k+(.68-k)*sand];});
+  return m;
+}
+// 岩山(ビュート): 地層ごとに段がつき、上部に硬い帽岩、裾は崩れて広がる
+function makeButte(sd){
+  const m=BABYLON.MeshBuilder.CreateCylinder('mesa',{diameter:1,height:1,tessellation:MOBILE?12:22,subdivisions:MOBILE?10:18,updatable:true},scene);
+  const P=m.getVerticesData('position'),L=4+(hash3(sd,7,7)*3|0);
+  for(let k=0;k<P.length;k+=3){
+    const x=P[k],y=P[k+1],z=P[k+2],t=y+.5,a=Math.atan2(z,x),ca=Math.cos(a),sa=Math.sin(a);
+    let pr=1.3-.34*sstep(0,.3,t);const ly=t*L;pr-=.08*(ly-Math.floor(ly));if(t>.9)pr+=.05;
+    pr*=.82+.36*fbm3(ca*1.6+sd,t*3,sa*1.6,3);
+    P[k]=x*pr;P[k+2]=z*pr;P[k+1]=y+(t>.99?(noise3(x*6+sd,0,z*6)-.5)*.03:0);}
+  finishGeo(m,P,(x,y,z,ny)=>{const t=y+.5,a=Math.atan2(z,x);
+    const band=.5+.5*Math.sin(t*L*6.283+fbm3(Math.cos(a)*2+sd,t*2,Math.sin(a)*2,2)*3);
+    let r=1-band*.12,g=.93-band*.2,b=.85-band*.22;const k=(.6+.4*sstep(0,.35,t))*(1-.25*sstep(.5,.75,fbm3(Math.cos(a)*7+sd,t*.6,Math.sin(a)*7,2)));
+    return [r*k,g*k,b*k];});
+  return m;
+}
+function bake(arr,mt){const g=BABYLON.Mesh.MergeMeshes(arr.filter(Boolean),true,true);if(!g)return null;g.material=mt;g.metadata={occ:1};
+  sg.addShadowCaster(g);g.receiveShadows=true;g.freezeWorldMatrix();return g;}
+const brickM=texMat(T.brick,T.brickN,new BABYLON.Color3(1,.97,.92)),leafM=texMat(T.leaf),deadM=texMat(T.leaf,null,new BABYLON.Color3(1.9,1.1,.6)),nutM=mat(.32,.24,.12);
+[leafM,deadM].forEach(m=>{m.useAlphaFromDiffuseTexture=true;m.transparencyMode=1;m.alphaCutOff=.4;m.backFaceCulling=false;m.twoSidedLighting=true;});
+// ヤシ: 曲がった幹(チューブ)・垂れ下がる葉(押し出しリボン)・枯れ葉・実
+function makePalm(x,gy,z){
+  const sc=.85+Math.random()*.45,H=6.5*sc,ba=Math.random()*6.283,bend=.8+Math.random()*1.6,bx=Math.cos(ba)*bend,bz=Math.sin(ba)*bend,path=[];
+  for(let i=0;i<=8;i++){const t=i/8;path.push(new BABYLON.Vector3(x+bx*t*t,gy+H*t,z+bz*t*t));}
+  const tr=BABYLON.MeshBuilder.CreateTube('tk',{path,radiusFunction:(i)=>{const t=i/8;return (.3-.12*t+.18*Math.pow(1-t,6))*sc;},tessellation:MOBILE?6:10,cap:2},scene);
+  tr.material=trunkM;
+  const top=path[8],leaves=[],dead=[],nuts=[];
+  const frond=(a,len,droop,lift,mtl,list)=>{const dx=Math.cos(a),dz=Math.sin(a),pp=[];
+    for(let j=0;j<=10;j++){const t=j/10;pp.push(new BABYLON.Vector3(top.x+dx*len*t,top.y+lift*t-droop*t*t,top.z+dz*len*t));}
+    const f=BABYLON.MeshBuilder.ExtrudeShapeCustom('fr',{shape:[new BABYLON.Vector3(-.55,.05,0),new BABYLON.Vector3(0,0,0),new BABYLON.Vector3(.55,.05,0)],path:pp,
+      scaleFunction:(i)=>{const t=i/10;return Math.max(.08,Math.sin(Math.min(1,t*1.15)*Math.PI)*(1-t*.35))*sc;},rotationFunction:()=>0,sideOrientation:2},scene);
+    f.material=mtl;list.push(f);};
+  const nf=MOBILE?7:11;
+  for(let k=0;k<nf;k++)frond(k/nf*6.283+Math.random()*.3,(3.4+Math.random()*1.2)*sc,(1.6+Math.random()*1.4)*sc,(1+Math.random()*.6)*sc,leafM,leaves);
+  if(!MOBILE)for(let k=0;k<3;k++)frond(Math.random()*6.283,1.8*sc,2.6*sc,.1,deadM,dead); // 垂れ下がった枯れ葉
+  for(let k=0;k<4;k++){const n=BABYLON.MeshBuilder.CreateSphere('nut',{diameter:.36*sc,segments:6},scene);const a=k*1.57+Math.random();n.position.set(top.x+Math.cos(a)*.3*sc,top.y-.35*sc,top.z+Math.sin(a)*.3*sc);n.material=nutM;nuts.push(n);}
+  const parts=[bake([tr],trunkM),bake(leaves,leafM),bake(dead,deadM),bake(nuts,nutM)].filter(Boolean);
+  const root=new BABYLON.TransformNode('palm',scene);parts.forEach(m=>{m.parent=root;});
+  return {mesh:root,x,z,r:.7*sc,h:gy+H+1};
+}
+// 日干しレンガの廃墟: 崩れて高さがまちまちの壁(L字のことも)と足元の瓦礫
+function makeRuin(x,gy,z){
+  const root=new BABYLON.TransformNode('ruin',scene),parts=[],res=[],a0=Math.random()*6.283,H=2.4+Math.random()*1.6;
+  const wall=(ox,oz,a,len)=>{
+    const n=Math.round(len/.9);let hgt=H;
+    for(let k=0;k<n;k++){
+      hgt=Math.max(.3,Math.min(H,hgt+(Math.random()-.55)*1.1));if(Math.random()<.12)continue; // 崩れて抜けた部分
+      const px=ox+Math.cos(a)*(k+.5)*.9,pz=oz+Math.sin(a)*(k+.5)*.9,b=BABYLON.MeshBuilder.CreateBox('br',{width:.92,height:hgt,depth:.7},scene);
+      b.position.set(px,gh(x+px,z+pz)-gy+hgt/2-.2,pz);b.rotation.y=-a;parts.push(b);
+      if(k%2===0)res.push({x:x+px,z:z+pz,r:.9,h:gh(x+px,z+pz)+hgt});}
+  };
+  const len=5+Math.random()*5;wall(-Math.cos(a0)*len/2,-Math.sin(a0)*len/2,a0,len);
+  if(Math.random()<.55){const l2=3+Math.random()*4;wall(Math.cos(a0)*len/2,Math.sin(a0)*len/2,a0+Math.PI/2,l2);}
+  for(let k=0;k<(MOBILE?5:10);k++){ // 瓦礫
+    const b=BABYLON.MeshBuilder.CreateBox('rb',{width:.3+Math.random()*.4,height:.18+Math.random()*.15,depth:.2+Math.random()*.3},scene);
+    const d=(Math.random()-.5)*len,o=(Math.random()<.5?-1:1)*(.6+Math.random()*1.4),px=Math.cos(a0)*d-Math.sin(a0)*o,pz=Math.sin(a0)*d+Math.cos(a0)*o;
+    b.position.set(px,gh(x+px,z+pz)-gy+.05,pz);b.rotation.set(Math.random()*.4,Math.random()*6,Math.random()*.4);parts.push(b);}
+  parts.forEach(b=>{b.parent=root;});root.position.set(x,gy,z);root.computeWorldMatrix(true);
+  const g=bake(parts,brickM);g.setParent(null);root.dispose();
+  res.forEach((o,i)=>{o.mesh=i===0?g:null;});
+  return res;
+}
 function genObs(){
-  obs.forEach(o=>o.mesh.dispose());obs.length=0;
+  obs.forEach(o=>o.mesh&&o.mesh.dispose());obs.length=0;
   for(let i=0;i<(MOBILE?55:90);i++){
     let x,z;do{x=(Math.random()*2-1)*(B-8);z=(Math.random()*2-1)*(B-8);}while(Math.hypot(x,z)<18);
-    const gy=gh(x,z),q=Math.random(),sd=Math.random()*20;
-    if(q<.62){ // 砂岩の岩
-      const w=3+Math.random()*7,h=w*(.5+Math.random()*.4);
-      const m=BABYLON.MeshBuilder.CreateSphere('o',{diameter:1,segments:MOBILE?4:6,updatable:true},scene);jitterMesh(m,sd);
-      m.scaling.set(w,h,w*(.8+Math.random()*.4));m.position.set(x,gy+h*.22,z);m.rotation.y=Math.random()*6;
-      m.material=rockMats[i%4];sg.addShadowCaster(m);m.receiveShadows=true;m.freezeWorldMatrix();
-      obs.push({mesh:m,x,z,r:w*.45,h:gy+h*.7});
-    }else if(q<.82){ // 岩塔(メサ状)
-      const w=5+Math.random()*6,h=7+Math.random()*9;
-      const m=BABYLON.MeshBuilder.CreateCylinder('mesa',{diameter:1,height:1,tessellation:MOBILE?6:9,updatable:true},scene);jitterMesh(m,sd);
-      m.scaling.set(w,h,w);m.position.set(x,gy+h*.42,z);m.rotation.y=Math.random()*6;
-      m.material=rockMats[(i+1)%4];sg.addShadowCaster(m);m.receiveShadows=true;m.freezeWorldMatrix();
-      obs.push({mesh:m,x,z,r:w*.42,h:gy+h*.9});
-    }else{ // ヤシ
-      const sc=.9+Math.random()*.4,t=new BABYLON.TransformNode('palm',scene);t.position.set(x,gy,z);t.scaling.setAll(sc);
-      const tr=BABYLON.MeshBuilder.CreateCylinder('tk',{diameterTop:.3,diameterBottom:.5,height:6,tessellation:MOBILE?5:8},scene);tr.parent=t;tr.position.y=3;tr.material=trunkM;sg.addShadowCaster(tr);
-      for(let k=0;k<NF;k++){const pv=new BABYLON.TransformNode('pv',scene);pv.parent=t;pv.position.y=6;pv.rotation.y=k*Math.PI*2/NF;
-        const f=BABYLON.MeshBuilder.CreateBox('fr',{width:.5,height:.06,depth:3.4},scene);f.parent=pv;f.position.z=1.6;f.rotation.x=.45;f.material=palmM;sg.addShadowCaster(f);}
-      obs.push({mesh:t,x,z,r:.7*sc,h:gy+7*sc});
+    const gy=gh(x,z),q=Math.random(),sd=Math.random()*50,mt=rockMats[i%4];
+    if(q<.5){ // 岩の群れ(大岩+周りの小岩)
+      const w=3+Math.random()*6,h=w*(.55+Math.random()*.35),m=makeRock(sd),arr=[m];
+      m.scaling.set(w*.55,h*.6,w*.5*(.8+Math.random()*.4));m.position.set(x,gy+h*.17,z);m.rotation.y=Math.random()*6;
+      for(let k=0,n=1+(Math.random()*(MOBILE?2:4)|0);k<n;k++){const a=Math.random()*6.283,d=w*(.45+Math.random()*.35),s2=w*(.12+Math.random()*.18),r2=makeRock(sd+k*7+1,MOBILE?1:2);
+        const px=x+Math.cos(a)*d,pz=z+Math.sin(a)*d;r2.scaling.set(s2,s2*.75,s2);r2.position.set(px,gh(px,pz)+s2*.18,pz);r2.rotation.set(Math.random(),Math.random()*6,Math.random()*.5);arr.push(r2);}
+      obs.push({mesh:bake(arr,mt),x,z,r:w*.45,h:gy+h*.75});
+    }else if(q<.68){ // 岩山(ビュート)+裾の崩れ岩
+      const w=6+Math.random()*7,h=8+Math.random()*10,m=makeButte(sd),arr=[m];
+      m.scaling.set(w,h,w);m.position.set(x,gy+h*.47,z);m.rotation.y=Math.random()*6;
+      for(let k=0;k<(MOBILE?3:6);k++){const a=Math.random()*6.283,d=w*(.62+Math.random()*.25),s2=.6+Math.random()*1.4,r2=makeRock(sd+k*3+2,1);
+        const px=x+Math.cos(a)*d,pz=z+Math.sin(a)*d;r2.scaling.set(s2,s2*.8,s2);r2.position.set(px,gh(px,pz)+s2*.15,pz);r2.rotation.y=Math.random()*6;arr.push(r2);}
+      obs.push({mesh:bake(arr,mt),x,z,r:w*.55,h:gy+h*.95});
+    }else if(q<.84){ // ヤシ
+      obs.push(makePalm(x,gy,z));
+    }else{ // 廃墟
+      makeRuin(x,gy,z).forEach(o=>obs.push(o));
     }
   }
 }
+// 地面の飾り(当たり判定なし): 枯れ草と小石。インスタンスで軽く、起動時に一度だけ配置
+{const tw=texMat(T.twig);tw.useAlphaFromDiffuseTexture=true;tw.transparencyMode=1;tw.alphaCutOff=.35;tw.backFaceCulling=false;
+ const bush=BABYLON.MeshBuilder.CreatePlane('bush',{size:1.6,sideOrientation:2},scene),b2=bush.clone('b2');b2.rotation.y=Math.PI/2;
+ const bm=BABYLON.Mesh.MergeMeshes([bush,b2],true);bm.material=tw;bm.isVisible=false;bm.isPickable=false;
+ const pb=makeRock(3,1);pb.material=rockMats[1];pb.isVisible=false;pb.isPickable=false;
+ for(let i=0;i<(MOBILE?90:220);i++){const x=(Math.random()*2-1)*(B-4),z=(Math.random()*2-1)*(B-4);if(Math.hypot(x,z)<10)continue;
+  const s=.6+Math.random()*.9,b=bm.createInstance('bi');b.scaling.set(s,s*(.7+Math.random()*.5),s);b.position.set(x,gh(x,z)+.62*s,z);b.rotation.y=Math.random()*3;b.isPickable=false;b.freezeWorldMatrix();}
+ for(let i=0;i<(MOBILE?120:320);i++){const x=(Math.random()*2-1)*(B-4),z=(Math.random()*2-1)*(B-4);
+  const s=.12+Math.random()*.35,b=pb.createInstance('pi');b.scaling.set(s,s*.7,s*(.7+Math.random()*.6));b.position.set(x,gh(x,z)+s*.12,z);b.rotation.y=Math.random()*6;b.isPickable=false;b.freezeWorldMatrix();}}
 // 外周の壁
 [[0,B],[0,-B],[B,0],[-B,0]].forEach(([x,z])=>{
   const w=BABYLON.MeshBuilder.CreateBox('w',{width:x?1:B*2,height:14,depth:z?1:B*2},scene);
@@ -266,7 +442,7 @@ function mergeParts(node){
   node.computeWorldMatrix(true);
   const groups=new Map();
   node.getChildMeshes(true).filter(m=>m.getClassName()==='Mesh').forEach(m=>{m.computeWorldMatrix(true);if(!groups.has(m.material))groups.set(m.material,[]);groups.get(m.material).push(m);});
-  groups.forEach(arr=>{const g=ground.constructor.MergeMeshes(arr,true,false);if(g){g.setParent(node);sg.addShadowCaster(g);}});
+  groups.forEach(arr=>{const g=ground.constructor.MergeMeshes(arr,true,false);if(g){g.setParent(node);g.metadata={occ:1};sg.addShadowCaster(g);}});
 }
 // レオパルト2A7風:楔形砲塔+前面モジュール、7枚転輪、サイドスカート、滑腔砲(m=[緑,茶,黒]の迷彩)
 function makeTank(m){
@@ -358,7 +534,7 @@ function spawnEnemies(n){
   }
 }
 function reset(){
-  enemies.forEach(e=>e.root.dispose());bullets.forEach(b=>b.mesh.dispose());
+  enemies.forEach(e=>e.root.dispose());bullets.forEach(killShell);
   debris.forEach(d=>d.m.dispose());debris.length=0;shake=0;
   if(player)player.root.dispose();
   enemies=[];bullets=[];score=0;wave=1;over=false;camYaw=0;aimPitch=.08;view.pitch=.45;
@@ -392,10 +568,14 @@ function reloadHud(){ // 装填メーター(FIREボタンの上)
 function muzzle(t,a,p){const c=Math.cos(p),h=1.5+4.6*c;return {x:t.root.position.x+Math.sin(a)*h,y:t.root.position.y+1.73+Math.sin(p)*4.6,z:t.root.position.z+Math.cos(a)*h};}
 function fire(t,owner,spread=0){
   const a=t.aim+spread,p=owner==='p'?aimPitch:0;
-  const m=BABYLON.MeshBuilder.CreateSphere('bl',{diameter:.6,segments:8},scene);m.material=matBul;
-  const o=muzzle(t,a,p);m.position.set(o.x,o.y,o.z);
-  if(owner==='p'){const c=Math.cos(p);bullets.push({mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:LEO.dmg});}
-  else bullets.push({mesh:m,vx:Math.sin(a)*35,vy:0,vz:Math.cos(a)*35,g:0,life:2.2,owner});
+  const o=muzzle(t,a,p),m=makeShell(owner);m.position.set(o.x,o.y,o.z);
+  let b;
+  if(owner==='p'){const c=Math.cos(p);b={mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:LEO.dmg};}
+  else b={mesh:m,vx:Math.sin(a)*35,vy:0,vz:Math.cos(a)*35,g:0,life:2.2,owner};
+  aimShell(b);m.computeWorldMatrix(true);
+  b.trail=new BABYLON.TrailMesh('trail',m.metadata.tail,scene,{diameter:owner==='p'?.14:.12,length:MOBILE?14:26,segments:MOBILE?14:26,autoStart:true});
+  b.trail.material=owner==='p'?trailMatP:trailMatE;b.trail.isPickable=false;glow.addIncludedOnlyMesh(b.trail);
+  bullets.push(b);
   flash(o.x,o.y,o.z,.8);
   t.rc=0; // 反動開始
   const P=owner==='p';
@@ -403,11 +583,39 @@ function fire(t,owner,spread=0){
   burst(o.x,gh(o.x,o.z)+.2,o.z,{n:P?14:6,hemi:1,r:1.2,c1:[.82,.7,.52,.55],cd:[.82,.72,.56,0],s:[1,2],grow:2.5,l:[.6,1.2],p:[2,5],g:-1}); // 爆風で舞う砂
   if(P)addShake(.55);else addShake(.15,o.x,o.z);
 }
+// ===== 砲弾 =====
+// 120mm APFSDS(翼安定徹甲弾)風: 細長い侵徹体+尾翼。後端の曳光剤が光り、光の尾(トレイル)を引く
+const shellBodyM=mat(.25,.25,.27);shellBodyM.specularColor=new BABYLON.Color3(.6,.6,.6);shellBodyM.specularPower=48;
+const glowMat=(r,g,b,a)=>{const m=new BABYLON.StandardMaterial('gm',scene);m.disableLighting=true;m.emissiveColor=new BABYLON.Color3(r,g,b);m.diffuseColor=BABYLON.Color3.Black();if(a!==undefined){m.alpha=a;m.backFaceCulling=false;}return m;};
+const tracerP=glowMat(1,.82,.45),tracerE=glowMat(1,.38,.16),trailMatP=glowMat(1,.62,.25,.4),trailMatE=glowMat(1,.3,.12,.4);
+const shellProto=(()=>{ // 弾体の原型(+Z方向が前)。発射ごとにインスタンスを作る
+  const rod=BABYLON.MeshBuilder.CreateCylinder('rod',{diameter:.09,height:1.5,tessellation:8},scene);rod.rotation.x=Math.PI/2;
+  const tip=BABYLON.MeshBuilder.CreateCylinder('tip',{diameterTop:0,diameterBottom:.09,height:.22,tessellation:8},scene);tip.rotation.x=Math.PI/2;tip.position.z=.86;
+  const fins=[0,1,2,3].map(k=>{const f=BABYLON.MeshBuilder.CreateBox('fin',{width:.015,height:.26,depth:.3},scene);f.rotation.z=k*Math.PI/4*2+Math.PI/4;f.position.z=-.62;return f;});
+  const body=BABYLON.Mesh.MergeMeshes([rod,tip,...fins],true);body.material=shellBodyM;body.isVisible=false;body.isPickable=false;
+  return {body};})();
+function makeShell(owner){
+  const n=new BABYLON.TransformNode('shell',scene),b=shellProto.body.createInstance('sb');b.parent=n;b.isPickable=false;
+  const c=BABYLON.MeshBuilder.CreateCapsule('trc',{radius:.1,height:.75,orientation:new BABYLON.Vector3(0,0,1),tessellation:8},scene); // 曳光(発光)
+  c.parent=n;c.position.z=-.95;c.material=owner==='p'?tracerP:tracerE;c.isPickable=false;glow.addIncludedOnlyMesh(c);
+  const tail=new BABYLON.TransformNode('tail',scene);tail.parent=n;tail.position.z=-1.2;
+  n.metadata={tail};return n;
+}
+function aimShell(b){b.mesh.rotation.y=Math.atan2(b.vx,b.vz);b.mesh.rotation.x=-Math.atan2(b.vy,Math.hypot(b.vx,b.vz));} // 弾体を進行方向へ向ける
+const trailFades=[]; // 着弾後に光の尾をその場に残してフェードさせる
+function killShell(b){
+  if(b.trail){b.trail.stop();const m=b.trail.material.clone('tf');b.trail.material=m;trailFades.push({t:b.trail,m,a:m.alpha});}
+  b.mesh.dispose();
+}
+// 閃光で周囲を一瞬照らす点光源(PCのみ。1灯を使い回す)
+const fLight=MOBILE?null:new BABYLON.PointLight('fl',new BABYLON.Vector3(0,-50,0),scene);
+if(fLight){fLight.diffuse=new BABYLON.Color3(1,.7,.35);fLight.specular=new BABYLON.Color3(.3,.2,.1);fLight.intensity=0;}
 const flashMat=new BABYLON.StandardMaterial('fm',scene);flashMat.emissiveColor=new BABYLON.Color3(1,.6,.1);flashMat.disableLighting=true;
 function flash(x,y,z,s){
   const m=BABYLON.MeshBuilder.CreateSphere('f',{diameter:s*2,segments:8},scene);m.position.set(x,y,z);
   m.material=flashMat;
   flashes.push({m,t:0,s});
+  if(fLight&&s*2>=fLight.intensity){fLight.position.set(x,y+1,z);fLight.intensity=s*2;fLight.range=8+s*10;}
 }
 // ===== 演出(パーティクル・破片・画面揺れ・反動) =====
 const FXN=MOBILE?.5:1; // スマホは粒子数を半分に
@@ -424,7 +632,8 @@ function burst(x,y,z,o){ // 使い捨てパーティクル(n個を一度に放�
   ps.gravity=new BABYLON.Vector3(0,o.g||0,0);
   ps.blendMode=o.add?BABYLON.ParticleSystem.BLENDMODE_ADD:BABYLON.ParticleSystem.BLENDMODE_STANDARD;
   if(o.rate)ps.emitRate=o.rate*FXN;else ps.manualEmitCount=n;
-  ps.targetStopDuration=o.dur||.5; // 一括放出は初回フレームで済むので、停止までは余裕を持たせるps.disposeOnStop=true;
+  ps.targetStopDuration=o.dur||.5; // 一括放出は初回フレームで済むので、停止までは余裕を持たせる
+  ps.disposeOnStop=true;
   ps.onAnimationEnd=()=>{ps.particleTexture=null;}; // 共有テクスチャ(T.puff)まで破棄されないよう外してから自動破棄させる
   ps.start();
 }
@@ -551,7 +760,7 @@ scene.onBeforeRenderObservable.add(()=>{
   }
   // 弾
   for(let i=bullets.length-1;i>=0;i--){
-    const b=bullets[i];b.vy-=b.g*dt;b.mesh.position.x+=b.vx*dt;b.mesh.position.y+=b.vy*dt;b.mesh.position.z+=b.vz*dt;b.life-=dt;
+    const b=bullets[i];b.vy-=b.g*dt;b.mesh.position.x+=b.vx*dt;b.mesh.position.y+=b.vy*dt;b.mesh.position.z+=b.vz*dt;b.life-=dt;aimShell(b);
     // fx: 着弾演出の種類(null=寿命切れで消えるだけ / 'g'=地面 / 'r'=障害物・壁 / 't'=戦車 / 'k'=撃破)
     let hit=b.life<=0,fx=null;const bx=b.mesh.position.x,by=b.mesh.position.y,bz=b.mesh.position.z;
     if(by<=gh(bx,bz)){hit=true;fx='g';}
@@ -578,9 +787,11 @@ scene.onBeforeRenderObservable.add(()=>{
     }
     if(hit){
       if(fx==='t')fxTank(bx,by,bz,false);else if(fx==='g'||fx==='r')fxGround(bx,by,bz,fx==='r');
-      b.mesh.dispose();bullets.splice(i,1);hud();
+      killShell(b);bullets.splice(i,1);hud();
     }
   }
+  if(fLight&&fLight.intensity>0)fLight.intensity=Math.max(0,fLight.intensity-dt*14);
+  for(let i=trailFades.length-1;i>=0;i--){const f=trailFades[i];f.m.alpha-=dt*1.6*f.a;if(f.m.alpha<=0){f.t.dispose();f.m.dispose();trailFades.splice(i,1);}}
   // 破片
   for(let i=debris.length-1;i>=0;i--){
     const d=debris[i],p=d.m.position;d.life-=dt;d.vy-=22*dt;
@@ -608,7 +819,11 @@ scene.onBeforeRenderObservable.add(()=>{
      shake=Math.max(0,shake-dt*2.2);
    }
    cam.setTarget(tg);}
-  sun.position.set(pp.x+60,pp.y+120,pp.z+48);
+  sun.position.set(pp.x+SUN.x*140,pp.y+SUN.y*140,pp.z+SUN.z*140);
+  // 空: 雲を流し、山並みとフレアの基準点をカメラに追従させる
+  skyT+=dt;skyMat.setFloat('time',skyT);
+  farMt.position.set(cam.position.x,cam.position.y+5,cam.position.z);
+  if(flareSrc)flareSrc.position.set(cam.position.x+SUN.x*800,cam.position.y+SUN.y*800,cam.position.z+SUN.z*800);
 });
 
 document.getElementById('restart').onclick=reset;
