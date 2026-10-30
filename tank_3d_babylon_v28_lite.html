@@ -121,7 +121,9 @@ body.sel #snd{top:auto;bottom:12px}
 <script>
 // 起動エラーを画面に表示(コンソールが無効化されているため)
 const showErr=m=>{const d=document.createElement('div');d.style.cssText='position:fixed;left:8px;right:8px;top:90px;z-index:200;background:rgba(0,0,0,.8);color:#ff8;font:12px monospace;padding:8px;white-space:pre-wrap';d.textContent='ERROR: '+m;document.body.appendChild(d);};
-addEventListener('error',e=>{if(!e.error&&!e.lineno&&/^Script error\.?$/.test(e.message||''))return;showErr(e.message+' @'+e.lineno);}); // 詳細のない外部スクリプト(ブラウザ拡張など)のエラーは表示しないaddEventListener('unhandledrejection',e=>showErr(String(e.reason&&e.reason.stack||e.reason)));
+// 詳細のない外部スクリプト(ブラウザ拡張など)のエラーは表示しない
+addEventListener('error',e=>{if(!e.error&&!e.lineno&&/^Script error\.?$/.test(e.message||''))return;showErr(e.message+' @'+e.lineno);});
+addEventListener('unhandledrejection',e=>showErr(String(e.reason&&e.reason.stack||e.reason)));
 const MOBILE=matchMedia('(pointer:coarse)').matches;
 const setLoad=(p,t)=>{document.getElementById('ldfill').style.width=Math.round(p*100)+'%';document.getElementById('ldtx').textContent=t+'  '+Math.round(p*100)+'%';};
 const tick=(p,t)=>{setLoad(p,t);return new Promise(r=>setTimeout(r,30));};
@@ -1005,7 +1007,8 @@ function fxGround(x,y,z,rock){
 function seat(t){ // 地形に合わせて高さと傾きを決める
   const p=t.root.position,h=t.root.rotation.y,fx=Math.sin(h),fz=Math.cos(h),rx=Math.cos(h),rz=-Math.sin(h);
   const hf=gh(p.x+fx*2.6,p.z+fz*2.6),hb=gh(p.x-fx*2.6,p.z-fz*2.6),hr=gh(p.x+rx*1.5,p.z+rz*1.5),hl=gh(p.x-rx*1.5,p.z-rz*1.5);
-  p.y=(hf+hb+hr+hl)/4+.03; // 履帯の底が地面と同じ高さでちらつかないよう、わずかに浮かせるt.root.rotation.x=-Math.atan2(hf-hb,5.2);t.root.rotation.z=Math.atan2(hr-hl,3);
+  // 高さは4点の平均(+0.03: 履帯の底が地面と同じ高さでちらつかないよう、わずかに浮かせる)。傾きは毎フレーム地形から決め直す
+  p.y=(hf+hb+hr+hl)/4+.03;t.root.rotation.x=-Math.atan2(hf-hb,5.2);t.root.rotation.z=Math.atan2(hr-hl,3);
 }
 // 障害物の格子索引: 12unit四方のマスごとに、近く(余白3)にある障害物を並べておく
 const OG=new Map(),OCELL=12,NOOBS=[];
