@@ -182,8 +182,9 @@ def leo(k):
         for i in range(7): k.box('hull', 'steel', .55, .03, .07, sd * .85, 1.48, -1.3 - i * .18, bev=.008)
         k.box('hull', 'glass', .22, .12, .05, sd * 1.25, 1.22, 3.0, bev=.01); k.box('hull', 'steel', .3, .2, .04, sd * 1.25, 1.22, 3.04, bev=.008)
         k.box('hull', 'steel', .16, .16, .22, sd * .6, .62, 2.86, bev=.02)
-        k.box('hull', 'white', .55, .38, .04, sd * 1.18, 1.0, 2.99, pitch=-.45, bev=.008)
-        for dx in (-.18, 0, .18): k.box('hull', 'red', .09, .38, .05, sd * 1.18 + dx, 1.0, 3.0, pitch=-.45, bev=.004)
+        # 赤白の警戒板: フェンダー前端の下に垂直に下げる(斜めの赤帯は板の内側に収める)
+        k.box('hull', 'white', .5, .3, .04, sd * 1.2, .93, 2.97, bev=.006)
+        for dx in (-.14, 0, .14): k.box('hull', 'red', .06, .26, .02, sd * 1.2 + dx, .93, 2.995, roll=.55, bev=0)
         k.box('hull', 'paint', .5, .32, .28, sd * .95, 1.2, -3.06)
         k.box('hull', 'rubber', .5, .4, .03, sd * 1.2, .55, -3.1, bev=.005)
         skirts(k, sd, 1.51, .86, .62, -2.9, 2.75, 8, 3)
@@ -482,12 +483,12 @@ def build(tid):
     for o in paint_objs: o.data.materials.append(pm); o.select_set(True)
     bpy.context.view_layer.objects.active = paint_objs[0]
     bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=.006, scale_to_bounds=False)
-    bpy.ops.uv.pack_islands(margin=.004)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=.012, scale_to_bounds=False)
+    bpy.ops.uv.pack_islands(margin=.012)  # 部品同士の間隔を広めに(縮小表示で隣の色がにじまないように)
     bpy.ops.object.mode_set(mode='OBJECT')
     # 焼き込みは組み上がった姿勢で(砲塔・砲の位置に置いた状態の結合済みメッシュなので AO も正しく入る)
-    sc.render.bake.margin = 6
-    bpy.ops.object.bake(type='EMIT', margin=6)
+    sc.render.bake.margin = 16
+    bpy.ops.object.bake(type='EMIT', margin=16)  # 島の外側まで色を広げ、継ぎ目に黒い背景が出ないように
     img.filepath_raw = os.path.join(OUT, f'{tid}_paint.png'); img.file_format = 'PNG'; img.save()  # JPEG化は pack_assets.py で行う
     # 書き出し
     buf = bytearray(); out = dict(parts=[], protos={}, wheels=[], tracks=[], tur=info['tur'], gun=info['gun'], len=info['len'])
