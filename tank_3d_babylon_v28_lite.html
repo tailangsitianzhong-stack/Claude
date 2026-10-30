@@ -12,6 +12,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:#222;font-family:sans-
 #hp{width:140px;height:12px;background:#400;border:1px solid #fff;margin-top:4px}
 #hpb{height:100%;background:#4f4;width:100%}
 #over{position:fixed;inset:0;background:rgba(0,0,0,.7);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;font-size:28px;gap:16px}
+#over .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}#over #toSel{background:#456}
+body.sel #hud,body.sel .stick,body.sel #fire,body.sel #zoom,body.sel #reload,body.sel #rt,body.sel #tgt{display:none!important}
+#sel{position:fixed;inset:0;z-index:50;display:none;pointer-events:none;color:#fff;font-family:sans-serif}
+body.sel #sel{display:block}
+#sel h2{position:absolute;top:10px;left:0;right:0;margin:0;text-align:center;font-size:20px;letter-spacing:.35em;text-shadow:0 2px 6px #000}
+#sel .arw{position:absolute;top:42%;width:54px;height:54px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.35);color:#fff;font-size:26px;pointer-events:auto;padding:0}
+#selL{left:12px}#selR{right:12px}
+#selP{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(560px,94vw);box-sizing:border-box;padding:14px 16px;border-radius:14px;background:rgba(14,18,14,.72);border:1px solid rgba(255,255,255,.25);pointer-events:auto;backdrop-filter:blur(4px)}
+#selP .nm{font-size:24px;font-weight:bold;letter-spacing:.05em}#selP .nt{font-size:13px;opacity:.8;margin-left:8px}
+#selP .sp{font-size:12px;opacity:.85;margin:4px 0 8px}
+#selP .bars{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:12px}
+#selP .bar{height:8px;border-radius:4px;background:rgba(255,255,255,.15);overflow:hidden}#selP .bar i{display:block;height:100%;background:linear-gradient(90deg,#7fbf5a,#d8e86a)}
+#selP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}
+#selP .dots{text-align:center;margin-bottom:8px;letter-spacing:.4em}
+#go{display:block;width:100%;font-size:20px;letter-spacing:.3em;padding:10px;border-radius:999px;border:2px solid #fff;background:rgba(150,50,40,.9);color:#fff}
+@media (min-aspect-ratio:13/10){#selP{left:auto;right:12px;top:48px;bottom:auto;transform:none;width:min(400px,46vw);max-height:calc(100vh - 60px);overflow:auto}#selR{right:calc(min(400px,46vw) + 24px)}}
 button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4a8;color:#fff}
 .stick{position:fixed;bottom:24px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4)}
 .knob{position:absolute;left:40px;top:40px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.6)}
@@ -28,6 +44,9 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
 #reload{position:fixed;right:34px;bottom:146px;width:88px;text-align:center;color:#fff;font:bold 12px sans-serif;text-shadow:0 1px 3px #000;pointer-events:none}
 #rlbar{height:9px;border:1px solid #fff;border-radius:5px;background:rgba(0,0,0,.45);overflow:hidden;margin-top:2px}
 #rlfill{display:block;height:100%;width:100%;background:#4f4}
+#mflash{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 60%,rgba(255,236,190,.9),rgba(255,200,120,.25) 60%,rgba(255,180,90,0))}
+#snd{position:fixed;top:44px;left:8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(0,0,0,.35);color:#fff;font-size:17px;padding:0;z-index:4}
+body.sel #snd{top:auto;bottom:12px}
 #dmg{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,0,0,0) 45%,rgba(200,0,0,.55) 100%);transition:opacity .5s}
 </style>
 <style>
@@ -46,7 +65,7 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
 </style></head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><div>WAVE <span id="wave">1</span> / SCORE <span id="score">0</span></div><div>レオパルト2 HP<div id="hp"><div id="hpb"></div></div></div></div>
+<div id="hud"><div>WAVE <span id="wave">1</span> / SCORE <span id="score">0</span></div><div><span id="hpname">レオパルト2A7</span> HP<div id="hp"><div id="hpb"></div></div></div></div>
 <div class="stick" id="sl"><div class="knob"></div></div>
 <div id="reload"><div id="rltx">装填完了</div><div id="rlbar"><i id="rlfill"></i></div></div>
 <div id="fire">FIRE</div>
@@ -56,12 +75,15 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
  <path d="M-9 9 L0 0 L9 9"/><path d="M-62 0 H-16 M16 0 H62"/>
  <path d="M-50 0 V6 M-38 0 V4 M-26 0 V6 M26 0 V6 M38 0 V4 M50 0 V6" stroke-width="1.5"/>
  <path d="M0 14 V24" stroke-width="1.5"/><circle cx="0" cy="0" r="1.6" fill="currentColor" stroke="none"/></svg><div id="rtx"></div></div>
-<div id="dmg"></div>
-<div id="over"><div id="msg">GAME OVER</div><button id="restart">もう一度</button></div>
+<div id="dmg"></div><div id="mflash"></div><button id="snd">🔊</button>
+<div id="over"><div id="msg">GAME OVER</div><div class="row"><button id="restart">もう一度</button><button id="toSel">戦車選択</button></div></div>
+<div id="sel"><h2>戦車選択</h2><button class="arw" id="selL">◀</button><button class="arw" id="selR">▶</button>
+<div id="selP"><div class="dots" id="selD"></div><div><span class="nm" id="selN"></span><span class="nt" id="selC"></span></div><div class="sp" id="selS"></div>
+<div class="bars" id="selB"></div><div class="ft" id="selF"></div><button id="go">出撃</button></div></div>
 <div id="title">
 <svg viewBox="0 0 400 200" preserveAspectRatio="none"><path d="M0 70 Q80 20 160 60 T400 40 V200 H0Z" fill="#a67c45"/><path d="M0 120 Q120 70 240 110 T400 90 V200 H0Z" fill="#8a6638"/>
 <g fill="#2b3322" transform="translate(250 78)"><rect x="0" y="22" width="86" height="10" rx="4"/><rect x="8" y="12" width="52" height="12"/><polygon points="52,12 60,6 66,6 66,12"/><rect x="58" y="8" width="62" height="3"/><rect x="2" y="30" width="82" height="6" rx="3" fill="#161a12"/></g></svg>
-<h1>TANK 3D</h1><div class="sub">中東の岩石砂漠</div><div class="veh">搭乗車両:レオパルト2</div>
+<h1>TANK 3D</h1><div class="sub">中東の岩石砂漠</div><div class="veh">4車種から選んで出撃</div>
 <button id="startBtn">START</button>
 <div id="ld"><div id="ldbar"><i id="ldfill"></i></div><div id="ldtx">読み込み中…</div></div>
 <div class="dev">DOM Games</div>
@@ -168,6 +190,9 @@ function texMat(d,n,c){const m=new BABYLON.StandardMaterial('tm',scene);m.diffus
    const k=.9+(g[i]-.5)*.2+(ws[i]>.75?(ws[i]-.75)*.7*w:0);return [c[0]*k,c[1]*k,c[2]*k];}),1,1,4);}
  T.camoP=[1,2,3].map(s=>camo([.1,.105,.09],[.25,.29,.18],[.37,.29,.18],s*13,1)); // NATO3色迷彩(黒・緑・茶)
  T.camoE=[1,2,3].map(s=>camo([.2,.15,.13],[.62,.36,.26],[.85,.68,.45],s*17,1));
+ T.camoMk=[1,2,3].map(s=>camo([.39,.39,.32],[.44,.44,.36],[.41,.42,.34],s*19,1));   // メルカバ: シナイグレー(単色+汚れ)
+ T.camoT10=[1,2,3].map(s=>camo([.19,.23,.14],[.27,.31,.19],[.37,.29,.19],s*23,1));  // 10式: 陸自の2色迷彩(濃緑・茶)
+ T.camoAb=[1,2,3].map(s=>camo([.58,.48,.34],[.66,.56,.4],[.62,.52,.37],s*29,1));    // M1A2: デザートタン
  await tick(.55,'テクスチャを生成中(金属・植物)');
  // 汚れた金属・ゴム
  {const N=256,a=vnoise(N,64,31),b=vnoise(N,16,32),c=vnoise(N,128,33);T.metal=mk(paint(N,i=>{const v=.82+(a[i]-.5)*.2+(b[i]-.5)*.22+(c[i]-.5)*.1;return [v,v,v*.97];}),3,3,4);}
@@ -468,7 +493,7 @@ function tankMats(camo){
     glass:surf({col:new BABYLON.Color3(.02,.03,.04),rough:.06,metal:.2}),                     // 照準器の窓
     white:surf({col:new BABYLON.Color3(.85,.85,.82),rough:.6}),red:surf({col:new BABYLON.Color3(.7,.08,.06),rough:.6})};
 }
-const matP=tankMats(T.camoP),matE=tankMats(T.camoE);
+const MATS={leo:tankMats(T.camoP),mk4:tankMats(T.camoMk),t10:tankMats(T.camoT10),ab:tankMats(T.camoAb)},matP=MATS.leo,matE=tankMats(T.camoE);
 // ===== 形状の道具 =====
 function pbox(p,w,h,d,x,y,z,m,ry=0,rx=0,rz=0){
   const b=BABYLON.MeshBuilder.CreateBox('p',{width:w,height:h,depth:d},scene);
@@ -507,75 +532,176 @@ function mergeParts(node){
   groups.forEach(arr=>{const g=BABYLON.Mesh.MergeMeshes(arr,true,true);if(g){g.setParent(node);g.metadata={occ:1};sg.addShadowCaster(g);g.receiveShadows=true;}});
 }
 // 転輪・起動輪・誘導輪の原型(インスタンスで共有。分割数が少なめなので回転が見て取れる)
-const wheelProto=(()=>{const mk1=(d,h,t,mt)=>{const c=BABYLON.MeshBuilder.CreateCylinder('wp',{diameter:d,height:h,tessellation:t},scene);c.rotation.z=Math.PI/2;c.bakeCurrentTransformIntoVertices();c.material=mt;c.isVisible=false;c.isPickable=false;c.position.y=-50;return c;};
-  return {road:mk1(.66,.46,MOBILE?10:16,matP.rubber),hubP:mk1(.42,.5,8,matP.c[0]),hubE:mk1(.42,.5,8,matE.c[0]),sprocket:mk1(.66,.5,11,matP.steel),idler:mk1(.56,.46,12,matP.steel),roller:mk1(.2,.3,8,matP.rubber)};})();
-// 砲の取り付け位置(砲塔ローカル)と砲身長。砲口位置の計算・反動でも使う
-const GUN={y:.47,z:1.05,len:5.2},TUR={y:1.45,z:.1};
-// ===== レオパルト2A7 =====
-// 楔形増加装甲の砲塔+長いバスル、リブ付き側面装甲、厚い前部スカート、7転輪、L55滑腔砲、EMES/PERI照準器、遠隔銃塔
-function makeTank(M){
-  const root=new BABYLON.TransformNode('t',scene),C=M.c,wheels=[];
-  // 履帯は左右で素材を分け、テクスチャのスクロールで回転を表現
-  const tracks=[-1,1].map(()=>{const t=T.tread.clone();return surf({tex:t,rough:.75,metal:.3});});
-  // --- 車体 ---
-  prism(root,[[-2.85,.45],[2.55,.45],[3.0,1.12],[-2.95,1.12]],-.92,.92,'x',C[0]);                         // 下部車体(下部傾斜装甲)
-  prism(root,[[-2.98,1.1],[2.9,1.1],[3.02,1.2],[2.15,1.45],[-2.98,1.45]],-1.5,1.5,'x',C[1]);             // 上部車体+フェンダー(長い上部傾斜面)
-  pbox(root,2.6,.04,.9,0,1.47,-2.3,M.steel);                                                               // 機関室グリル
-  [-1,1].forEach(sd=>{for(let k=0;k<6;k++)pbox(root,.5,.03,.08,sd*.9,1.48,-1.35-k*.2,M.steel);});         // 吸気ルーバー
-  pbox(root,.5,.05,.18,-.5,1.47,2.0,M.glass);                                                              // 操縦手ペリスコープ
-  pbox(root,.7,.06,.5,-.5,1.46,1.6,C[2]);                                                                  // 操縦手ハッチ
+const mkWheel=(d,h,t,mt)=>{const c=BABYLON.MeshBuilder.CreateCylinder('wp',{diameter:d,height:h,tessellation:t},scene);c.rotation.z=Math.PI/2;c.bakeCurrentTransformIntoVertices();c.material=mt;c.isVisible=false;c.isPickable=false;c.position.y=-50;return c;};
+const wheelProto={road:mkWheel(.66,.46,MOBILE?10:16,matP.rubber),sprocket:mkWheel(.66,.5,11,matP.steel),idler:mkWheel(.56,.46,12,matP.steel),roller:mkWheel(.2,.3,8,matP.rubber)};
+const hubProto=M=>M._hub||(M._hub=mkWheel(.42,.5,8,M.c[0])); // 転輪のハブは車体と同じ塗装
+// 走行装置(片側): 転輪・ハブ・起動輪・誘導輪・上部転輪と、それを巻く履帯
+// g={x:中心のx, n:転輪数, z0:先頭転輪z, dz:間隔, rd:転輪直径, drv:[z,y]起動輪, idl:[z,y]誘導輪, top:上部履帯の高さ, rol:上部転輪z[]}
+function gear(ctx,sd,g){
+  const {root,M,wheels}=ctx,x=sd*g.x,tm=ctx.tracks[sd>0?1:0],k=g.rd/.66;
+  const wi=(proto,z,y,r,sc)=>{const w=proto.createInstance('w');w.parent=root;w.position.set(x,y,z);if(sc)w.scaling.set(1,sc,sc);wheels.push({m:w,side:sd,r});return w;};
+  const yw=g.rd/2+.03;let zf=-1e9,zb=1e9;
+  for(let i=0;i<g.n;i++){const z=g.z0-i*g.dz;zf=Math.max(zf,z);zb=Math.min(zb,z);wi(wheelProto.road,z,yw,g.rd/2,k);wi(hubProto(M),z,yw,g.rd/2,k);}
+  const [dz_,dy]=g.drv,[iz,iy]=g.idl,front=Math.max(dz_,iz),back=Math.min(dz_,iz),fy=front===iz?iy:dy,by=front===iz?dy:iy;
+  wi(wheelProto.sprocket,dz_,dy,.33);wi(wheelProto.idler,iz,iy,.28);
+  if(!MOBILE)(g.rol||[]).forEach(z=>wi(wheelProto.roller,z,g.top-.06,.1));
+  const w=.56;
+  pbox(root,w,.1,zf-zb+.6,x,.05,(zf+zb)/2,tm);                                  // 接地面
+  seg(root,w,.09,zf+.3,.05,front+.32,fy,x,tm);seg(root,w,.09,front+.32,fy,front,g.top,x,tm); // 前側の巻き上がり
+  seg(root,w,.09,zb-.3,.05,back-.34,by,x,tm);seg(root,w,.09,back-.34,by,back,g.top,x,tm);    // 後側
+  pbox(root,w,.08,front-back,x,g.top,(front+back)/2,tm);                           // 上部
+}
+function skirts(ctx,sd,o){ // サイドスカート o={x,y,h,z0,z1,n,heavy:前から何枚が厚い増加装甲か}
+  const {root,C}=ctx,len=(o.z1-o.z0)/o.n;
+  for(let k=0;k<o.n;k++){const hv=k>=o.n-(o.heavy||0),z=o.z0+(k+.5)*len;pbox(root,hv?.2:.07,o.h+(hv?.12:0),len-.03,sd*(o.x+(hv?.05:0)),o.y-(hv?.04:0),z,C[(k+(sd>0?1:0))%3]);}
+}
+const smoke=(p,sd,x,y,z,n,M,rows)=>{for(let r=0;r<(rows||1);r++)for(let k=0;k<n;k++){const t=pcyl(p,.09,.3,sd*x,y+r*.12,z+k*.12,M.steel,0);t.rotation.set(-.6,0,sd*-.9);}}; // 発煙弾発射機
+// ===== 車種ごとの形 =====
+// どれも +Z が前。返り値の gun/tur は砲の付け根位置(砲塔ローカル)と砲身長・砲塔位置で、砲口計算と反動に使う
+const BUILD={
+// --- レオパルト2A7(ドイツ): 楔形増加装甲の砲塔+長いバスル、リブ付き側面装甲、7転輪、L55 ---
+leo(ctx){
+  const {root,M,C}=ctx,GUN={y:.47,z:1.05,len:5.2},TUR={y:1.45,z:.1};
+  prism(root,[[-2.85,.45],[2.55,.45],[3.0,1.12],[-2.95,1.12]],-.92,.92,'x',C[0]);
+  prism(root,[[-2.98,1.1],[2.9,1.1],[3.02,1.2],[2.15,1.45],[-2.98,1.45]],-1.5,1.5,'x',C[1]);
+  pbox(root,2.6,.04,.9,0,1.47,-2.3,M.steel);
+  [-1,1].forEach(sd=>{for(let k=0;k<6;k++)pbox(root,.5,.03,.08,sd*.9,1.48,-1.35-k*.2,M.steel);});
+  pbox(root,.5,.05,.18,-.5,1.47,2.0,M.glass);pbox(root,.7,.06,.5,-.5,1.46,1.6,C[2]);
   [-1,1].forEach(sd=>{
-    pbox(root,.2,.12,.06,sd*1.25,1.22,3.0,M.glass);                                                      // 前照灯
-    pbox(root,.16,.16,.22,sd*.6,.62,2.86,M.steel);                                                       // 牽引フック
-    pbox(root,.55,.38,.04,sd*1.18,1.0,2.99,M.white,0,.45);[-.18,0,.18].forEach(dx=>pbox(root,.09,.38,.05,sd*1.18+dx,1.0,3.0,M.red,0,.45)); // 赤白警戒板
-    pbox(root,.5,.3,.25,sd*.95,1.2,-3.05,C[2]);                                                          // 後部の収納箱
-    // サイドスカート: 前3枚は厚い増加装甲、後ろは薄板
-    for(let k=0;k<8;k++){const heavy=k>=5,z=-2.55+k*.7+(heavy?.05:0);pbox(root,heavy?.2:.07,heavy?.75:.62,.68,sd*(heavy?1.56:1.51),heavy?.82:.86,z,C[(k+(sd>0?1:0))%3]);}
-    // 走行装置
-    const x=sd*1.2,tm=tracks[sd>0?1:0];
-    pbox(root,.56,.1,5.0,x,.05,0,tm);seg(root,.56,.09,2.5,.05,3.0,.48,x,tm);seg(root,.56,.09,3.0,.48,2.65,.82,x,tm);
-    seg(root,.56,.09,-2.5,.05,-3.05,.55,x,tm);seg(root,.56,.09,-3.05,.55,-2.7,.9,x,tm);pbox(root,.56,.08,5.35,x,.9,-.03,tm);
-    const wi=(proto,z,y,kind)=>{const w=proto.createInstance('w');w.parent=root;w.position.set(x,y,z);wheels.push({m:w,side:sd,r:kind});return w;};
-    for(let k=0;k<7;k++){const z=-1.95+k*.65;wi(wheelProto.road,z,.36,.33);const h=(M===matE?wheelProto.hubE:wheelProto.hubP).createInstance('h');h.parent=root;h.position.set(x,.36,z);wheels.push({m:h,side:sd,r:.33});}
-    wi(wheelProto.sprocket,-2.75,.56,.33);wi(wheelProto.idler,2.68,.47,.28);
-    if(!MOBILE)for(let k=0;k<3;k++)wi(wheelProto.roller,-1.4+k*1.4,.84,.1);
+    pbox(root,.2,.12,.06,sd*1.25,1.22,3.0,M.glass);pbox(root,.16,.16,.22,sd*.6,.62,2.86,M.steel);
+    pbox(root,.55,.38,.04,sd*1.18,1.0,2.99,M.white,0,.45);[-.18,0,.18].forEach(dx=>pbox(root,.09,.38,.05,sd*1.18+dx,1.0,3.0,M.red,0,.45));
+    pbox(root,.5,.3,.25,sd*.95,1.2,-3.05,C[2]);
+    skirts(ctx,sd,{x:1.51,y:.86,h:.62,z0:-2.9,z1:2.75,n:8,heavy:3});
+    gear(ctx,sd,{x:1.2,n:7,z0:1.95,dz:.65,rd:.66,drv:[-2.75,.56],idl:[2.68,.47],top:.9,rol:[-1.4,0,1.4]});
   });
-  // --- 砲塔 ---
   const turret=new BABYLON.TransformNode('tu',scene);turret.parent=root;turret.position.set(0,TUR.y,TUR.z);
-  prism(turret,[[-1.12,-1.5],[1.12,-1.5],[1.2,.85],[-1.2,.85]],0,.74,'y',C[0]);                          // 砲塔本体
-  prism(turret,[[-1.04,-2.6],[1.04,-2.6],[1.1,-1.45],[-1.1,-1.45]],.08,.7,'y',C[1]);                     // 後部バスル
-  prism(turret,[[-1.22,.83],[-.36,.83],[-.36,1.95],[-1.22,1.05]],.02,.76,'y',C[2]);                      // 楔形の増加装甲(左)
-  prism(turret,[[1.22,.83],[.36,.83],[.36,1.95],[1.22,1.05]],.02,.76,'y',C[1]);                         // 〃(右)
-  pbox(turret,2.18,.05,2.25,0,.76,-.32,C[0]);pbox(turret,1.95,.05,1.05,0,.72,-2.05,C[2]);                 // 屋根
+  prism(turret,[[-1.12,-1.5],[1.12,-1.5],[1.2,.85],[-1.2,.85]],0,.74,'y',C[0]);
+  prism(turret,[[-1.04,-2.6],[1.04,-2.6],[1.1,-1.45],[-1.1,-1.45]],.08,.7,'y',C[1]);
+  prism(turret,[[-1.22,.83],[-.36,.83],[-.36,1.95],[-1.22,1.05]],.02,.76,'y',C[2]);
+  prism(turret,[[1.22,.83],[.36,.83],[.36,1.95],[1.22,1.05]],.02,.76,'y',C[1]);
+  pbox(turret,2.18,.05,2.25,0,.76,-.32,C[0]);pbox(turret,1.95,.05,1.05,0,.72,-2.05,C[2]);
   [-1,1].forEach(sd=>{
-    pbox(turret,.07,.62,2.0,sd*1.24,.38,-.25,C[sd>0?2:1]);for(let k=0;k<9;k++)pbox(turret,.05,.6,.05,sd*1.29,.38,-1.15+k*.22,C[0]); // リブ付き側面装甲
-    for(let k=0;k<4;k++){const t=pcyl(turret,.1,.32,sd*1.05,.84,-.85+k*.13,M.steel,0);t.rotation.set(-.6,0,sd*-.9);}            // 発煙弾発射機
-    pbox(turret,.04,.04,.9,sd*.98,.8,-2.62,M.steel);                                                                            // バスケットの手すり
-    const an=pcyl(turret,.025,1.4,sd*.8,1.45,-2.35,M.steel,0,{tessellation:4});                                                // アンテナ
+    pbox(turret,.07,.62,2.0,sd*1.24,.38,-.25,C[sd>0?2:1]);for(let k=0;k<9;k++)pbox(turret,.05,.6,.05,sd*1.29,.38,-1.15+k*.22,C[0]);
+    smoke(turret,sd,1.05,.84,-.85,4,M);pbox(turret,.04,.04,.9,sd*.98,.8,-2.62,M.steel);pcyl(turret,.025,1.4,sd*.8,1.45,-2.35,M.steel,0,{tessellation:4});
   });
-  pbox(turret,2.0,.45,.1,0,.45,-2.66,M.steel);                                                                                  // 後部収納バスケット
-  // 砲手照準器 EMES-15(右前)と車長照準器 PERI(左)・遠隔銃塔(後方)・ハッチ
+  pbox(turret,2.0,.45,.1,0,.45,-2.66,M.steel);
   pbox(turret,.42,.34,.62,.62,.92,.42,C[2]);pbox(turret,.34,.18,.03,.62,.94,.74,M.glass);
   pcyl(turret,.3,.28,-.6,.92,-.3,C[0],0);pbox(turret,.32,.3,.4,-.6,1.2,-.3,C[1]);pbox(turret,.26,.14,.03,-.6,1.22,-.09,M.glass);
   pcyl(turret,.5,.12,.35,.82,-1.0,M.steel,0);pbox(turret,.34,.3,.42,.35,1.02,-1.0,C[2]);pcyl(turret,.06,.8,.35,1.05,-.45,M.steel);pbox(turret,.1,.1,.03,.35,1.0,-.78,M.glass);
-  pcyl(turret,.6,.06,-.55,.8,-.85,C[0],0);pcyl(turret,.55,.06,.5,.8,-.15,C[1],0);                                             // ハッチ
-  pbox(turret,.66,.6,.5,0,.45,1.12,C[0]);                                                                                       // 防盾
-  // --- 主砲 L55 120mm滑腔砲(仰角はこのピボットを回す) ---
+  pcyl(turret,.6,.06,-.55,.8,-.85,C[0],0);pcyl(turret,.55,.06,.5,.8,-.15,C[1],0);
+  pbox(turret,.66,.6,.5,0,.45,1.12,C[0]);
   const barrel=new BABYLON.TransformNode('gun',scene);barrel.parent=turret;barrel.position.set(0,GUN.y,GUN.z);
-  pbox(barrel,.5,.42,.4,0,0,.25,C[1]);                                                                                          // 砲の付け根
-  pcyl(barrel,.16,GUN.len,0,0,GUN.len/2,M.steel);                                                                              // 砲身
-  [[.4,1.7],[1.75,2.9],[3.55,4.55],[4.6,5.0]].forEach(([a,b],i)=>pcyl(barrel,.21,b-a,0,0,(a+b)/2,C[i%2]));                      // サーマルスリーブ
-  pcyl(barrel,.28,.6,0,0,3.22,C[0]);                                                                                            // 排煙器
-  pcyl(barrel,.19,.12,0,0,5.12,M.steel);pbox(barrel,.08,.08,.14,0,.14,5.0,M.steel);                                           // 砲口と砲口照合装置
-  mergeParts(root);mergeParts(turret);mergeParts(barrel);
-  return {root,turret,barrel,wheels,tracks};
+  pbox(barrel,.5,.42,.4,0,0,.25,C[1]);pcyl(barrel,.16,GUN.len,0,0,GUN.len/2,M.steel);
+  [[.4,1.7],[1.75,2.9],[3.55,4.55],[4.6,5.0]].forEach(([a,b],i)=>pcyl(barrel,.21,b-a,0,0,(a+b)/2,C[i%2]));
+  pcyl(barrel,.28,.6,0,0,3.22,C[0]);pcyl(barrel,.19,.12,0,0,5.12,M.steel);pbox(barrel,.08,.08,.14,0,.14,5.0,M.steel);
+  return {turret,barrel,gun:GUN,tur:TUR};
+},
+// --- メルカバ Mk.4(イスラエル): 前部エンジンで長い前面傾斜、後方寄りの尖った低い砲塔、後部のチェーンカーテン、6転輪、前輪駆動、トロフィー ---
+mk4(ctx){
+  const {root,M,C}=ctx,GUN={y:.36,z:1.75,len:4.3},TUR={y:1.58,z:-.55};
+  prism(root,[[-2.85,.45],[2.5,.45],[3.0,1.02],[-2.95,1.25]],-.95,.95,'x',C[0]);                 // 下部車体
+  prism(root,[[-2.98,1.1],[2.88,1.0],[3.04,1.08],[.35,1.58],[-1.55,1.58],[-2.98,1.28]],-1.46,1.46,'x',C[1]); // 長い前面傾斜(エンジンが前)と後部の傾斜
+  for(let k=0;k<7;k++){const z=.75+k*.26,y=1.58-(z-.35)*.185+.02;seg(root,2.1,.03,z,y,z+.18,y-.033+.03,0,M.steel);} // 前面傾斜上の機関室グリル(ルーバー)
+  pbox(root,1.1,.75,.06,0,.8,-2.97,M.steel);pbox(root,.04,.7,.07,0,.8,-2.99,C[2]);              // 後部の乗降扉
+  [-1,1].forEach(sd=>{
+    pbox(root,.3,.12,.05,sd*1.1,1.05,3.04,M.glass);pbox(root,.16,.16,.22,sd*.55,.6,2.88,M.steel);
+    pbox(root,.6,.4,.3,sd*1.0,1.2,-2.98,C[0]);                                                     // 後部収納
+    skirts(ctx,sd,{x:1.5,y:.85,h:.66,z0:-2.85,z1:2.9,n:6,heavy:2});
+    gear(ctx,sd,{x:1.2,n:6,z0:2.0,dz:.8,rd:.66,drv:[2.75,.56],idl:[-2.72,.47],top:.9,rol:[-1.2,.2,1.6]});
+  });
+  const turret=new BABYLON.TransformNode('tu',scene);turret.parent=root;turret.position.set(0,TUR.y,TUR.z);
+  prism(turret,[[-1.2,-2.25],[1.2,-2.25],[1.32,-.2],[.42,2.4],[-.42,2.4],[-1.32,-.2]],0,.5,'y',C[0]); // 尖った長い砲塔
+  prism(turret,[[-1.0,-2.1],[1.0,-2.1],[1.1,-.25],[.3,2.0],[-.3,2.0],[-1.1,-.25]],.5,.68,'y',C[1]); // 傾斜した上面
+  for(let k=0;k<(MOBILE?9:15);k++){const x=-1.1+k*(2.2/((MOBILE?9:15)-1));                          // ボール&チェーン
+    pcyl(turret,.035,.42,x,-.2,-2.2,M.steel,0,{tessellation:4});const b=BABYLON.MeshBuilder.CreateSphere('ball',{diameter:.12,segments:4},scene);b.parent=turret;b.position.set(x,-.45,-2.2);b.material=M.steel;}
+  [-1,1].forEach(sd=>{
+    const tr=pbox(turret,.06,.32,.55,sd*1.18,.32,.35,C[2],sd*.35);pbox(turret,.03,.26,.45,sd*1.21,.32,.36,M.glass,sd*.35); // トロフィーのレーダー板
+    pbox(turret,.3,.28,.45,sd*.95,.62,-1.15,C[2]);                                                  // トロフィー発射機
+    smoke(turret,sd,.95,.6,-.3,3,M);
+  });
+  pcyl(turret,.5,.14,-.55,.72,-.75,C[2],0);pbox(turret,.3,.28,.36,-.55,.92,-.75,C[1]);pbox(turret,.24,.12,.03,-.55,.94,-.56,M.glass); // 車長照準器
+  pbox(turret,.34,.26,.42,.5,.8,.3,C[2]);pbox(turret,.26,.14,.03,.5,.82,.52,M.glass);           // 砲手照準器
+  pcyl(turret,.12,.7,.75,.85,-1.3,M.steel,Math.PI/2.4);                                           // 60mm迫撃砲
+  pcyl(turret,.05,.7,-.2,.92,-.55,M.steel);                                                       // 機関銃
+  const barrel=new BABYLON.TransformNode('gun',scene);barrel.parent=turret;barrel.position.set(0,GUN.y,GUN.z);
+  pbox(barrel,.42,.34,.5,0,0,.1,C[1]);pcyl(barrel,.16,GUN.len,0,0,GUN.len/2,M.steel);
+  [[.5,1.6],[1.65,2.75],[2.8,3.9]].forEach(([a,b],i)=>pcyl(barrel,.22,b-a,0,0,(a+b)/2,C[i%2]));     // サーマルスリーブ
+  pcyl(barrel,.19,.14,0,0,GUN.len+.05,M.steel);
+  return {turret,barrel,gun:GUN,tur:TUR};
+},
+// --- 10式戦車(日本): 小型で角ばったモジュール装甲の砲塔、長いバスル(自動装填)、5転輪、L44、高い位置の車長パノラマサイト ---
+t10(ctx){
+  const {root,M,C}=ctx,GUN={y:.36,z:1.45,len:4.15},TUR={y:1.35,z:.15};
+  prism(root,[[-2.68,.42],[2.4,.42],[2.8,1.0],[-2.72,1.05]],-.85,.85,'x',C[0]);
+  prism(root,[[-2.72,1.0],[2.65,.98],[2.8,1.06],[2.0,1.35],[-2.72,1.35]],-1.26,1.26,'x',C[1]);
+  pbox(root,2.0,.04,1.1,0,1.37,-1.9,M.steel);for(let k=0;k<5;k++)pbox(root,2.0,.03,.06,0,1.39,-1.45-k*.2,M.steel);
+  pbox(root,.5,.05,.16,0,1.37,1.85,M.glass);
+  [-1,1].forEach(sd=>{
+    pbox(root,.22,.12,.05,sd*.95,1.1,2.8,M.glass);pbox(root,.14,.14,.2,sd*.5,.58,2.68,M.steel);
+    skirts(ctx,sd,{x:1.27,y:.82,h:.6,z0:-2.6,z1:2.7,n:5,heavy:1});
+    gear(ctx,sd,{x:1.0,n:5,z0:1.72,dz:.86,rd:.72,drv:[-2.52,.56],idl:[2.5,.48],top:.9,rol:[-.85,.85]});
+  });
+  const turret=new BABYLON.TransformNode('tu',scene);turret.parent=root;turret.position.set(0,TUR.y,TUR.z);
+  prism(turret,[[-.98,-2.45],[.98,-2.45],[1.08,-.8],[1.14,.85],[.55,1.5],[-.55,1.5],[-1.14,.85],[-1.08,-.8]],0,.6,'y',C[0]); // 角ばった砲塔+自動装填のバスル
+  prism(turret,[[-.9,-2.35],[.9,-2.35],[1.0,-.8],[1.04,.8],[.5,1.38],[-.5,1.38],[-1.04,.8],[-1.0,-.8]],.6,.68,'y',C[1]);
+  [-1,1].forEach(sd=>{
+    const m=pbox(turret,.62,.56,.12,sd*.84,.3,1.2,C[sd>0?2:1],sd*-.82);                              // 前面のモジュール装甲
+    pbox(turret,.07,.5,1.6,sd*1.15,.3,-.05,C[2]);for(let k=0;k<4;k++)pbox(turret,.08,.52,.03,sd*1.17,.3,-.75+k*.45,C[0]); // 側面モジュールの継ぎ目
+    smoke(turret,sd,1.1,.5,.45,4,M);
+    pbox(turret,.08,.08,.08,sd*1.0,.68,1.1,M.glass);pbox(turret,.08,.08,.08,sd*.9,.68,-2.3,M.glass); // 周囲監視カメラ
+  });
+  pcyl(turret,.2,.36,.58,.86,.35,C[1],0);pbox(turret,.32,.28,.32,.58,1.16,.35,C[2]);pbox(turret,.24,.12,.03,.58,1.18,.52,M.glass); // 車長パノラマサイト(右・高い)
+  pbox(turret,.34,.26,.42,-.55,.8,.7,C[1]);pbox(turret,.26,.12,.03,-.55,.82,.92,M.glass);         // 砲手照準器
+  pcyl(turret,.45,.08,-.45,.72,-.6,C[0],0);pcyl(turret,.06,.9,-.45,.95,-.3,M.steel);              // 12.7mm機関銃
+  const barrel=new BABYLON.TransformNode('gun',scene);barrel.parent=turret;barrel.position.set(0,GUN.y,GUN.z);
+  pbox(barrel,.46,.38,.36,0,0,.15,C[0]);pcyl(barrel,.15,GUN.len,0,0,GUN.len/2,M.steel);
+  [[.35,1.5],[1.55,2.7],[2.75,3.85]].forEach(([a,b],i)=>pcyl(barrel,.2,b-a,0,0,(a+b)/2,C[i%2]));
+  pcyl(barrel,.18,.12,0,0,GUN.len+.04,M.steel);
+  return {turret,barrel,gun:GUN,tur:TUR};
+},
+// --- M1A2 エイブラムス(アメリカ): 平たく幅広い角ばった砲塔、大きなバスルラック、CITV、7転輪、ガスタービン排気グリル、L44 ---
+ab(ctx){
+  const {root,M,C}=ctx,GUN={y:.33,z:1.65,len:4.15},TUR={y:1.32,z:0};
+  prism(root,[[-2.95,.45],[2.6,.45],[3.1,1.05],[-3.05,1.22]],-.95,.95,'x',C[0]);
+  prism(root,[[-3.05,1.05],[2.95,1.0],[3.1,1.07],[2.05,1.32],[-3.05,1.32]],-1.42,1.42,'x',C[1]);
+  pbox(root,1.8,.5,.06,0,.92,-3.07,M.steel);for(let k=0;k<6;k++)pbox(root,1.8,.03,.07,0,.72+k*.08,-3.1,C[2]); // タービン排気グリル
+  pbox(root,2.2,.03,1.3,0,1.34,-2.1,M.steel);
+  pbox(root,.5,.05,.16,0,1.34,2.2,M.glass);
+  [-1,1].forEach(sd=>{
+    pbox(root,.2,.12,.05,sd*1.15,1.12,3.1,M.glass);pbox(root,.16,.16,.22,sd*.6,.6,2.95,M.steel);
+    skirts(ctx,sd,{x:1.43,y:.86,h:.6,z0:-2.95,z1:2.95,n:7,heavy:2});
+    gear(ctx,sd,{x:1.12,n:7,z0:2.2,dz:.73,rd:.64,drv:[-2.92,.68],idl:[2.85,.5],top:.93,rol:[-1.1,1.1]});
+  });
+  const turret=new BABYLON.TransformNode('tu',scene);turret.parent=root;turret.position.set(0,TUR.y,TUR.z);
+  prism(turret,[[-1.2,-2.0],[1.2,-2.0],[1.32,-.4],[1.28,.6],[.75,1.75],[-.75,1.75],[-1.28,.6],[-1.32,-.4]],0,.5,'y',C[0]); // 平たく幅広い砲塔
+  prism(turret,[[-1.12,-1.9],[1.12,-1.9],[1.24,-.4],[1.18,.55],[.62,1.45],[-.62,1.45],[-1.18,.55],[-1.24,-.4]],.5,.6,'y',C[1]);
+  // バスルラック(枠+積み荷)
+  [[-1.1,.2],[1.1,.2]].forEach(([x])=>pbox(turret,.05,.45,1.0,x,.3,-2.5,M.steel));pbox(turret,2.25,.05,.05,0,.52,-3.0,M.steel);pbox(turret,2.25,.05,.05,0,.1,-3.0,M.steel);
+  pbox(turret,1.0,.3,.7,-.45,.25,-2.45,C[2]);pcyl(turret,.32,.9,.55,.25,-2.4,C[1],0,{tessellation:10}).rotation.z=Math.PI/2;
+  [-1,1].forEach(sd=>smoke(turret,sd,1.2,.38,.55,6,M,2));
+  pbox(turret,.42,.3,.5,.62,.72,.95,C[2]);pbox(turret,.34,.16,.03,.62,.74,1.2,M.glass);            // 砲手照準器(ドッグハウス)
+  pcyl(turret,.22,.3,-.55,.75,.35,C[1],0);pbox(turret,.34,.3,.36,-.55,1.02,.35,C[2]);pbox(turret,.26,.14,.03,-.55,1.04,.54,M.glass); // CITV
+  pcyl(turret,.6,.12,.5,.66,-.6,C[0],0);pbox(turret,.36,.3,.5,.5,.88,-.6,C[1]);pcyl(turret,.06,.9,.5,.92,-.2,M.steel); // 車長キューポラ+遠隔銃塔
+  pcyl(turret,.55,.06,-.55,.63,-.75,C[0],0);pcyl(turret,.05,.7,-.55,.82,-.45,M.steel);             // 装填手ハッチ+機関銃
+  const barrel=new BABYLON.TransformNode('gun',scene);barrel.parent=turret;barrel.position.set(0,GUN.y,GUN.z);
+  pbox(barrel,.62,.4,.36,0,0,.12,C[0]);pcyl(barrel,.15,GUN.len,0,0,GUN.len/2,M.steel);
+  [[.35,1.4],[1.45,2.25],[3.0,3.95]].forEach(([a,b],i)=>pcyl(barrel,.2,b-a,0,0,(a+b)/2,C[i%2]));
+  pcyl(barrel,.27,.6,0,0,2.62,C[0]);pcyl(barrel,.18,.12,0,0,GUN.len+.04,M.steel);pbox(barrel,.08,.08,.12,0,.13,GUN.len-.1,M.steel); // 排煙器・砲口照合装置
+  return {turret,barrel,gun:GUN,tur:TUR};
+}};
+function makeTank(M,kind){
+  const root=new BABYLON.TransformNode('t',scene),wheels=[];
+  const tracks=[-1,1].map(()=>surf({tex:T.tread.clone(),rough:.75,metal:.3})); // 左右で素材を分け、スクロールで履帯の回転を表現
+  const r=BUILD[kind||'leo']({root,M,C:M.c,wheels,tracks});
+  mergeParts(root);mergeParts(r.turret);mergeParts(r.barrel);
+  return {root,turret:r.turret,barrel:r.barrel,gun:r.gun,tur:r.tur,wheels,tracks,kind:kind||'leo'};
 }
 
 const keys={};
 addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='Space')e.preventDefault();});
 addEventListener('keyup',e=>{keys[e.code]=0;});
 const view={pitch:.45,drag:false,lx:0,ly:0,moved:0,fireClick:false,fireHeld:false,zoom:false,zoomHold:false};
-const zoomK=()=>cam.fov/.8; // ズーム中は視点操作を細かく
+const zoomK=()=>(typeof camFov==='number'?camFov:.8)/.8; // ズーム中は視点操作を細かく
 canvas.addEventListener('pointerdown',e=>{if(e.button===2){view.zoomHold=true;return;}if(view.drag)return;view.drag=true;view.pid=e.pointerId;view.mouse=e.pointerType==='mouse';view.lx=e.clientX;view.ly=e.clientY;view.moved=0;});
 addEventListener('pointermove',e=>{if(!view.drag||e.pointerId!==view.pid)return;const dx=e.clientX-view.lx,dy=e.clientY-view.ly;view.lx=e.clientX;view.ly=e.clientY;view.moved+=Math.abs(dx)+Math.abs(dy);const k=(view.mouse?1:1.3)*zoomK();camYaw+=dx*.005*k;aimPitch=Math.max(0,Math.min(.35,aimPitch-dy*.0015*k));});
 addEventListener('pointerup',e=>{if(e.button===2)view.zoomHold=false;});
@@ -601,13 +727,13 @@ function stick(id){
 const sl=stick('sl'),sr={on:false,x:0,y:0};
 
 const nd=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;};
-let camYaw=0,aimPitch=.08,player,enemies=[],bullets=[],flashes=[],score=0,wave=1,over=false;
+let camKick=0,fovKick=0,camFov=.8,mode='title',preview=null,prevRot=0,camYaw=0,aimPitch=.08,player,enemies=[],bullets=[],flashes=[],score=0,wave=1,over=false;
 
 // 走行物理の状態: v=前後速度 w=旋回角速度 lat=横滑り速度 sp/sr=サスペンションのピッチ/ロール(とその速度) to=左右履帯の送り量
 const phys=()=>({v:0,w:0,lat:0,sp:0,spv:0,sr:0,srv:0,vp:0,to:[0,0]});
 function spawnEnemies(n){
   for(let i=0;i<n;i++){
-    const t=makeTank(matE);const a=Math.random()*Math.PI*2;
+    const t=makeTank(matE,TANKS[Math.random()*TANKS.length|0].id);const a=Math.random()*Math.PI*2; // 敵は車種ランダム・砂漠迷彩
     const R=60+Math.random()*30;t.root.position.set(Math.cos(a)*R,0,Math.sin(a)*R);
     enemies.push({...t,...phys(),hp:2+Math.floor(wave/3),heading:0,aim:0,cd:1+Math.random()*2,r:2.2,rc:9,strafe:Math.random()<.5?1:-1});
   }
@@ -618,47 +744,43 @@ function reset(){
   if(player)player.root.dispose();
   enemies=[];bullets=[];score=0;wave=1;over=false;camYaw=0;aimPitch=.08;view.pitch=.45;
   genObs();
-  const t=makeTank(matP);player={...t,...phys(),hp:LEO.hp,max:LEO.hp,heading:0,aim:0,cd:0,r:2.2,rc:9,av:0,gp:.08};rlKey='';reloadHud();
+  const t=makeTank(MATS[SPEC.id],SPEC.id);player={...t,...phys(),hp:SPEC.hp,max:SPEC.hp,heading:0,aim:0,cd:0,r:2.2,rc:9,av:0,gp:.08};rlKey='';reloadHud();
   spawnEnemies(2);hud();document.getElementById('over').style.display='none';
 }
 function dmgFx(){const d=document.getElementById('dmg');d.style.transition='none';d.style.opacity=1;d.offsetWidth;d.style.transition='opacity .6s';d.style.opacity=0;}
 function hud(){
   document.getElementById('wave').textContent=wave;document.getElementById('score').textContent=score;
-  document.getElementById('hpb').style.width=Math.max(0,player.hp/player.max*100)+'%';
+  document.getElementById('hpb').style.width=Math.max(0,player.hp/player.max*100)+'%';document.getElementById('hpname').textContent=SPEC.name;
 }
-// ===== 搭乗車両: レオパルト2(性能はここで調整) =====
-// 長さの目安: ゲーム内1unit ≒ 1.3m。最高速 15unit/s ≒ 70km/h
-const LEO={
-  vmax:15,    // 最高速度(約70km/h)
-  vrev:6,     // 後退の最高速度
-  acc:6.5,    // 加速(1,500馬力V12ディーゼル。低速ほど力強く、最高速付近では伸びない)
-  brake:12,   // ブレーキ
-  coast:2.2,  // アクセルを離した時の減速(エンジンブレーキ)
-  roll:.35,   // 転がり抵抗
-  turn:1.15,  // 最大旋回速度(rad/s。超信地旋回もできる)
-  yawAcc:2.6, // 旋回の立ち上がり(大きいほど機敏)
-  grip:6,     // 横方向のグリップ(小さいほど旋回時に外へ流れる)
-  trav:1.4,   // 砲塔旋回の最大速度(rad/s)
-  elev:.45,   // 砲の俯仰速度(rad/s)
-  reload:3.0, // 装填秒数(自動装填なし・装填手による手動装填)
-  dmg:2,      // 120mm滑腔砲の1発の威力(敵HP 2 = 初期は一撃)
-  hp:8        // 複合装甲による高い防護力
-};
+// ===== 搭乗車両の性能(ここで調整) =====
+// 長さの目安: ゲーム内1unit ≒ 1.3m。速度 1unit/s ≒ 4.68km/h
+// vmax/vrev:前進・後退の最高速 acc:加速 brake:ブレーキ coast:惰性の減速 roll:転がり抵抗 turn:最大旋回(rad/s) yawAcc:旋回の立ち上がり
+// grip:横グリップ trav:砲塔旋回(rad/s) elev:砲の俯仰(rad/s) reload:装填秒 dmg:威力 hp:防護力
+const TANKS=[
+ {id:'leo',name:'レオパルト2A7',nat:'ドイツ',flag:'🇩🇪',vmax:14.5,vrev:6,acc:6.5,brake:12,coast:2.2,roll:.35,turn:1.15,yawAcc:2.6,grip:6,trav:1.4,elev:.45,reload:3.0,dmg:2,hp:8,
+  spec:'62t / 1,500馬力ディーゼル / 最高68km/h / 120mm L55',feat:'長砲身L55で弾道が安定。楔形増加装甲の砲塔と高い機動力を両立した万能型。'},
+ {id:'mk4',name:'メルカバ Mk.4',nat:'イスラエル',flag:'🇮🇱',vmax:13.7,vrev:5,acc:5.6,brake:11,coast:2.2,roll:.4,turn:1.0,yawAcc:2.2,grip:6,trav:1.3,elev:.45,reload:3.4,dmg:2,hp:11,aps:.3,
+  spec:'65t / 1,500馬力ディーゼル / 最高64km/h / 120mm',feat:'前部エンジンで乗員を守る重防護型。アクティブ防護「トロフィー」が敵弾を30%の確率で迎撃。'},
+ {id:'t10',name:'10式戦車',nat:'日本',flag:'🇯🇵',vmax:15,vrev:15,acc:8.5,brake:14,coast:2.4,roll:.3,turn:1.4,yawAcc:3.4,grip:7.5,trav:1.7,elev:.55,reload:2.4,dmg:2,hp:6,
+  spec:'44t / 1,200馬力ディーゼル / 前後とも最高70km/h / 120mm L44 自動装填',feat:'軽量で俊敏。自動装填装置で装填が速く、後退も前進と同じ速さで走れる。防護力は控えめ。'},
+ {id:'ab',name:'M1A2 エイブラムス',nat:'アメリカ',flag:'🇺🇸',vmax:14.3,vrev:7,acc:8,brake:12,coast:2,roll:.35,turn:1.1,yawAcc:2.6,grip:6,trav:1.6,elev:.5,reload:2.8,dmg:2,hp:9,turbine:1,
+  spec:'66t / 1,500馬力ガスタービン / 最高67km/h / 120mm L44',feat:'ガスタービンで加速が鋭い。劣化ウラン装甲で防護力も高く、装填手の熟練で発射間隔も短い。'}];
+let SPEC=TANKS[0],selIdx=0; // 選択中の車両
 const ENEMY={vmax:9,vrev:4,acc:4,brake:9,coast:2,roll:.35,turn:.9,yawAcc:2,grip:6};
 const SHV=75,SHG=18; // 自弾の初速と重力(120mm砲の高初速で弾道は低伸。仰角で射程が変わる)
 const rlFill=document.getElementById('rlfill'),rlTx=document.getElementById('rltx');let rlKey='';
 function reloadHud(){ // 装填メーター(FIREボタンの上)
   const rem=Math.max(0,player.cd),key=rem>0?rem.toFixed(1):'ok';
-  if(key===rlKey)return;rlKey=key;
-  if(rem>0){rlFill.style.width=((1-rem/LEO.reload)*100)+'%';rlFill.style.background='#ffd36a';rlTx.textContent='装填 '+rem.toFixed(1)+'秒';}
-  else{rlFill.style.width='100%';rlFill.style.background='#4f4';rlTx.textContent='装填完了';}
+  if(key===rlKey)return;const prev=rlKey;rlKey=key;
+  if(rem>0){rlFill.style.width=((1-rem/SPEC.reload)*100)+'%';rlFill.style.background='#ffd36a';rlTx.textContent='装填 '+rem.toFixed(1)+'秒';}
+  else{rlFill.style.width='100%';rlFill.style.background='#4f4';rlTx.textContent='装填完了';if(prev&&prev!=='ok')SFX.clank();} // 装填中→完了になった時だけ鳴らす
 }
-function muzzle(t,a,p){const c=Math.cos(p),h=TUR.z+GUN.z+GUN.len*c;return {x:t.root.position.x+Math.sin(a)*h,y:t.root.position.y+TUR.y+GUN.y+Math.sin(p)*GUN.len,z:t.root.position.z+Math.cos(a)*h};}
+function muzzle(t,a,p){const G=t.gun,c=Math.cos(p),h=t.tur.z+G.z+G.len*c;return {x:t.root.position.x+Math.sin(a)*h,y:t.root.position.y+t.tur.y+G.y+Math.sin(p)*G.len,z:t.root.position.z+Math.cos(a)*h};}
 function fire(t,owner,spread=0){
   const a=t.aim+spread,p=owner==='p'?t.gp:0;
   const o=muzzle(t,a,p),m=makeShell(owner);m.position.set(o.x,o.y,o.z);
   let b;
-  if(owner==='p'){const c=Math.cos(p);b={mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:LEO.dmg};}
+  if(owner==='p'){const c=Math.cos(p);b={mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:SPEC.dmg};}
   else b={mesh:m,vx:Math.sin(a)*35,vy:0,vz:Math.cos(a)*35,g:0,life:2.2,owner};
   aimShell(b);m.computeWorldMatrix(true);
   b.trail=new BABYLON.TrailMesh('trail',m.metadata.tail,scene,{diameter:owner==='p'?.14:.12,length:MOBILE?14:26,segments:MOBILE?14:26,autoStart:true});
@@ -667,11 +789,29 @@ function fire(t,owner,spread=0){
   flash(o.x,o.y,o.z,.8);
   t.rc=0; // 反動開始
   t.spv-=1.1;t.v-=.35; // 反動で車体が前を持ち上げ、わずかに後ろへ押される
-  const P=owner==='p';
-  burst(o.x,o.y,o.z,{n:P?14:8,r:.3,c1:[.78,.75,.7,.6],cd:[.8,.78,.74,0],s:[.7,1.4],grow:3,l:[.6,1.3],p:[1,3.5],g:1}); // 発砲煙
-  burst(o.x,gh(o.x,o.z)+.2,o.z,{n:P?14:6,hemi:1,r:1.2,c1:[.82,.7,.52,.55],cd:[.82,.72,.56,0],s:[1,2],grow:2.5,l:[.6,1.2],p:[2,5],g:-1}); // 爆風で舞う砂
-  if(P)addShake(.55);else addShake(.15,o.x,o.z);
+  const P=owner==='p',cp=Math.cos(p),fd=[Math.sin(a)*cp,Math.sin(p),Math.cos(a)*cp],rt=[Math.cos(a),0,-Math.sin(a)],gy=gh(o.x,o.z);
+  muzzleBlast(o,fd,rt,gy,P);
+  SFX.boom(P?0:Math.hypot(o.x-player.root.position.x,o.z-player.root.position.z),P);
+  if(P){addShake(.7);camKick=1.6;fovKick=.075;muzzleFlashScreen();sabot(o,fd,rt);}else addShake(.18,o.x,o.z);
 }
+// 発砲時の砲口の演出: 前方への火球・左右へ噴き出すガス・漂う砲煙・地面を走る衝撃波と砂・砲口から立ち上る残り煙
+function muzzleBlast(o,fd,rt,gy,P){
+  const s=P?1:.6,f=(k,sp)=>[fd[0]*k,fd[1]*k+.05,fd[2]*k];
+  burst(o.x,o.y,o.z,{n:36*s,add:1,dir:f(1),spread:.22,r:.15,c1:[1,.9,.55,1],c2:[1,.5,.12,1],cd:[.4,.12,.02,0],s:[1.1*s,2.4*s],grow:1.7,l:[.1,.26],p:[18,40]}); // 火球
+  [-1,1].forEach(sd=>burst(o.x,o.y,o.z,{n:10*s,add:1,dir:[rt[0]*sd+fd[0]*.4,.1,rt[2]*sd+fd[2]*.4],spread:.15,r:.1,c1:[1,.8,.45,1],cd:[.4,.15,.05,0],s:[.6,1.3],grow:1.6,l:[.08,.18],p:[10,20]})); // 横噴き
+  burst(o.x,o.y,o.z,{n:26*s,dir:f(1),spread:.6,r:.4,c1:[.62,.6,.57,.7],c2:[.75,.72,.68,.6],cd:[.8,.78,.75,0],s:[1.4,2.8],grow:3.6,l:[1.6,3.4],p:[3,11],g:.35}); // 漂う砲煙
+  burst(o.x,gy+.15,o.z,{n:30*s,ring:1,c1:[.84,.72,.54,.75],c2:[.78,.66,.5,.6],cd:[.84,.74,.58,0],s:[1.4,2.8],grow:2.6,l:[.7,1.5],p:[9,18],g:-.6}); // 地面を走る衝撃波の砂煙
+  if(P){shockRing(o.x,gy+.12,o.z);burst(o.x,o.y,o.z,{rate:9,dur:2.2,r:.05,c1:[.7,.68,.65,.35],cd:[.8,.78,.75,0],s:[.3,.6],grow:3,l:[1,2],p:[.2,.6],g:.9});} // 砲口から立ち上る残り煙
+}
+// 衝撃波のリング(地面を一瞬で広がる)
+const shockMat=(()=>{const m=new BABYLON.StandardMaterial('shk',scene);m.disableLighting=true;m.emissiveColor=new BABYLON.Color3(.85,.75,.58);m.alpha=.28;m.backFaceCulling=false;return m;})();
+const shocks=[];
+function shockRing(x,y,z){const r=BABYLON.MeshBuilder.CreateTorus('shk',{diameter:2,thickness:.18,tessellation:MOBILE?20:36},scene);r.position.set(x,y,z);r.material=shockMat.clone('shkc');r.isPickable=false;shocks.push({m:r,t:0});}
+// サボ(装弾筒)の破片: APFSDSは砲口を出た直後に装弾筒が分離して飛び散る
+function sabot(o,fd,rt){for(let k=0;k<3;k++){const m=chipM[1].createInstance('sb');const a=(k-1)*.9;m.scaling.set(.12,.12,.55);m.position.set(o.x+fd[0]*1.5,o.y+fd[1]*1.5,o.z+fd[2]*1.5);
+  debris.push({m,vx:fd[0]*30+rt[0]*a*9,vy:fd[1]*30+3+(k===1?4:0),vz:fd[2]*30+rt[2]*a*9,wx:(Math.random()-.5)*20,wy:(Math.random()-.5)*20,wz:(Math.random()-.5)*20,life:1.6,sc:m.scaling.clone()});}}
+// 画面の閃光
+function muzzleFlashScreen(){const d=document.getElementById('mflash');d.style.transition='none';d.style.opacity=.32;d.offsetWidth;d.style.transition='opacity .18s';d.style.opacity=0;}
 // ===== 砲弾 =====
 // 120mm APFSDS(翼安定徹甲弾)風: 細長い侵徹体+尾翼。後端の曳光剤が光り、光の尾(トレイル)を引く
 const shellBodyM=mat(.25,.25,.27);shellBodyM.specularColor=new BABYLON.Color3(.6,.6,.6);shellBodyM.specularPower=48;
@@ -706,13 +846,67 @@ function flash(x,y,z,s){
   flashes.push({m,t:0,s});
   if(fLight&&s*2>=fLight.intensity){fLight.position.set(x,y+1,z);fLight.intensity=s*2;fLight.range=8+s*10;}
 }
+// ===== 効果音(Web Audioで合成。音声ファイルなし) =====
+// 砲声=低い衝撃音+爆風のノイズ+近距離の鋭い破裂音+遅れて返るこだま。遠くの音は音速ぶん遅れ、高音がこもる
+const SFX=(()=>{
+  let ac=null,master,noise,muted=false,eng=null;
+  function init(){
+    if(ac){if(ac.state==='suspended')ac.resume();return;}
+    try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+    const comp=ac.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=5;
+    master=ac.createGain();master.gain.value=muted?0:.85;master.connect(comp);comp.connect(ac.destination);
+    const len=ac.sampleRate*2,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;noise=buf;
+    // エンジン音(常時): 低いノコギリ波+こもったノイズ。ガスタービン車は高いうなりを足す
+    const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=32;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=180;
+    const g=ac.createGain();g.gain.value=0;o.connect(lp).connect(g).connect(master);o.start();
+    const n=src(0,1e5);const nl=ac.createBiquadFilter();nl.type='lowpass';nl.frequency.value=260;const ng=ac.createGain();ng.gain.value=0;n.connect(nl).connect(ng).connect(master);
+    const tw=ac.createOscillator();tw.type='sine';tw.frequency.value=1500;const tg=ac.createGain();tg.gain.value=0;tw.connect(tg).connect(master);tw.start();
+    eng={o,lp,g,ng,tw,tg};
+  }
+  const src=(t,dur)=>{const s=ac.createBufferSource();s.buffer=noise;s.loop=true;s.start(t,Math.random()*1.5);s.stop(t+dur);return s;};
+  const env=(g,t,a,peak,dec)=>{g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec);};
+  const ok=()=>ac&&!muted;
+  const at=d=>ac.currentTime+.01+d*1.3/343; // 音速(1unit≒1.3m)ぶん遅らせる
+  function boom(d,big){
+    if(!ok())return;const t=at(d),k=Math.min(1.2,1/(1+d/30))*(big?1.15:1);
+    const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(big?70:85,t);o.frequency.exponentialRampToValueAtTime(26,t+.6);
+    const g=ac.createGain();env(g,t,.006,1.3*k,.8);o.connect(g).connect(master);o.start(t);o.stop(t+1);                       // 腹に響く低音
+    const n=src(t,3),lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(d>60?700:2600,t);lp.frequency.exponentialRampToValueAtTime(120,t+1.8);
+    const g2=ac.createGain();env(g2,t,.004,1.0*k,2.2);n.connect(lp).connect(g2).connect(master);                                 // 爆風
+    if(d<45){const n3=src(t,.3),hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=1800;const g3=ac.createGain();env(g3,t,.001,.8*k,.1);n3.connect(hp).connect(g3).connect(master);} // 破裂音
+    const dl=ac.createDelay(2);dl.delayTime.value=.55+Math.random()*.3;const ge=ac.createGain();ge.gain.value=.22;g2.connect(dl).connect(ge).connect(master); // 地形からのこだま
+  }
+  function impact(d,metal){
+    if(!ok())return;const t=at(d),k=Math.min(1,1/(1+d/25));
+    const n=src(t,1),lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=metal?1400:700;const g=ac.createGain();env(g,t,.003,.8*k,.6);n.connect(lp).connect(g).connect(master);
+    if(metal){const n2=src(t,.6),bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=950;bp.Q.value=9;const g2=ac.createGain();env(g2,t,.002,1.2*k,.45);n2.connect(bp).connect(g2).connect(master);} // 装甲に当たる金属音
+  }
+  function explode(d){
+    if(!ok())return;boom(d,true);const t=at(d)+.05,k=Math.min(1,1/(1+d/30));
+    const n=src(t,4),lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.exponentialRampToValueAtTime(80,t+3.2);
+    const g=ac.createGain();env(g,t,.05,.7*k,3.2);n.connect(lp).connect(g).connect(master);                                       // 長く続く爆発の轟き
+  }
+  function clank(){ // 装填完了(閉鎖機が閉じる金属音)
+    if(!ok())return;[0,.09].forEach((dt,i)=>{const t=ac.currentTime+dt,n=src(t,.2),bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=i?1700:2600;bp.Q.value=6;const g=ac.createGain();env(g,t,.001,.35,.12);n.connect(bp).connect(g).connect(master);});
+  }
+  function engine(v,thr,turbine,on){
+    if(!eng||!ac)return;const t=ac.currentTime,sp=Math.abs(v),q=on?1:0;
+    eng.o.frequency.setTargetAtTime(30+sp*2.6+Math.abs(thr)*12,t,.15);eng.lp.frequency.setTargetAtTime(160+sp*25+Math.abs(thr)*120,t,.2);
+    eng.g.gain.setTargetAtTime(q*(.07+Math.abs(thr)*.07+sp*.004),t,.2);eng.ng.gain.setTargetAtTime(q*(.05+sp*.012),t,.2);
+    eng.tw.frequency.setTargetAtTime(1300+sp*55+Math.abs(thr)*400,t,.3);eng.tg.gain.setTargetAtTime(q*(turbine?.018+Math.abs(thr)*.02:0),t,.3);
+  }
+  function mute(m){muted=m;if(master)master.gain.value=m?0:.85;}
+  return {init,boom,impact,explode,clank,engine,mute,get muted(){return muted;}};
+})();
 // ===== 演出(パーティクル・破片・画面揺れ・反動) =====
 const FXN=MOBILE?.5:1; // スマホは粒子数を半分に
 const C4=a=>new BABYLON.Color4(a[0],a[1],a[2],a[3]);
 function burst(x,y,z,o){ // 使い捨てパーティクル(n個を一度に放出、rate指定時はdur秒間流し続ける)
   const n=Math.max(3,Math.round(o.n*FXN)),ps=new BABYLON.ParticleSystem('fx',o.rate?Math.ceil(o.rate*FXN*(o.l[1]+.2)):n,scene);
   ps.particleTexture=T.puff;ps.emitter=new BABYLON.Vector3(x,y,z);ps.updateSpeed=1/60; // 時間単位を秒に揃える
-  if(o.hemi)ps.createHemisphericEmitter(o.r||.5,0);else ps.createSphereEmitter(o.r||.5,0);
+  if(o.dir){const d=o.dir,sp=o.spread||.2;ps.createDirectedSphereEmitter(o.r||.2,new BABYLON.Vector3(d[0]-sp,d[1]-sp,d[2]-sp),new BABYLON.Vector3(d[0]+sp,d[1]+sp,d[2]+sp));}
+  else if(o.ring){ps.minEmitBox=ps.maxEmitBox=BABYLON.Vector3.Zero();ps.direction1=new BABYLON.Vector3(-1,.05,-1);ps.direction2=new BABYLON.Vector3(1,.25,1);} // 地面を水平に広がる
+  else if(o.hemi)ps.createHemisphericEmitter(o.r||.5,0);else ps.createSphereEmitter(o.r||.5,0);
   ps.color1=C4(o.c1);ps.color2=C4(o.c2||o.c1);ps.colorDead=C4(o.cd);
   ps.minSize=o.s[0];ps.maxSize=o.s[1];
   if(o.grow){ps.addSizeGradient(0,o.s[0],o.s[1]);ps.addSizeGradient(1,o.s[0]*o.grow,o.s[1]*o.grow);}
@@ -743,12 +937,13 @@ function addShake(a,x,z){
 }
 function recoil(t,dt){ // 発砲の反動: 砲身が後退して戻り、車体と砲塔が揺れる
   const r=t.rc+=dt,k=r<.05?r/.05:Math.max(0,1-(r-.05)/.55),e=k*k*(3-2*k);
-  t.barrel.position.z=GUN.z-.8*e;
+  t.barrel.position.z=t.gun.z-.8*e;
   const w=r<1.2?Math.exp(-r*4.5)*Math.sin(r*17):0;
   t.turret.rotation.x=-w*.04;
 }
 // 戦車に命中(kill=撃破)
 function fxTank(x,y,z,kill){
+  {const d=player?Math.hypot(x-player.root.position.x,z-player.root.position.z):0;if(kill)SFX.explode(d);else SFX.impact(d,true);}
   flash(x,y,z,kill?2:.6);
   burst(x,y,z,{n:40,add:1,r:.3,c1:[1,.92,.55,1],c2:[1,.55,.15,1],cd:[.6,.15,0,0],s:[.15,.4],l:[.25,.6],p:[8,18],g:-18}); // 火花
   burst(x,y,z,{n:10,r:.5,c1:[.22,.2,.18,.75],c2:[.35,.32,.28,.6],cd:[.4,.38,.35,0],s:[1.2,2.2],grow:2.2,l:[.8,1.6],p:[1,3],g:2}); // 黒煙
@@ -762,6 +957,7 @@ function fxTank(x,y,z,kill){
 }
 // 地面・障害物に着弾(rock=岩/壁)
 function fxGround(x,y,z,rock){
+  SFX.impact(player?Math.hypot(x-player.root.position.x,z-player.root.position.z):0,false);
   const gy=Math.max(y,gh(x,z));
   flash(x,gy+.3,z,.45);
   const c=rock?[.6,.56,.5]:[.84,.72,.53];
@@ -884,6 +1080,7 @@ function updateAim(dt){
 }
 scene.onBeforeRenderObservable.add(()=>{
   const dt=Math.min(engine.getDeltaTime()/1000,.05);
+  if(mode==='select'){selectUpdate(dt);return;}
   if(!player)return;
   if(!over){
     // 戦車操作(カメラ基準で移動)
@@ -897,7 +1094,7 @@ scene.onBeforeRenderObservable.add(()=>{
       if(c<-.4){df=nd(df+Math.PI);thr=-mag*Math.min(1,-c*1.4);}else thr=mag*Math.max(0,c); // 後ろ向きの入力=ブレーキ→停止後に後退
       str=Math.max(-1,Math.min(1,df*2.2));
     }
-    drive(player,thr,str,dt,LEO);
+    drive(player,thr,str,dt,SPEC);SFX.engine(player.v,thr,SPEC.turbine,true);
     dust.emitter.copyFrom(player.root.position);dust.emitRate=Math.abs(player.v)>1.5?(MOBILE?30:60)*Math.min(1,Math.abs(player.v)/8):0;
     // 視点操作(戦車とは独立)
     let vy=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0)+(keys.KeyE?1:0)-(keys.KeyQ?1:0);
@@ -905,13 +1102,13 @@ scene.onBeforeRenderObservable.add(()=>{
     if(sr.on){vy=sr.x;vp=sr.y;}
     camYaw+=vy*2.4*dt*zoomK();aimPitch=Math.max(0,Math.min(.35,aimPitch+vp*.25*dt*zoomK()));
     // 砲塔は視点の向きを追う(最大旋回速度と加速度に上限。砲は安定化装置で車体の揺れに関係なく狙いを保つ)
-    {const want=Math.max(-LEO.trav,Math.min(LEO.trav,nd(camYaw-player.aim)*5)),da=6*dt;player.av+=Math.max(-da,Math.min(da,want-player.av));player.aim+=player.av*dt;}
-    player.gp+=Math.max(-LEO.elev*dt,Math.min(LEO.elev*dt,aimPitch-player.gp));
+    {const want=Math.max(-SPEC.trav,Math.min(SPEC.trav,nd(camYaw-player.aim)*5)),da=6*dt;player.av+=Math.max(-da,Math.min(da,want-player.av));player.aim+=player.av*dt;}
+    player.gp+=Math.max(-SPEC.elev*dt,Math.min(SPEC.elev*dt,aimPitch-player.gp));
     player.turret.rotation.y=player.aim-player.heading;
     player.barrel.rotation.x=-player.gp+player.sp*.5;
     const shooting=keys.Space||keys.Enter||view.fireHeld||view.fireClick;view.fireClick=false;
     player.cd-=dt;
-    if(shooting&&player.cd<=0){fire(player,'p');player.cd=LEO.reload;}
+    if(shooting&&player.cd<=0){fire(player,'p');player.cd=SPEC.reload;}
     recoil(player,dt);
     reloadHud();
     // 敵AI
@@ -949,9 +1146,11 @@ scene.onBeforeRenderObservable.add(()=>{
           }
           break;}}
     }else if(!hit&&!over){
-      if(segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<2.4){
+      if(SPEC.aps&&!b.apsChk&&segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<7){ // トロフィー: 接近した敵弾を迎撃
+        b.apsChk=1;if(Math.random()<SPEC.aps){hit=true;fx=null;fxTank(bx,by,bz,false);flash(bx,by,bz,1);}}
+      if(!hit&&segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<2.4){
         hit=true;fx='t';player.hp--;addShake(.7);dmgFx();
-        if(player.hp<=0){over=true;fx=null;fxTank(player.root.position.x,player.root.position.y+1.5,player.root.position.z,true);addShake(1);
+        if(player.hp<=0){over=true;SFX.engine(0,0,0,false);fx=null;fxTank(player.root.position.x,player.root.position.y+1.5,player.root.position.z,true);addShake(1);
           document.getElementById('msg').textContent='GAME OVER  SCORE '+score;document.getElementById('over').style.display='flex';}
       }
     }
@@ -962,6 +1161,7 @@ scene.onBeforeRenderObservable.add(()=>{
     }
   }
   if(fLight&&fLight.intensity>0)fLight.intensity=Math.max(0,fLight.intensity-dt*14);
+  for(let i=shocks.length-1;i>=0;i--){const q=shocks[i];q.t+=dt;const k=q.t/.45;q.m.scaling.set(1+k*9,1,1+k*9);q.m.material.alpha=.28*(1-k)*(1-k);if(k>=1){q.m.material.dispose();q.m.dispose();shocks.splice(i,1);}}
   for(let i=trailFades.length-1;i>=0;i--){const f=trailFades[i];f.m.alpha-=dt*1.6*f.a;if(f.m.alpha<=0){f.t.dispose();f.m.dispose();trailFades.splice(i,1);}}
   // 破片
   for(let i=debris.length-1;i>=0;i--){
@@ -979,9 +1179,10 @@ scene.onBeforeRenderObservable.add(()=>{
   }
   if(!over&&enemies.length===0){wave++;player.hp=Math.min(player.max,player.hp+1);spawnEnemies(Math.min(2+wave,10));hud();}
   // カメラ追従
-  view.pitch=.35+aimPitch*.9;const pp=player.root.position,sx=Math.sin(camYaw),sz=Math.cos(camYaw),cp=Math.cos(view.pitch),D=19;
-  {const cx=pp.x-sx*cp*D,cz=pp.z-sz*cp*D;cam.position.set(cx,Math.max(pp.y+1.5+Math.sin(view.pitch)*D,gh(cx,cz)+2.5),cz);}
-  {const tg=new BABYLON.Vector3(pp.x+sx*6,pp.y+1.5+aimPitch*30,pp.z+sz*6);
+  // 戦車の斜め後ろ上から追う(D=距離)。発砲時はカメラが後ろへ押される(camKick)
+  view.pitch=.32+aimPitch*.85;camKick*=Math.exp(-dt*5);const pp=player.root.position,sx=Math.sin(camYaw),sz=Math.cos(camYaw),cp=Math.cos(view.pitch),D=13+camKick;
+  {const cx=pp.x-sx*cp*D,cz=pp.z-sz*cp*D;cam.position.set(cx,Math.max(pp.y+2+Math.sin(view.pitch)*D,gh(cx,cz)+2),cz);}
+  {const tg=new BABYLON.Vector3(pp.x+sx*4.5,pp.y+1.6+aimPitch*24,pp.z+sz*4.5);
    if(shake>.001){ // 画面揺れ: カメラ位置と注視点を別々に揺らして回転方向にも振れさせる
      const a=shake*shake,r=()=>Math.random()-.5;
      cam.position.addInPlaceFromFloats(r()*a*.7,r()*a*.7,r()*a*.7);tg.addInPlaceFromFloats(r()*a*1.4,r()*a*1.4,r()*a*1.4);
@@ -989,7 +1190,7 @@ scene.onBeforeRenderObservable.add(()=>{
    }
    cam.setTarget(tg);}
   // ズーム(視野角をなめらかに変える)
-  {const zf=(view.zoom||view.zoomHold)?.32:.8;cam.fov+=(zf-cam.fov)*Math.min(1,dt*8);document.getElementById('zoom').classList.toggle('on',view.zoom||view.zoomHold);}
+  {const zf=(view.zoom||view.zoomHold)?.32:.8;fovKick*=Math.exp(-dt*7);camFov+=(zf-camFov)*Math.min(1,dt*8);cam.fov=camFov+fovKick;document.getElementById('zoom').classList.toggle('on',view.zoom||view.zoomHold);}
   updateAim(dt);
   sun.position.set(pp.x+SUN.x*140,pp.y+SUN.y*140,pp.z+SUN.z*140);
   // 空: 雲を流し、山並みとフレアの基準点をカメラに追従させる
@@ -998,9 +1199,51 @@ scene.onBeforeRenderObservable.add(()=>{
   if(flareSrc)flareSrc.position.set(cam.position.x+SUN.x*800,cam.position.y+SUN.y*800,cam.position.z+SUN.z*800);
 });
 
+// ===== 戦車選択画面 =====
+// ゲームの3Dシーンをそのまま背景に使い、マップ中央に選んだ戦車を置いて回転プレビューする(ドラッグでも回せる)
+function clearBattle(){
+  enemies.forEach(e=>e.root.dispose());bullets.forEach(killShell);debris.forEach(d=>d.m.dispose());debris.length=0;
+  if(player){player.root.dispose();player=null;}enemies=[];bullets=[];shake=0;
+}
+function showSel(){
+  const t=TANKS[selIdx],B_=(l,v,txt)=>'<span>'+l+'</span><div class="bar"><i style="width:'+Math.round(Math.min(1,v)*100)+'%"></i></div><span>'+txt+'</span>';
+  document.getElementById('selN').textContent=t.flag+' '+t.name;document.getElementById('selC').textContent=t.nat;
+  document.getElementById('selS').textContent=t.spec;document.getElementById('selF').textContent=t.feat;
+  document.getElementById('selD').textContent=TANKS.map((_,i)=>i===selIdx?'●':'○').join('');
+  document.getElementById('selB').innerHTML=B_('速度',t.vmax/15.5,Math.round(t.vmax*4.68)+'km/h')+B_('加速',t.acc/9,'')+B_('旋回',t.turn/1.5,'')+B_('防護',t.hp/12,'HP '+t.hp)+B_('装填',2.2/t.reload,t.reload.toFixed(1)+'秒');
+  if(preview)preview.root.dispose();
+  preview=makeTank(MATS[t.id],t.id);preview.root.position.set(0,gh(0,0),0);preview.turret.rotation.y=0;
+}
+function enterSelect(){
+  SFX.engine(0,0,0,false);clearBattle();mode='select';over=false;document.getElementById('over').style.display='none';document.body.classList.add('sel');
+  if(!obs.length)genObs();camYaw=0;showSel();
+}
+function startBattle(){
+  SFX.init();
+  if(preview){preview.root.dispose();preview=null;}SPEC=TANKS[selIdx];mode='play';document.body.classList.remove('sel');reset();
+}
+document.getElementById('selL').onclick=()=>{selIdx=(selIdx+TANKS.length-1)%TANKS.length;showSel();};
+document.getElementById('selR').onclick=()=>{selIdx=(selIdx+1)%TANKS.length;showSel();};
+document.getElementById('go').onclick=startBattle;
+document.getElementById('snd').onclick=()=>{SFX.init();SFX.mute(!SFX.muted);document.getElementById('snd').textContent=SFX.muted?'🔇':'🔊';};
+addEventListener('pointerdown',()=>SFX.init()); // iOSなどは操作があるまで音が出ないので、触れたら再開
+document.getElementById('toSel').onclick=enterSelect;
+addEventListener('keydown',e=>{if(mode!=='select')return;if(e.code==='ArrowLeft')document.getElementById('selL').onclick();if(e.code==='ArrowRight')document.getElementById('selR').onclick();if(e.code==='Enter'||e.code==='Space')startBattle();});
+function selectUpdate(dt){
+  prevRot+=dt*.35;if(preview){preview.root.rotation.y=prevRot+camYaw;preview.turret.rotation.y=Math.sin(prevRot*.8)*.5;}
+  // パネルが右にある横長画面では戦車を左寄りに、下にある縦長画面では上寄りに映す
+  const wide=innerWidth>innerHeight*1.3,a=.7,R=wide?11.5:14,y=gh(0,0);
+  cam.position.set(Math.sin(a)*R,y+3.6,Math.cos(a)*R);
+  const right=new BABYLON.Vector3(-Math.cos(a),0,Math.sin(a)); // 画面の右方向(左手座標系)
+  cam.setTarget(new BABYLON.Vector3(right.x*(wide?3.2:0),y+(wide?1.1:-1.6),right.z*(wide?3.2:0)));
+  cam.fov=.8;
+  sun.position.set(SUN.x*140,SUN.y*140,SUN.z*140);skyT+=dt;skyMat.setFloat('time',skyT);
+  farMt.position.set(cam.position.x,cam.position.y+5,cam.position.z);
+  if(flareSrc)flareSrc.position.set(cam.position.x+SUN.x*800,cam.position.y+SUN.y*800,cam.position.z+SUN.z*800);
+}
 document.getElementById('restart').onclick=reset;
-await tick(.85,'障害物と敵を配置中');
-reset();
+await tick(.85,'障害物を配置中');
+enterSelect();
 await tick(.93,'シェーダーを準備中');
 // シェーダー準備が終わらない端末でも止まらないよう、最大4秒で見切って開始する
 await Promise.race([new Promise(r=>scene.executeWhenReady(r)),new Promise(r=>setTimeout(r,4000))]);
