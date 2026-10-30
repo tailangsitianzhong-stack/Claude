@@ -21,6 +21,7 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
 #reload{position:fixed;right:34px;bottom:146px;width:88px;text-align:center;color:#fff;font:bold 12px sans-serif;text-shadow:0 1px 3px #000;pointer-events:none}
 #rlbar{height:9px;border:1px solid #fff;border-radius:5px;background:rgba(0,0,0,.45);overflow:hidden;margin-top:2px}
 #rlfill{display:block;height:100%;width:100%;background:#4f4}
+#dmg{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,0,0,0) 45%,rgba(200,0,0,.55) 100%);transition:opacity .5s}
 </style>
 <style>
 #title{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;text-align:center;
@@ -42,6 +43,7 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
 <div class="stick" id="sl"><div class="knob"></div></div>
 <div id="reload"><div id="rltx">装填完了</div><div id="rlbar"><i id="rlfill"></i></div></div>
 <div id="fire">FIRE</div>
+<div id="dmg"></div>
 <div id="over"><div id="msg">GAME OVER</div><button id="restart">もう一度</button></div>
 <div id="title">
 <svg viewBox="0 0 400 200" preserveAspectRatio="none"><path d="M0 70 Q80 20 160 60 T400 40 V200 H0Z" fill="#a67c45"/><path d="M0 120 Q120 70 240 110 T400 90 V200 H0Z" fill="#8a6638"/>
@@ -352,17 +354,19 @@ function spawnEnemies(n){
   for(let i=0;i<n;i++){
     const t=makeTank(matE);const a=Math.random()*Math.PI*2;
     const R=60+Math.random()*30;t.root.position.set(Math.cos(a)*R,0,Math.sin(a)*R);
-    enemies.push({...t,hp:2+Math.floor(wave/3),heading:0,aim:0,cd:1+Math.random()*2,r:2.2,strafe:Math.random()<.5?1:-1});
+    enemies.push({...t,hp:2+Math.floor(wave/3),heading:0,aim:0,cd:1+Math.random()*2,r:2.2,rc:9,strafe:Math.random()<.5?1:-1});
   }
 }
 function reset(){
   enemies.forEach(e=>e.root.dispose());bullets.forEach(b=>b.mesh.dispose());
+  debris.forEach(d=>d.m.dispose());debris.length=0;shake=0;
   if(player)player.root.dispose();
   enemies=[];bullets=[];score=0;wave=1;over=false;camYaw=0;aimPitch=.08;view.pitch=.45;
   genObs();
-  const t=makeTank(matP);player={...t,hp:LEO.hp,max:LEO.hp,heading:0,aim:0,cd:0,v:0,r:2.2};rlKey='';reloadHud();
+  const t=makeTank(matP);player={...t,hp:LEO.hp,max:LEO.hp,heading:0,aim:0,cd:0,v:0,r:2.2,rc:9};rlKey='';reloadHud();
   spawnEnemies(2);hud();document.getElementById('over').style.display='none';
 }
+function dmgFx(){const d=document.getElementById('dmg');d.style.transition='none';d.style.opacity=1;d.offsetWidth;d.style.transition='opacity .6s';d.style.opacity=0;}
 function hud(){
   document.getElementById('wave').textContent=wave;document.getElementById('score').textContent=score;
   document.getElementById('hpb').style.width=Math.max(0,player.hp/player.max*100)+'%';
@@ -393,12 +397,81 @@ function fire(t,owner,spread=0){
   if(owner==='p'){const c=Math.cos(p);bullets.push({mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:LEO.dmg});}
   else bullets.push({mesh:m,vx:Math.sin(a)*35,vy:0,vz:Math.cos(a)*35,g:0,life:2.2,owner});
   flash(o.x,o.y,o.z,.8);
+  t.rc=0; // 反動開始
+  const P=owner==='p';
+  burst(o.x,o.y,o.z,{n:P?14:8,r:.3,c1:[.78,.75,.7,.6],cd:[.8,.78,.74,0],s:[.7,1.4],grow:3,l:[.6,1.3],p:[1,3.5],g:1}); // 発砲煙
+  burst(o.x,gh(o.x,o.z)+.2,o.z,{n:P?14:6,hemi:1,r:1.2,c1:[.82,.7,.52,.55],cd:[.82,.72,.56,0],s:[1,2],grow:2.5,l:[.6,1.2],p:[2,5],g:-1}); // 爆風で舞う砂
+  if(P)addShake(.55);else addShake(.15,o.x,o.z);
 }
 const flashMat=new BABYLON.StandardMaterial('fm',scene);flashMat.emissiveColor=new BABYLON.Color3(1,.6,.1);flashMat.disableLighting=true;
 function flash(x,y,z,s){
   const m=BABYLON.MeshBuilder.CreateSphere('f',{diameter:s*2,segments:8},scene);m.position.set(x,y,z);
   m.material=flashMat;
   flashes.push({m,t:0,s});
+}
+// ===== 演出(パーティクル・破片・画面揺れ・反動) =====
+const FXN=MOBILE?.5:1; // スマホは粒子数を半分に
+const C4=a=>new BABYLON.Color4(a[0],a[1],a[2],a[3]);
+function burst(x,y,z,o){ // 使い捨てパーティクル(n個を一度に放出、rate指定時はdur秒間流し続ける)
+  const n=Math.max(3,Math.round(o.n*FXN)),ps=new BABYLON.ParticleSystem('fx',o.rate?Math.ceil(o.rate*FXN*(o.l[1]+.2)):n,scene);
+  ps.particleTexture=T.puff;ps.emitter=new BABYLON.Vector3(x,y,z);ps.updateSpeed=1/60; // 時間単位を秒に揃える
+  if(o.hemi)ps.createHemisphericEmitter(o.r||.5,0);else ps.createSphereEmitter(o.r||.5,0);
+  ps.color1=C4(o.c1);ps.color2=C4(o.c2||o.c1);ps.colorDead=C4(o.cd);
+  ps.minSize=o.s[0];ps.maxSize=o.s[1];
+  if(o.grow){ps.addSizeGradient(0,o.s[0],o.s[1]);ps.addSizeGradient(1,o.s[0]*o.grow,o.s[1]*o.grow);}
+  ps.minLifeTime=o.l[0];ps.maxLifeTime=o.l[1];ps.minEmitPower=o.p[0];ps.maxEmitPower=o.p[1];
+  ps.minInitialRotation=0;ps.maxInitialRotation=6.28;ps.minAngularSpeed=-1.5;ps.maxAngularSpeed=1.5;
+  ps.gravity=new BABYLON.Vector3(0,o.g||0,0);
+  ps.blendMode=o.add?BABYLON.ParticleSystem.BLENDMODE_ADD:BABYLON.ParticleSystem.BLENDMODE_STANDARD;
+  if(o.rate)ps.emitRate=o.rate*FXN;else ps.manualEmitCount=n;
+  ps.targetStopDuration=o.dur||.5; // 一括放出は初回フレームで済むので、停止までは余裕を持たせるps.disposeOnStop=true;
+  ps.onAnimationEnd=()=>{ps.particleTexture=null;}; // 共有テクスチャ(T.puff)まで破棄されないよう外してから自動破棄させる
+  ps.start();
+}
+// 破片(インスタンスで軽量化): 0=岩 1=金属 2=砂の塊
+const chipM=[matRock,matDark,mat(.68,.56,.4)].map(m=>{const b=BABYLON.MeshBuilder.CreateBox('chip',{size:1},scene);b.material=m;b.isVisible=false;b.isPickable=false;b.position.y=-50;return b;});
+const debris=[];
+function chips(x,y,z,n,k,pw){
+  for(let i=0,c=Math.round(n*FXN);i<c;i++){
+    const m=chipM[k].createInstance('c'),s=.12+Math.random()*.3,a=Math.random()*6.28,sp=pw*(.25+Math.random()*.55);
+    m.scaling.set(s,s*(.5+Math.random()*.6),s*(.7+Math.random()*.5));m.position.set(x,y+.2,z);m.isPickable=false;
+    debris.push({m,vx:Math.cos(a)*sp,vy:pw*(.6+Math.random()*.7),vz:Math.sin(a)*sp,wx:(Math.random()-.5)*14,wy:(Math.random()-.5)*14,wz:(Math.random()-.5)*14,life:1+Math.random()*1.2,sc:m.scaling.clone()});
+  }
+}
+let shake=0; // 画面揺れの強さ(距離で減衰させて加算)
+function addShake(a,x,z){
+  const d=x===undefined||!player?0:Math.hypot(x-player.root.position.x,z-player.root.position.z);
+  shake=Math.min(1.6,shake+a*Math.max(0,1-d/60));
+}
+function recoil(t,dt){ // 発砲の反動: 砲身が後退して戻り、車体と砲塔が揺れる
+  const r=t.rc+=dt,k=r<.05?r/.05:Math.max(0,1-(r-.05)/.55),e=k*k*(3-2*k);
+  t.barrel.position.z=1.5-.8*e;
+  const w=r<1.2?Math.exp(-r*4.5)*Math.sin(r*17):0;
+  t.root.rotation.x-=w*.07;t.turret.rotation.x=-w*.04;
+}
+// 戦車に命中(kill=撃破)
+function fxTank(x,y,z,kill){
+  flash(x,y,z,kill?2:.6);
+  burst(x,y,z,{n:40,add:1,r:.3,c1:[1,.92,.55,1],c2:[1,.55,.15,1],cd:[.6,.15,0,0],s:[.15,.4],l:[.25,.6],p:[8,18],g:-18}); // 火花
+  burst(x,y,z,{n:10,r:.5,c1:[.22,.2,.18,.75],c2:[.35,.32,.28,.6],cd:[.4,.38,.35,0],s:[1.2,2.2],grow:2.2,l:[.8,1.6],p:[1,3],g:2}); // 黒煙
+  chips(x,y,z,kill?14:6,1,kill?11:6);
+  if(kill){
+    burst(x,y,z,{n:30,add:1,r:1.2,c1:[1,.72,.3,1],c2:[1,.4,.1,1],cd:[.3,.1,.05,0],s:[2,4],grow:1.8,l:[.4,.9],p:[3,8],g:2}); // 火球
+    burst(x,gh(x,z)+.5,z,{rate:25,dur:3,hemi:1,r:1,c1:[.12,.11,.1,.75],c2:[.25,.23,.2,.6],cd:[.35,.34,.32,0],s:[1.6,2.8],grow:2.2,l:[1.5,2.5],p:[1,2.5],g:3}); // 立ち上る煙
+    burst(x,gh(x,z)+.3,z,{n:24,hemi:1,r:2,c1:[.8,.68,.5,.6],cd:[.8,.7,.55,0],s:[2,3],grow:2.5,l:[1,1.8],p:[6,10],g:-2}); // 衝撃で舞う砂
+    addShake(.9,x,z);
+  }else addShake(.35,x,z);
+}
+// 地面・障害物に着弾(rock=岩/壁)
+function fxGround(x,y,z,rock){
+  const gy=Math.max(y,gh(x,z));
+  flash(x,gy+.3,z,.45);
+  const c=rock?[.6,.56,.5]:[.84,.72,.53];
+  burst(x,gy,z,{n:30,hemi:1,r:.5,c1:[...c,.9],cd:[...c,0],s:[.9,1.8],grow:2.4,l:[.7,1.5],p:[6,12],g:-9}); // 土砂の噴き上がり
+  burst(x,gy+.2,z,{n:14,r:1,c1:[...c,.5],cd:[...c,0],s:[1.6,2.6],grow:3,l:[1.2,2.2],p:[2,4],g:.3}); // 横に広がる砂煙
+  burst(x,gy,z,{n:12,add:1,r:.2,c1:[1,.8,.45,1],cd:[.5,.2,0,0],s:[.1,.25],l:[.15,.35],p:[6,12],g:-15}); // 小さな火花
+  chips(x,gy,z,10,rock?0:2,rock?7:9);
+  addShake(.25,x,z);
 }
 function seat(t){ // 地形に合わせて高さと傾きを決める
   const p=t.root.position,h=t.root.rotation.y,fx=Math.sin(h),fz=Math.cos(h),rx=Math.cos(h),rz=-Math.sin(h);
@@ -457,6 +530,7 @@ scene.onBeforeRenderObservable.add(()=>{
     const shooting=keys.Space||keys.Enter||view.fireHeld||view.fireClick;view.fireClick=false;
     player.cd-=dt;
     if(shooting&&player.cd<=0){fire(player,'p');player.cd=LEO.reload;}
+    recoil(player,dt);
     reloadHud();
     // 敵AI
     enemies.forEach(e=>{
@@ -472,29 +546,50 @@ scene.onBeforeRenderObservable.add(()=>{
       e.turret.rotation.y=e.aim-e.heading;
       e.cd-=dt;
       if(e.cd<=0&&d<45&&Math.abs(nd(ta-e.aim))<.15){fire(e,'e',(Math.random()-.5)*.12);e.cd=2+Math.random()*1.5;}
+      recoil(e,dt);
     });
   }
   // 弾
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];b.vy-=b.g*dt;b.mesh.position.x+=b.vx*dt;b.mesh.position.y+=b.vy*dt;b.mesh.position.z+=b.vz*dt;b.life-=dt;
-    let hit=b.life<=0;const bx=b.mesh.position.x,by=b.mesh.position.y,bz=b.mesh.position.z;
-    if(by<=gh(bx,bz))hit=true;
-    if(!hit&&(Math.abs(bx)>B||Math.abs(bz)>B)&&by<10)hit=true;
-    if(!hit)for(const o of obs){if(by<o.h&&Math.hypot(bx-o.x,bz-o.z)<o.r){hit=true;break;}}
+    // fx: 着弾演出の種類(null=寿命切れで消えるだけ / 'g'=地面 / 'r'=障害物・壁 / 't'=戦車 / 'k'=撃破)
+    let hit=b.life<=0,fx=null;const bx=b.mesh.position.x,by=b.mesh.position.y,bz=b.mesh.position.z;
+    if(by<=gh(bx,bz)){hit=true;fx='g';}
+    if(!hit&&(Math.abs(bx)>B||Math.abs(bz)>B)&&by<10){hit=true;fx='r';}
+    if(!hit)for(const o of obs){if(by<o.h&&Math.hypot(bx-o.x,bz-o.z)<o.r){hit=true;fx='r';break;}}
     if(!hit&&b.owner==='p'){
       for(let j=enemies.length-1;j>=0;j--){const e=enemies[j];
         if(by<e.root.position.y+3.2&&Math.hypot(bx-e.root.position.x,bz-e.root.position.z)<2.4){
-          hit=true;e.hp-=b.dmg||1;
-          if(e.hp<=0){flash(e.root.position.x,1.5,e.root.position.z,3);e.root.dispose();enemies.splice(j,1);score+=100;}
+          hit=true;fx='t';e.hp-=b.dmg||1;
+          if(e.hp<=0){
+            fx='k';const ep=e.root.position;fxTank(ep.x,ep.y+1.5,ep.z,true);
+            // 砲塔が吹き飛ぶ
+            const tu=e.turret;tu.setParent(null);const a=Math.random()*6.28;
+            debris.push({m:tu,vx:Math.cos(a)*3,vy:11+Math.random()*4,vz:Math.sin(a)*3,wx:(Math.random()-.5)*3,wy:(Math.random()-.5)*5,wz:(Math.random()-.5)*3,life:4,big:1});
+            e.root.dispose();enemies.splice(j,1);score+=100;
+          }
           break;}}
     }else if(!hit&&!over){
       if(Math.hypot(bx-player.root.position.x,bz-player.root.position.z)<2.4){
-        hit=true;player.hp--;
-        if(player.hp<=0){over=true;flash(player.root.position.x,1.5,player.root.position.z,4);
+        hit=true;fx='t';player.hp--;addShake(.7);dmgFx();
+        if(player.hp<=0){over=true;fx=null;fxTank(player.root.position.x,player.root.position.y+1.5,player.root.position.z,true);addShake(1);
           document.getElementById('msg').textContent='GAME OVER  SCORE '+score;document.getElementById('over').style.display='flex';}
       }
     }
-    if(hit){flash(bx,Math.max(.5,by),bz,1.2);b.mesh.dispose();bullets.splice(i,1);hud();}
+    if(hit){
+      if(fx==='t')fxTank(bx,by,bz,false);else if(fx==='g'||fx==='r')fxGround(bx,by,bz,fx==='r');
+      b.mesh.dispose();bullets.splice(i,1);hud();
+    }
+  }
+  // 破片
+  for(let i=debris.length-1;i>=0;i--){
+    const d=debris[i],p=d.m.position;d.life-=dt;d.vy-=22*dt;
+    p.x+=d.vx*dt;p.y+=d.vy*dt;p.z+=d.vz*dt;
+    d.m.rotation.x+=d.wx*dt;d.m.rotation.y+=d.wy*dt;d.m.rotation.z+=d.wz*dt;
+    const g=gh(p.x,p.z)-(d.big&&d.life<1?(1-d.life)*2.5:0); // 砲塔は最後に地面へ沈めて消す
+    if(p.y<g){p.y=g;if(d.vy<0){d.vy*=-.3;d.vx*=.5;d.vz*=.5;d.wx*=.5;d.wy*=.5;d.wz*=.5;}}
+    if(!d.big&&d.life<.4)d.m.scaling.copyFrom(d.sc).scaleInPlace(Math.max(0,d.life/.4));
+    if(d.life<=0){d.m.dispose();debris.splice(i,1);}
   }
   for(let i=flashes.length-1;i>=0;i--){
     const f=flashes[i];f.t+=dt;const k=f.t/.35;f.m.scaling.setAll(1+k*1.5);f.m.visibility=Math.max(0,1-k);
@@ -506,7 +601,13 @@ scene.onBeforeRenderObservable.add(()=>{
   // カメラ追従
   view.pitch=.35+aimPitch*.9;const pp=player.root.position,sx=Math.sin(camYaw),sz=Math.cos(camYaw),cp=Math.cos(view.pitch),D=19;
   {const cx=pp.x-sx*cp*D,cz=pp.z-sz*cp*D;cam.position.set(cx,Math.max(pp.y+1.5+Math.sin(view.pitch)*D,gh(cx,cz)+2.5),cz);}
-  cam.setTarget(new BABYLON.Vector3(pp.x+sx*6,pp.y+1.5+aimPitch*30,pp.z+sz*6));
+  {const tg=new BABYLON.Vector3(pp.x+sx*6,pp.y+1.5+aimPitch*30,pp.z+sz*6);
+   if(shake>.001){ // 画面揺れ: カメラ位置と注視点を別々に揺らして回転方向にも振れさせる
+     const a=shake*shake,r=()=>Math.random()-.5;
+     cam.position.addInPlaceFromFloats(r()*a*.7,r()*a*.7,r()*a*.7);tg.addInPlaceFromFloats(r()*a*1.4,r()*a*1.4,r()*a*1.4);
+     shake=Math.max(0,shake-dt*2.2);
+   }
+   cam.setTarget(tg);}
   sun.position.set(pp.x+60,pp.y+120,pp.z+48);
 });
 
