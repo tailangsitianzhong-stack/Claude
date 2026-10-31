@@ -186,9 +186,10 @@ const CSM=!MOBILE&&engine.webGLVersion>=2&&!!BABYLON.CascadedShadowGenerator;
 if(CSM){ // PC: カスケードシャドウ。カメラの近くほど細かい4段の影マップで、足元はくっきり・遠くの建物の影も描く
   sg=new BABYLON.CascadedShadowGenerator(2048,sun);sg.numCascades=4;sg.lambda=.82;sg.shadowMaxZ=380;sg.stabilizeCascades=true;sg.cascadeBlendPercentage=.08;sg.depthClamp=true;
   sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_HIGH;sg.bias=.0012;sg.normalBias=.012;sg.darkness=.08;sg.autoCalcDepthBounds=false;
-}else{ // スマホ: プレイヤーのまわり(±45)だけの1枚の影マップ。ポアソン・サンプリングで縁を少しぼかす
-  sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-45;sun.orthoRight=45;sun.orthoTop=45;sun.orthoBottom=-45;sun.shadowMinZ=1;sun.shadowMaxZ=320;
-  sg=new BABYLON.ShadowGenerator(MOBILE?1024:2048,sun);sg.usePoissonSampling=true;sg.bias=.0008;sg.normalBias=.015;sg.darkness=.15;
+}else{ // スマホ: プレイヤーのまわり(±40)だけの1枚の影マップ。WebGL2 なら軽いPCFで縁をなめらかに、それ以外はポアソン・サンプリング
+  sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-40;sun.orthoRight=40;sun.orthoTop=40;sun.orthoBottom=-40;sun.shadowMinZ=1;sun.shadowMaxZ=320;
+  sg=new BABYLON.ShadowGenerator(2048,sun);sg.bias=.0008;sg.normalBias=.015;sg.darkness=.15;
+  if(engine.webGLVersion>=2){sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_LOW;}else sg.usePoissonSampling=true;
 }
 
 const B=150;
