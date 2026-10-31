@@ -248,6 +248,123 @@ for i, wc in enumerate(['#efe6d2', '#dcd6cc', '#f4f0e8', '#c8b8a0']):
             t.box(mat('conc', '#b0aca4'), -W, -.05, 2 * W, .12, 0, .03)
     _mk(i, wc)
 
+# ---------------------------------------------------------------- 実在の場所のタイル
+def sash(t, x0, y0, x1, y1, frame, glass, nx=3, ny=4, depth=.14):
+    """上げ下げ窓(格子の細かいガラス): ロンドンのジョージアン様式"""
+    window(t, x0, y0, x1, y1, frame, glass, cross=False, depth=depth, fw=.06)
+    for i in range(1, nx): x = x0 + (x1 - x0) * i / nx; t.box(frame, x - .02, y0, x + .02, y1, -depth, -depth + .04)
+    for j in range(1, ny): y = y0 + (y1 - y0) * j / ny; t.box(frame, x0, y - .02 if j != ny // 2 else y - .05, x1, y + .02 if j != ny // 2 else y + .05, -depth, -depth + .05)
+
+for i, (bc, wk) in enumerate([('#c9a86a', 'brick'), ('#9a4a36', 'brick'), ('#b89a70', 'brick')]):
+    def _mk(i, bc, wk):
+        @tile('ld_br%d' % i, 3.2, 3.0)
+        def _(t, W, H, rnd):
+            t.wall(mat(wk, bc), W, H)
+            x0, x1, y0, y1 = 1.0, 2.2, .45, 2.55
+            t.box(mat('brick', '#7a3a2a' if i != 1 else '#c9a86a'), x0 - .08, y1, x1 + .08, y1 + .26, 0, .02)     # 平アーチのまぐさ
+            sash(t, x0, y0, x1, y1, mat('paint', '#f2f0ea'), mat('glass', '#34404a'))
+            t.box(mat('ashlar', '#d8d2c2'), x0 - .1, y0 - .12, x1 + .1, y0, -.02, .1, bev=.015)
+            if i == 2: t.box(mat('ashlar', '#e0dacb'), -W, -.0, 2 * W, .14, 0, .04)
+            if i == 0:
+                t.box(mat('metal', '#141414'), x0 - .1, y0, x1 + .1, y0 + .05, .12, .3)                       # 鋳鉄のバルコネット
+                for k in range(9): x = x0 + (x1 - x0) * k / 8; t.box(mat('metal', '#141414'), x - .012, y0, x + .012, y0 + .45, .26, .29, bev=0)
+                t.box(mat('metal', '#141414'), x0 - .1, y0 + .43, x1 + .1, y0 + .47, .25, .3, bev=0)
+    _mk(i, bc, wk)
+
+@tile('ld_wh', 3.2, 3.0)
+def _(t, W, H, rnd):  # ロンドンの倉庫(シャッド・テムズ): 黄色いレンガ・丸いアーチの窓・鉄の帯
+    t.wall(mat('brick', '#a88a5a'), W, H)
+    x0, x1, y0, y1 = 1.0, 2.2, .5, 2.4
+    t.hole(x0, y0, x1, y1, .18, arch=True)
+    t.arch(mat('glass', '#2c3438'), x0, x1, y0, y1, -.2, -.18)
+    for k in range(1, 4): x = x0 + (x1 - x0) * k / 4; t.box(mat('metal', '#2a2a28'), x - .02, y0, x + .02, y1 - .3, -.18, -.15)
+    for j in range(1, 4): y = y0 + (y1 - y0 - .4) * j / 4; t.box(mat('metal', '#2a2a28'), x0, y - .02, x1, y + .02, -.18, -.15)
+    for a in range(9):
+        ang = math.pi * a / 8; r = .62; cx, cy = 1.6, y1 - .6
+        t.beam(mat('brick', '#8a5a3a'), cx + math.cos(ang) * (r - .02), cy + math.sin(ang) * (r - .02), cx + math.cos(ang) * (r + .2), cy + math.sin(ang) * (r + .2), .14, 0, .02)
+    t.box(mat('ashlar', '#c8bca2'), x0 - .1, y0 - .1, x1 + .1, y0, -.02, .08)
+    t.box(mat('metal', '#3a3a38'), -W, 2.85, 2 * W, 2.95, 0, .05)
+
+@tile('ld_shop', 3.2, 3.6)
+def _(t, W, H, rnd):  # ヴィクトリア朝の店先/パブ: 濃緑の木の看板・付柱・大きなガラス
+    t.wall(mat('wood', '#1e3a2a'), W, H)
+    t.box(mat('wood', '#1e3a2a'), -W, 2.7, 2 * W, 3.3, 0, .12, bev=.02); t.box(mat('paint', '#c8a050'), .3, 2.85, W - .3, 3.15, .12, .14, bev=0)
+    t.box(mat('wood', '#18301f'), -W, 3.3, 2 * W, 3.45, 0, .2, bev=.02)
+    for x in (0, W): t.box(mat('wood', '#18301f'), x - .14, 0, x + .14, 2.7, 0, .1, bev=.02)
+    window(t, .3, .7, W - .3, 2.55, mat('wood', '#1e3a2a'), mat('glass', '#2a3236'), cross=False, depth=.12, fw=.06)
+    for k in range(1, 3): x = .3 + (W - .6) * k / 3; t.box(mat('wood', '#1e3a2a'), x - .03, .7, x + .03, 2.55, -.12, -.08)
+    t.box(mat('wood', '#1e3a2a'), .3, 2.15, W - .3, 2.19, -.12, -.08)
+    t.box(mat('wood', '#18301f'), .2, 0, W - .2, .7, 0, .06, bev=.02)
+
+for i, (wc, hood) in enumerate([('#e2d4b4', 'tri'), ('#cfd2cc', 'flat'), ('#e6c8a8', 'arch')]):
+    def _mk(i, wc, hood):
+        @tile('bl_a%d' % i, 3.2, 3.2)
+        def _(t, W, H, rnd):  # ベルリンの旧建築(アルトバウ): 漆喰・窓の額縁と庇(三角/水平/弓形)・階の帯
+            t.wall(mat('plaster', wc), W, H)
+            light = mat('plaster', '#f0ebe0')
+            t.box(light, -W, 0, 2 * W, .2, 0, .07, bev=.01)
+            x0, x1, y0, y1 = 1.0, 2.2, .7, 2.6
+            ring(t, light, x0, y0, x1, y1, .13, 0, .05)
+            window(t, x0, y0, x1, y1, mat('paint', '#f4f2ec'), mat('glass', '#3a4650'), cross=True, depth=.16, fw=.07, hbar=.7)
+            t.box(light, x0 - .2, y0 - .16, x1 + .2, y0 - .02, -.02, .12, bev=.015)
+            if hood == 'tri':
+                for k in range(6): w = (x1 - x0 + .5) * (1 - k / 6); t.box(light, (x0 + x1) / 2 - w / 2, y1 + .18 + k * .07, (x0 + x1) / 2 + w / 2, y1 + .25 + k * .07, 0, .1, bev=0)
+                t.box(light, x0 - .25, y1 + .13, x1 + .25, y1 + .2, 0, .12, bev=.01)
+            elif hood == 'flat': t.box(light, x0 - .25, y1 + .14, x1 + .25, y1 + .32, 0, .14, bev=.02)
+            else:
+                for a in range(9): ang = math.pi * (.15 + .7 * a / 8); r = .9; cx, cy = 1.6, y1 - .45; t.beam(light, cx + math.cos(ang) * r, cy + math.sin(ang) * r, cx + math.cos(ang) * (r + .18), cy + math.sin(ang) * (r + .18), .2, 0, .08)
+            t.box(light, x0, y0 - .7, x1, y0 - .16, 0, .03)
+    _mk(i, wc, hood)
+
+@tile('bl_shop', 3.2, 4.0)
+def _(t, W, H, rnd):  # 1階: 粗い石積み(ルスティカ)と大きな窓
+    t.wall(mat('ashlar', '#a8a294'), W, H)
+    window(t, .35, .5, W - .35, 3.2, mat('metal', '#26282a'), mat('glass', '#2e383e'), cross=False, depth=.22, fw=.06)
+    t.box(mat('metal', '#26282a'), W / 2 - .03, .5, W / 2 + .03, 3.2, -.22, -.18); t.box(mat('metal', '#26282a'), .35, 2.6, W - .35, 2.65, -.22, -.18)
+    t.box(mat('ashlar', '#bcb6a8'), -W, 3.55, 2 * W, 3.85, 0, .14, bev=.02)
+
+@tile('bl_mod', 3.2, 3.4)
+def _(t, W, H, rnd):  # パリ広場まわりの新しい石張りの建物: 深い彫りの縦長窓
+    t.wall(mat('ashlar', '#d6cdb8'), W, H)
+    window(t, .9, .4, 2.3, 2.9, mat('metal', '#5a5a58'), mat('glass', '#3a464e'), cross=False, depth=.35, fw=.05)
+    t.box(mat('metal', '#5a5a58'), .9, 1.0, 2.3, 1.04, -.35, -.3)
+
+@tile('oa_shop', 3.2, 3.4)
+def _(t, W, H, rnd):  # 大洗の商店: 看板の帯・テント(日よけ)・シャッターの箱・ガラス戸
+    t.wall(mat('conc', '#d8d2c4'), W, H)
+    t.box(mat('paint', rnd.choice(['#2a5aa8', '#c8302a', '#2a8a5a', '#e0a020'])), -W, 2.5, 2 * W, 3.3, 0, .14, bev=.02)
+    t.box(mat('metal', '#9aa0a2'), -W, 2.25, 2 * W, 2.5, 0, .3, bev=.03)
+    window(t, .15, .1, W - .15, 2.2, mat('metal', '#b8bcbe'), mat('glass', '#3a444a'), cross=False, depth=.12, fw=.05)
+    for k in range(1, 4): x = .15 + (W - .3) * k / 4; t.box(mat('metal', '#b8bcbe'), x - .025, .1, x + .025, 2.2, -.12, -.08)
+    t.box(mat('conc', '#a8a49c'), -W, 0, 2 * W, .1, 0, .03)
+
+@tile('oa_old', 3.2, 2.8)
+def _(t, W, H, rnd):  # 古い木造の2階: 下見板・格子の引き違い窓・小庇
+    t.wall(mat('siding', '#6a4a32'), W, H)
+    x0, x1, y0, y1 = .5, 2.7, .7, 2.1
+    window(t, x0, y0, x1, y1, mat('wood', '#4a3020'), mat('glass', '#2c3438'), cross=False, depth=.08, fw=.05)
+    t.box(mat('wood', '#4a3020'), (x0 + x1) / 2 - .03, y0, (x0 + x1) / 2 + .03, y1, -.08, -.04)
+    for k in range(10): x = x0 + .1 + k * (x1 - x0 - .2) / 9; t.box(mat('wood', '#5a3a26'), x - .02, y0 + .05, x + .02, y1 - .05, .04, .08, bev=0)  # 格子
+    t.box(mat('metal', '#5a5e62'), -W, 2.3, 2 * W, 2.4, 0, .5, bev=.01)
+    t.box(mat('plaster', '#e8e2d4'), -W, 0, 2 * W, .3, 0, .02)
+
+@tile('tc_stone', 3.2, 3.0)
+def _(t, W, H, rnd):  # トスカーナの石の家: 不揃いな石積み・緑のよろい戸・石の窓枠
+    t.wall(mat('ashlar', '#c4ac84'), W, H)
+    x0, x1, y0, y1 = 1.1, 2.1, .7, 2.3
+    ring(t, mat('ashlar', '#d8c8a8'), x0, y0, x1, y1, .12, 0, .04)
+    window(t, x0, y0, x1, y1, mat('wood', '#5a4632'), mat('glass', '#2c3438'), cross=True, depth=.2, fw=.06, hbar=.6)
+    shutters(t, mat('wood', '#4a5a3a'), x0, y0, x1, y1)
+
+@tile('iq_conc', 3.2, 3.0)
+def _(t, W, H, rnd):  # イラク/クウェートの平屋根の家・役所: 砂色の漆喰・鉄格子の窓・水平の庇
+    t.wall(mat('plaster', '#d2c09a'), W, H)
+    x0, x1, y0, y1 = .9, 2.3, .9, 2.2
+    window(t, x0, y0, x1, y1, mat('metal', '#5a5048'), mat('glass', '#38403e'), cross=False, depth=.14, fw=.05)
+    for k in range(7): x = x0 + .1 + k * (x1 - x0 - .2) / 6; t.box(mat('metal', '#3a3430'), x - .015, y0, x + .015, y1, .02, .05, bev=0)
+    t.box(mat('conc', '#c8b690'), x0 - .3, y1 + .05, x1 + .3, y1 + .15, 0, .45, bev=.01)
+    t.box(mat('plaster', '#c4b28e'), -W, 0, 2 * W, .25, 0, .03)
+
 # ---------------------------------------------------------------- 描画
 def render(name, out):
     W, H, f = TILES[name]
