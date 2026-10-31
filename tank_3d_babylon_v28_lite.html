@@ -489,7 +489,9 @@ function mapKit(name,seed){
   K.solid=(x,z,w,d,h,ry)=>{ry=ry||0;K.ob.push({box:1,x,z,hw:w/2,hd:d/2,c:Math.cos(ry),s:-Math.sin(ry),h,rad:Math.hypot(w,d)/2,mesh:null});};
   K.circ=(x,z,r,h)=>K.ob.push({x,z,r,h,mesh:null});
   K.free=(x,z,pad)=>!K.ob.some(o=>obsIn(o,x,z,pad||0));
-  K.boxFree=(x,z,w,d,ry,pad)=>{const c=Math.cos(ry),sn=Math.sin(ry);return [[0,0],[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2],[0,d/2],[0,-d/2]].every(([a,b])=>K.free(x+a*c+b*sn,z-a*sn+b*c,pad));};
+  K.boxFree=(x,z,w,d,ry,pad)=>{const c=Math.cos(ry),sn=Math.sin(ry);pad=pad||0;
+    if(![[0,0],[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2],[0,d/2],[0,-d/2]].every(([a,b])=>K.free(x+a*c+b*sn,z-a*sn+b*c,pad)))return false;
+    return !K.ob.some(o=>{const dx=o.x-x,dz=o.z-z,r=(o.box?Math.min(o.hw,o.hd):o.r)+pad;return Math.abs(dx*c-dz*sn)<w/2+r&&Math.abs(dx*sn+dz*c)<d/2+r;});}; // 箱の点だけでなく、小さな物(車・信号)が箱の中に入っていないかも調べる
   K.mat=(name,tex,col,opt)=>{const m=new BABYLON.StandardMaterial('k_'+name,scene);if(tex)m.diffuseTexture=tex;m.diffuseColor=col||BABYLON.Color3.White();m.specularColor=new BABYLON.Color3(.05,.05,.05);if(opt)Object.assign(m,opt);return m;};
   K.finish=(mats,flat)=>{const ground=[];for(const k in K.parts){const g=BABYLON.Mesh.MergeMeshes(K.parts[k],true,true);if(!g)continue;g.material=mats[k]||mats._default;g.parent=K.root;g.isPickable=false;g.metadata={occ:1};
     g.receiveShadows=true;if(flat&&flat.test(k))ground.push(g);else sg.addShadowCaster(g);g.freezeWorldMatrix();}K.pr.build(K.root,K.upd);K.root.setEnabled(false);return ground;};
@@ -677,7 +679,7 @@ function buildOldTown(){
 // 東(+x)が太平洋。北東の大洗山の高台に大洗磯前神社(拝殿・随神門・二の鳥居・石灯籠)、坂の下の海沿いの道に一の鳥居、海の岩礁に神磯の鳥居。
 // 南東は大洗港(フェリーの岸壁・漁船・大洗マリンタワー・海鮮市場・アウトレット)。中央の磯浜は商店街(2階建ての商店・すずらん灯・のぼり)と住宅、
 // 西に国道51号と鹿島臨海鉄道の高架・大洗駅。海沿いは防潮堤・砂浜・海の家・ホテル。実際の町を約1/3に縮めて配置
-const OA={coast:92,beach:104,sea:-1.0,hill:[40,100,34,8.5],port:[60,-160,170,-84]};
+const OA={coast:92,beach:104,sea:-1.0,hill:[40,100,34,8.5],port:[60,-160,170,-92]};
 const oaInSea=(x,z)=>x>OA.beach+1||(x>OA.port[0]&&z<OA.port[3]);
 const ghOarai=(x,z)=>{let h=0;const [hx,hz,hr,hh]=OA.hill,d=Math.hypot(x-hx,(z-hz)*1.1);
   if(d<hr){const t=Math.min(1,(hr-d)/(hr-11));h=hh*t*t*(3-2*t);}
@@ -755,7 +757,7 @@ function buildJapan(){
    K.prop('marine_tower',40,0,-64,Math.PI/2);K.plane('stoneP',26,18,40,-64,.03,4);
    K.box('market',34,5,12,10,2.5,-104,0,4,4);K.box('roofBlue',35,.6,13,10,5.3,-104,0,4,4);K.sign('lbl_market',10,1.6,10,4.2,-97.95,Math.PI);K.solid(10,-104,34,12,6);   // 海鮮市場
    for(let i=0;i<3;i++){const x=-20+i*22;K.box('mall',18,7,14,x,3.5,-130,0,4,4);K.box('wood',18.4,.5,14.4,x,7.2,-130,0,4,4);K.solid(x,-130,18,14,8);} // アウトレット
-   for(let i=0;i<14;i++){const x=-28+(i%7)*7.5,z=-118+(i/7|0)*0;if(R()<.75)K.prop((R()<.5?'car_':'kei_')+['white','silver','black','red','blue'][R()*5|0],x,0,-117-(i/7|0)*0,0);}}
+   for(let i=0;i<7;i++){const x=-28+i*7.5;if(R()<.75)K.prop((R()<.5?'car_':'kei_')+['white','silver','black','red','blue'][R()*5|0],x,0,-117,0);}}
   // ---- 鹿島臨海鉄道の高架と大洗駅 ----
   {const RL=-130,y=7;K.box('conc',8,1.2,E*2,RL,y,0,0,4,4);for(const sd of [-1,1])K.box('conc',.3,1.2,E*2,RL+sd*3.85,y+1.2,0,0,4,4);
    for(let z=-E+6;z<E;z+=16){K.box('conc',3,y-.6,2.2,RL,(y-.6)/2,z,0,4,4);K.solid(RL,z,3.2,2.4,y);}
@@ -782,12 +784,13 @@ function buildJapan(){
   const blocked=(x,z,w,d,ry)=>!K.boxFree(x,z,w,d,ry,.3)||[[0,0],[w/2,d/2],[-w/2,d/2],[w/2,-d/2],[-w/2,-d/2]].some(([a,b])=>{const c=Math.cos(ry),sn=Math.sin(ry),px=x+a*c+b*sn,pz=z-a*sn+b*c;return onRoad(px,pz,-.15)||oaInSea(px,pz)||px>OA.coast-1||Math.hypot(px-OA.hill[0],(pz-OA.hill[1])*1.1)<OA.hill[2]+1||Math.abs(px+130)<6;});
   const strip=(x0,x1,z,side,kind)=>{let x=x0;while(x<x1-5){const w=Math.min(x1-x,5.5+R()*4.5),d=kind==='shop'?9:kind==='house'?7:12;const cz=z+side*(d/2+.3),ry=side>0?Math.PI:0;
       if(!blocked(x+w/2,cz,w,d,ry)){if(kind==='shop')shopHouse(x+w/2,cz,w,d,ry);else if(kind==='house'){if(R()<.85)houseJ(x+w/2,cz,w-1.5,d-1,ry);}else if(R()<.5)office(x+w/2,cz,w,d,2+(R()*3|0),ry);else mansion(x+w/2,cz,w,d,3+(R()*3|0),ry);}x+=w+.3;}};
+  // 特別な建物を先に置く(商店・住宅の列はこれを避けて並ぶ)
+  hotel(OA.coast-23,30,30,12,8);hotel(OA.coast-23,-25,22,12,6);konbiniB(-38,12,Math.PI);konbiniB(18,-60,Math.PI);
+  office(-80,-30,16,12,4,Math.PI/2);office(-82,16,14,12,3,Math.PI/2);K.box('white',22,8,14,20,4,-28,0,4,4);K.sign('lbl_town',10,1.6,20,6,-20.95,Math.PI);K.solid(20,-28,22,14,8.6);   // 町役場
   RZ.forEach(([z,x0,x1,hw,sw])=>{for(const side of [-1,1]){const e=z+side*(hw+sw);const kind=z===0?'shop':Math.abs(z)>80?'house':R()<.5?'mid':'house';
     cutSpans(x0,x1,RX.map(([rx,,,h2,s2])=>[rx-h2-s2-.5,rx+h2+s2+.5])).forEach(([a,b])=>strip(a,b,e,side,kind));}});
   // 南北の道沿いと区画の中: 住宅を詰める
   for(let z=-E+8;z<E-6;z+=10)for(let x=-E+8;x<OA.coast-4;x+=11){const ry=R()<.5?0:Math.PI;if(!blocked(x,z,7,7,ry)&&R()<.8)houseJ(x,z,6.5,6.5,ry);}
-  hotel(OA.coast-23,30,30,12,8);hotel(OA.coast-23,-25,22,12,6);konbiniB(-44,12,Math.PI);konbiniB(18,-60,Math.PI);
-  office(-80,-30,16,12,4,Math.PI/2);office(-82,16,14,12,3,Math.PI/2);K.box('white',22,8,14,20,4,-28,0,4,4);K.sign('lbl_town',10,1.6,20,6,-20.95,Math.PI);K.solid(20,-28,22,14,8.6);   // 町役場
   // ---- 商店街: すずらん灯・のぼり・自転車・自販機 ----
   for(let x=-E+10;x<OA.coast-8;x+=12){if(RX.some(([rx,z0,z1,h2,s2])=>Math.abs(x-rx)<h2+s2+3&&z0<0&&z1>0))continue;for(const sd of [-1,1]){const z=sd*4.4;if(K.free(x,z,.6))K.prop('suzuran',x,0,z,sd>0?Math.PI:0);}
     if(R()<.4){const z=(R()<.5?-1:1)*4.6;if(K.free(x+5,z,1))K.prop('nobori',x+4,0,z,0,{solid:false});}if(R()<.3){const z=(R()<.5?-1:1)*4.8;if(K.free(x+2,z,.8))K.prop('bike',x+2,0,z,Math.PI/2);}
@@ -799,7 +802,7 @@ function buildJapan(){
   RZ.forEach(([z,x0,x1,hw,sw])=>{const P=[];for(let x=x0+6;x<x1-4;x+=17)if(!RX.some(([rx,,,h2,s2])=>Math.abs(x-rx)<h2+s2+2))P.push([x,z-hw-sw-.5]);poles(P,Math.PI/2);});
   // ---- 街路樹・駐車中の車 ----
   for(let z=-E+10;z<E-10;z+=11)for(const sd of [-1,1]){const x=-60+sd*8.6;if(K.free(x,z,1.2)&&!RZ.some(([rz])=>Math.abs(z-rz)<10))K.prop('tree_broad',x,0,z,R()*6.3,{s:.75+R()*.2});}
-  for(let i=0;i<10;i++){const z=-E+20+R()*(E*2-40),sd=R()<.5?-1:1;if(RZ.some(([rz])=>Math.abs(z-rz)<14))continue;K.prop((R()<.6?'car_':'kei_')+['white','silver','black','red','blue'][R()*5|0],-60+sd*2.6,0,z,sd>0?0:Math.PI,{s:1.1});}
+  for(let i=0;i<10;i++){const z=-E+20+R()*(E*2-40),sd=R()<.5?-1:1;if(RZ.some(([rz])=>Math.abs(z-rz)<14)||!K.free(-60+sd*2.6,z,3))continue;K.prop((R()<.6?'car_':'kei_')+['white','silver','black','red','blue'][R()*5|0],-60+sd*2.6,0,z,sd>0?0:Math.PI,{s:1.1});}
   // ---- 素材 ----
   const MM=(k,t,col,o)=>K.mat(k,t,col,o);
   const mats={lot:MM('lot',lot),asph:MM('asph',asph,null,{zOffset:-1}),walk:MM('walk',walk,null,{zOffset:-1}),stoneP:MM('stoneP',stoneP,null,{zOffset:-2}),lineW:MM('lineW',null,new BABYLON.Color3(.92,.92,.9),{zOffset:-3}),lineY:MM('lineY',null,new BABYLON.Color3(.95,.72,.15),{zOffset:-3}),
@@ -922,7 +925,7 @@ function buildCity(){
   for(let z=-E+12;z<RIV-10;z+=13){if(Math.abs(z)<16||Math.abs(z-56)<9||Math.abs(z+56)<9||Math.abs(z-104)<9||Math.abs(z+104)<9||Math.abs(z-72)<9)continue;if(R()<.6)K.prop(tr[R()*2|0],EB+4.4,0,z,0);if(R()<.4)K.prop(tr[R()*2|0],WI-3.6,0,z+5,Math.PI);}
   K.prop('bvg_bus',96,0,-11,-Math.PI/2);K.prop('bvg_bus',140,0,11,Math.PI/2);
   for(let i=0;i<8;i++){const x=40+R()*110,z=(R()<.5?-1:1)*11;if(K.free(x,z,4))K.prop('car_burnt',x,0,z,Math.PI/2+(R()-.5)*.6,{s:.9});}
-  const barrier=(x,z,ry,n)=>{for(let k=0;k<n;k++){const [bx,bz]=K.l2w(x,z,ry,(k-(n-1)/2)*3.1,0);K.box('concrete',3,1,.7,bx,.5,bz,ry,4,4);K.box('concrete',3,.3,.4,bx,1.15,bz,ry,4,4);}K.solid(x,z,3.1*n,.8,1.3,ry);};
+  const barrier=(x,z,ry,n)=>{if(!K.boxFree(x,z,3.1*n,.8,ry,.5))return;for(let k=0;k<n;k++){const [bx,bz]=K.l2w(x,z,ry,(k-(n-1)/2)*3.1,0);K.box('concrete',3,1,.7,bx,.5,bz,ry,4,4);K.box('concrete',3,.3,.4,bx,1.15,bz,ry,4,4);}K.solid(x,z,3.1*n,.8,1.3,ry);};
   barrier(EB,-30,0,3);barrier(WI,80,0,3);barrier(-80,0,Math.PI/2,2);barrier(90,30,0,2);
   const hedgehog=(x,z)=>{for(let k=0;k<3;k++){const b=BABYLON.MeshBuilder.CreateBox('hh',{width:.25,height:.25,depth:2.6},scene);b.position.set(x,.9,z);b.rotation.set(k===0?.9:k===1?-.9:0,k===2?Math.PI/2:0,k===2?.9:0);K.add('iron',b);}K.circ(x,z,1.1,1.8);};
   [[-10,40],[56,-40],[-70,-30],[120,70],[-90,40],[30,-90]].forEach(([x,z])=>{if(K.free(x,z,2))hedgehog(x,z);});
@@ -987,10 +990,10 @@ function buildHills(){
   const top=(x0,x1,z0,z1)=>{let b=[0,0,-1e9];for(let x=x0;x<=x1;x+=4)for(let z=z0;z<=z1;z+=4){const h=G(x,z);if(h>b[2]&&roadD(x,z)>6)b=[x,z,h];}return b;};
   // ---- イトスギの並木道と丘の上の農家(ポデーレ) ----
   const avenue=ROADS[1];
-  for(let i=0;i<avenue.length-1;i++){const [x0,z0]=avenue[i],[x1,z1]=avenue[i+1],L=Math.hypot(x1-x0,z1-z0),nx=-(z1-z0)/L,nz=(x1-x0)/L;if(i<1)continue;
-    for(let t=3;t<L-2;t+=6.5)for(const sd of [-1,1]){const x=x0+(x1-x0)*t/L+nx*sd*3.4,z=z0+(z1-z0)*t/L+nz*sd*3.4;if(K.free(x,z,.8))K.prop('cypress',x,G(x,z)-.2,z,R()*6.3,{s:.95+R()*.15});}}
   {const [ex,ez]=avenue[avenue.length-1];K.prop('podere',ex-8,G(ex-8,ez),ez,-.4);for(let i=0;i<6;i++){const x=ex-20+i*3.2,z=ez+12;K.prop('vine_row',x,G(x,z),z,0);}
    for(let i=0;i<5;i++){const a=i*1.2,x=ex+4+Math.cos(a)*14,z=ez-4+Math.sin(a)*10;if(free(x,z,1))K.prop('cypress',x,G(x,z)-.2,z,0);}}
+  for(let i=0;i<avenue.length-1;i++){const [x0,z0]=avenue[i],[x1,z1]=avenue[i+1],L=Math.hypot(x1-x0,z1-z0),nx=-(z1-z0)/L,nz=(x1-x0)/L;if(i<1)continue;
+    for(let t=3;t<L-2;t+=6.5)for(const sd of [-1,1]){const x=x0+(x1-x0)*t/L+nx*sd*3.4,z=z0+(z1-z0)*t/L+nz*sd*3.4;if(K.free(x,z,.8))K.prop('cypress',x,G(x,z)-.2,z,R()*6.3,{s:.95+R()*.15});}}
   // ---- ヴィタレータ礼拝堂: 尾根の上、両脇にイトスギ ----
   {const [x,z,h]=top(70,130,40,110);K.prop('vitaleta',x,h-.1,z,Math.PI*.8);for(const sd of [-1,1]){const [cx,cz]=K.l2w(x,z,Math.PI*.8,sd*5.2,3);K.prop('cypress',cx,G(cx,cz)-.2,cz,0,{s:1.15});}
    for(let i=0;i<4;i++){const [cx,cz]=K.l2w(x,z,Math.PI*.8,-4+i*2.6,-10);K.prop('cypress',cx,G(cx,cz)-.2,cz,0,{s:.9});}}
