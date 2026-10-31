@@ -175,13 +175,21 @@ const scene=new BABYLON.Scene(engine);scene.skipPointerMovePicking=true;
 scene.clearColor=new BABYLON.Color4(.8,.77,.7,1);
 scene.fogMode=BABYLON.Scene.FOGMODE_EXP2;scene.fogDensity=0.0026;scene.fogColor=new BABYLON.Color3(.8,.77,.7);
 const cam=new BABYLON.FreeCamera('cam',new BABYLON.Vector3(0,22,-18),scene);cam.minZ=.8;cam.maxZ=2600; // 描画範囲を必要なだけにして奥行きの精度を上げる(重なった面のちらつき防止)
-const hl=new BABYLON.HemisphericLight('h',new BABYLON.Vector3(0,1,0),scene);hl.intensity=.7;
-const SUN=new BABYLON.Vector3(.55,.62,.45).normalize(); // 太陽の方向(地面→太陽)
-const sun=new BABYLON.DirectionalLight('s',SUN.negate(),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=.9;sun.diffuse=new BABYLON.Color3(1,.93,.8);
-sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-55;sun.orthoRight=55;sun.orthoTop=55;sun.orthoBottom=-55;sun.shadowMinZ=1;sun.shadowMaxZ=320;
-const sg=new BABYLON.ShadowGenerator(MOBILE?256:2048,sun);
-if(!MOBILE){sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_MEDIUM;sg.bias=.0006;sg.normalBias=.015;sg.darkness=.25;} // PCFで縁の柔らかい影
-if(MOBILE)scene.shadowsEnabled=false; // スマホは影なし(シェーダー軽量化)
+// ===== 太陽と影 =====
+// 日なたは強い直射光、日陰は空からの弱い光だけにして明暗をはっきりさせる(強さはマップごとの値に SUNK/HEMK を掛ける)
+const hl=new BABYLON.HemisphericLight('h',new BABYLON.Vector3(0,1,0),scene);hl.intensity=.4;
+const SUN=new BABYLON.Vector3(.58,.55,.48).normalize(); // 太陽の方向(地面→太陽)。高さ約36°で影が長く伸びる
+const SUNK=MOBILE?1.35:1.9,HEMK=MOBILE?.72:.68;
+const sun=new BABYLON.DirectionalLight('s',SUN.negate(),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=1.6;sun.diffuse=new BABYLON.Color3(1,.92,.78);
+let sg;
+const CSM=!MOBILE&&engine.webGLVersion>=2&&!!BABYLON.CascadedShadowGenerator;
+if(CSM){ // PC: カスケードシャドウ。カメラの近くほど細かい4段の影マップで、足元はくっきり・遠くの建物の影も描く
+  sg=new BABYLON.CascadedShadowGenerator(2048,sun);sg.numCascades=4;sg.lambda=.82;sg.shadowMaxZ=380;sg.stabilizeCascades=true;sg.cascadeBlendPercentage=.08;sg.depthClamp=true;
+  sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_HIGH;sg.bias=.0012;sg.normalBias=.012;sg.darkness=.08;sg.autoCalcDepthBounds=false;
+}else{ // スマホ: プレイヤーのまわり(±45)だけの1枚の影マップ。ポアソン・サンプリングで縁を少しぼかす
+  sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-45;sun.orthoRight=45;sun.orthoTop=45;sun.orthoBottom=-45;sun.shadowMinZ=1;sun.shadowMaxZ=320;
+  sg=new BABYLON.ShadowGenerator(MOBILE?1024:2048,sun);sg.usePoissonSampling=true;sg.bias=.0008;sg.normalBias=.015;sg.darkness=.15;
+}
 
 const B=150;
 await tick(.08,'テクスチャを生成中(地面)');
@@ -297,7 +305,7 @@ ground.material=gm;ground.receiveShadows=true;ground.parent=desertRoot;ground.fr
  const og=BABYLON.Mesh.MergeMeshes(parts,true);og.name='outer';og.material=om;og.isPickable=false;og.parent=desertRoot;og.freezeWorldMatrix();}
 // 画面効果:トーンマッピング・コントラスト・ビネット
 {const ip=scene.imageProcessingConfiguration;if(MOBILE){ip.isEnabled=false;}else{ip.toneMappingEnabled=true;ip.toneMappingType=1;ip.exposure=1.15;ip.contrast=1.25;ip.vignetteEnabled=true;ip.vignetteWeight=1.6;ip.vignetteStretch=.3;}}
-hl.groundColor=new BABYLON.Color3(.4,.33,.24);
+hl.groundColor=new BABYLON.Color3(.36,.32,.27); // 下向きの面(軒下・車体の下)は暗く
 // ===== 空(GLSLシェーダー): 大気の色・太陽とハロー・流れる積雲と巻雲・砂塵の地平線 =====
 BABYLON.Effect.ShadersStore.skyVertexShader=`precision highp float;
 attribute vec3 position;uniform mat4 worldViewProjection;varying vec3 vDir;
@@ -382,6 +390,9 @@ if(!MOBILE)try{const pp=new BABYLON.DefaultRenderingPipeline('dp',false,scene,[c
  pp.fxaaEnabled=true;pp.samples=4; /* パイプライン経由でもMSAA */if(!MOBILE){pp.bloomEnabled=true;pp.bloomThreshold=.85;pp.bloomWeight=.3;pp.bloomKernel=24;pp.sharpenEnabled=true;pp.sharpen.edgeAmount=.25;
   pp.chromaticAberrationEnabled=true;pp.chromaticAberration.aberrationAmount=6;pp.chromaticAberration.radialIntensity=.8; // 画面端のわずかな色ずれ
   pp.grainEnabled=true;pp.grain.intensity=5;pp.grain.animated=true;}}catch(e){}                                             // フィルムグレイン
+// 画面空間の環境遮蔽(SSAO): 建物の足元・壁の入隅・車体の下など、光の届きにくい所を暗くして接地感を出す(PCのみ)
+if(!MOBILE&&engine.webGLVersion>=2)try{const ao=new BABYLON.SSAO2RenderingPipeline('ssao',scene,{ssaoRatio:.5,blurRatio:.5},[cam],true);
+ ao.radius=2.4;ao.totalStrength=1.15;ao.base=.12;ao.samples=12;ao.maxZ=260;ao.minZAspect=.5;ao.expensiveBlur=false;ao.bilateralSoften=.02;}catch(e){}
 const dust=new BABYLON.ParticleSystem('dust',MOBILE?80:200,scene);
 dust.particleTexture=T.puff;dust.emitter=new BABYLON.Vector3(0,0,0);dust.minEmitBox=new BABYLON.Vector3(-1.4,0,-2.6);dust.maxEmitBox=new BABYLON.Vector3(1.4,.2,-1.5);
 dust.color1=new BABYLON.Color4(.85,.75,.58,.5);dust.color2=new BABYLON.Color4(.75,.65,.5,.4);dust.colorDead=new BABYLON.Color4(.75,.65,.5,0);
@@ -866,7 +877,7 @@ function buildCity(){
   for(const x of [44,WI-9,WI+9,GL-8])for(let z=7.6;z<15;z+=1.4)for(const sd of [-1,1])K.plane('lineW',3.6,.7,x,sd*z,.06,1);          // 横断歩道
   // ---- ブランデンブルク門とパリ広場 ----
   K.prop('brandenburg',-28,0,0,Math.PI/2);
-  for(const sd of [-1,1]){const z=sd*20;K.cyl('stone',7,7,.6,14,.3,z,24);K.cyl('water',6.2,6.2,.1,14,.55,z,24);K.circ(14,z,3.6,.8);K.plane('grass',10,6,26,z,.04,3);   // 噴水と花壇
+  for(const sd of [-1,1]){const z=sd*20;K.cyl('stone',7,7,.6,14,.3,z,24);K.cyl('water',6.2,6.2,.04,14,.65,z,24);K.circ(14,z,3.6,.8);K.plane('grass',10,6,26,z,.04,3);   // 噴水と花壇
     for(let x=-16;x<40;x+=8)if(Math.abs(x-14)>5)K.prop('linden',x,0,sd*29,R()*6.3,{s:.85});}
   K.prop('u_sign',44,0,18,Math.PI/2);K.prop('u_sign',44,0,-18,Math.PI/2);K.prop('ad_column',36,0,27,0);K.prop('ad_column',-38,0,-24,0);
   // ---- ウンター・デン・リンデン: 菩提樹の並木(中央遊歩道に2列・歩道に1列)・街灯・ベンチ ----
@@ -1035,7 +1046,7 @@ function buildHills(){
 function surf(o){
   if(PBR){const m=new BABYLON.PBRMaterial('pm',scene);if(o.tex)m.albedoTexture=o.tex;m.albedoColor=o.col||BABYLON.Color3.White();
     m.metallic=o.metal||0;m.roughness=o.rough===undefined?.7:o.rough;if(o.bump){m.bumpTexture=o.bump;m.bumpTexture.level=o.bl||.6;}
-    m.directIntensity=1.6;m.environmentIntensity=.75;m.realTimeFiltering=true;m.realTimeFilteringQuality=BABYLON.Constants.TEXTURE_FILTERING_QUALITY_LOW;return m;}
+    m.directIntensity=1.6;m.environmentIntensity=.55;m.realTimeFiltering=true;m.realTimeFilteringQuality=BABYLON.Constants.TEXTURE_FILTERING_QUALITY_LOW;return m;}
   const m=new BABYLON.StandardMaterial('sm',scene);if(o.tex)m.diffuseTexture=o.tex;m.diffuseColor=o.col||BABYLON.Color3.White();
   const sp=Math.max(.04,(1-(o.rough===undefined?.7:o.rough))*.6);m.specularColor=new BABYLON.Color3(sp,sp,sp);m.specularPower=8+(1-(o.rough||.7))*90;return m;
 }
@@ -1840,7 +1851,7 @@ function loadMap(id){
   ghCur=m.gh||(()=>0);
   genObs();
   scene.fogColor.set(...m.fog);scene.fogDensity=m.fogD;skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('cover',m.cover);
-  sun.intensity=m.sun;hl.intensity=m.hemi;
+  sun.intensity=m.sun*SUNK;hl.intensity=m.hemi*HEMK;
   const fm=farMt.material;fm.emissiveTexture=cur.sky;fm.opacityTexture=cur.sky;
   dust.color1=new BABYLON.Color4(...m.drive,.5);dust.color2=new BABYLON.Color4(m.drive[0]*.9,m.drive[1]*.9,m.drive[2]*.9,.4);dust.colorDead=new BABYLON.Color4(...m.drive,0);
   if(probe){probe.renderList.length=0;[scene.getMeshByName('sky'),farMt,...cur.ground].forEach(x=>x&&probe.renderList.push(x));probe.cubeTexture.resetRefreshCounter();}
