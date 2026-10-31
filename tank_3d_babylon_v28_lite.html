@@ -37,7 +37,7 @@ body.sel #sel{display:block}
 #mselP{display:none;position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(560px,94vw);box-sizing:border-box;padding:14px 16px;border-radius:14px;background:rgba(14,18,14,.72);border:1px solid rgba(255,255,255,.25);pointer-events:auto;backdrop-filter:blur(4px);max-height:calc(100dvh - 60px);overflow:auto}
 body.msel #mselP{display:block}body.msel #selP,body.msel .arw{display:none}
 #mselP .mt{text-align:center;font-size:16px;letter-spacing:.3em;margin-bottom:8px}
-.mcards{display:flex;gap:8px}.mcard{flex:1;border:2px solid rgba(255,255,255,.25);border-radius:10px;overflow:hidden;cursor:pointer;background:rgba(0,0,0,.3);text-align:center;font-size:13px}
+.mcards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.mcard{flex:1;border:2px solid rgba(255,255,255,.25);border-radius:10px;overflow:hidden;cursor:pointer;background:rgba(0,0,0,.3);text-align:center;font-size:13px}
 .mcard svg{display:block;width:100%;height:auto}.mcard b{display:block;padding:5px 2px}.mcard.on{border-color:#ffd36a;box-shadow:0 0 0 2px rgba(255,211,106,.4)}
 #mselP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}.mbtns{display:flex;gap:10px}
 #mback{flex:1;font-size:16px;padding:9px;border-radius:999px;border:2px solid #fff;background:rgba(60,70,80,.85);color:#fff}#mgo{flex:2;font-size:20px;letter-spacing:.3em;padding:9px;border-radius:999px;border:2px solid #fff;background:rgba(150,50,40,.9);color:#fff}
@@ -110,7 +110,9 @@ body.sel #snd{top:auto;bottom:12px}
 <div id="mselP"><div class="scr"><div class="mt">マップ選択</div>
  <div class="mcards"><div class="mcard" data-map="desert"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#9bb4cc"/><path d="M0 46 Q40 30 80 44 T160 38 V80 H0Z" fill="#c8a46a"/><path d="M0 60 Q60 48 110 60 T160 56 V80 H0Z" fill="#a67c45"/><rect x="104" y="22" width="14" height="26" fill="#9a5a3a"/><path d="M30 50 q2 -14 4 -18 M34 32 l-8 4 M34 32 l8 4 M34 32 l-6 -3 M34 32 l7 -2" stroke="#3d4a20" stroke-width="2" fill="none"/></svg><b>中東の岩石砂漠</b></div>
  <div class="mcard" data-map="hills"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#8fbde6"/><circle cx="134" cy="16" r="7" fill="#fff6c8"/><path d="M0 40 Q30 28 60 36 T120 30 T160 34 V80 H0Z" fill="#7d9bb0"/><path d="M0 52 Q40 34 80 48 T160 44 V80 H0Z" fill="#6f9a48"/><path d="M0 66 Q50 52 100 64 T160 60 V80 H0Z" fill="#5b8a38"/><g fill="#2e5a2a"><path d="M22 52 l5 -14 l5 14Z"/><path d="M30 54 l5 -16 l5 16Z"/><path d="M38 52 l4 -12 l4 12Z"/></g><rect x="104" y="50" width="12" height="8" fill="#f2efe6"/><path d="M102 50 L110 44 L118 50Z" fill="#8e4a32"/><rect x="120" y="48" width="10" height="10" fill="#8c2e22"/></svg><b>緑の丘陵</b></div>
- <div class="mcard" data-map="city"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#a9b0b8"/><rect y="62" width="160" height="18" fill="#56565a"/><rect x="6" y="26" width="30" height="36" fill="#d8ccb2"/><path d="M4 26 L21 14 L38 26Z" fill="#8e4a32"/><rect x="40" y="32" width="26" height="30" fill="#cfa86e"/><rect x="70" y="10" width="12" height="52" fill="#c9c2b2"/><path d="M68 10 L76 -4 L84 10Z" fill="#4a4c52"/><rect x="88" y="24" width="32" height="38" fill="#b9b6ae"/><rect x="124" y="30" width="30" height="32" fill="#9a5a44"/><g fill="#46545c"><rect x="12" y="32" width="6" height="8"/><rect x="24" y="32" width="6" height="8"/><rect x="12" y="46" width="6" height="8"/><rect x="24" y="46" width="6" height="8"/><rect x="46" y="38" width="5" height="8"/><rect x="56" y="38" width="5" height="8"/><rect x="94" y="30" width="6" height="8"/><rect x="108" y="30" width="6" height="8"/><rect x="94" y="44" width="6" height="8"/><rect x="108" y="44" width="6" height="8"/><rect x="130" y="36" width="6" height="8"/><rect x="142" y="36" width="6" height="8"/></g></svg><b>ヨーロッパの市街地</b></div></div>
+ <div class="mcard" data-map="city"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#a9b0b8"/><rect y="62" width="160" height="18" fill="#56565a"/><rect x="6" y="26" width="30" height="36" fill="#d8ccb2"/><path d="M4 26 L21 14 L38 26Z" fill="#8e4a32"/><rect x="40" y="32" width="26" height="30" fill="#cfa86e"/><rect x="70" y="10" width="12" height="52" fill="#c9c2b2"/><path d="M68 10 L76 -4 L84 10Z" fill="#4a4c52"/><rect x="88" y="24" width="32" height="38" fill="#b9b6ae"/><rect x="124" y="30" width="30" height="32" fill="#9a5a44"/><g fill="#46545c"><rect x="12" y="32" width="6" height="8"/><rect x="24" y="32" width="6" height="8"/><rect x="12" y="46" width="6" height="8"/><rect x="24" y="46" width="6" height="8"/><rect x="46" y="38" width="5" height="8"/><rect x="56" y="38" width="5" height="8"/><rect x="94" y="30" width="6" height="8"/><rect x="108" y="30" width="6" height="8"/><rect x="94" y="44" width="6" height="8"/><rect x="108" y="44" width="6" height="8"/><rect x="130" y="36" width="6" height="8"/><rect x="142" y="36" width="6" height="8"/></g></svg><b>ヨーロッパの市街地</b></div>
+ <div class="mcard" data-map="oldtown"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#a8c4dc"/><rect y="64" width="160" height="16" fill="#7a6c5c"/><g stroke="#4a3020" stroke-width="1.5"><rect x="8" y="34" width="22" height="30" fill="#efe2c8"/><path d="M8 44 H30 M8 54 H30 M19 34 V64 M8 34 L30 54 M30 34 L8 54"/><rect x="34" y="30" width="20" height="34" fill="#e7c9a0"/><path d="M34 42 H54 M34 52 H54 M44 30 V64"/><rect x="106" y="32" width="20" height="32" fill="#f0d8d0"/><path d="M106 44 H126 M106 54 H126 M116 32 V64 M106 32 L126 54"/><rect x="130" y="36" width="22" height="28" fill="#dfe8d8"/><path d="M130 46 H152 M141 36 V64"/></g><path d="M6 34 L19 16 L32 34Z M32 30 L44 12 L56 30Z M104 32 L116 14 L128 32Z M128 36 L141 18 L154 36Z" fill="#8e3e28"/><rect x="64" y="14" width="30" height="50" fill="#d8ccb0"/><rect x="72" y="2" width="14" height="24" fill="#d8ccb0"/><circle cx="79" cy="14" r="5" fill="#f4efe0" stroke="#3a3a3a"/><path d="M70 2 L79 -10 L88 2Z" fill="#4a5a50"/></svg><b>伝統的な街並み</b></div>
+ <div class="mcard" data-map="japan"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#b8cfe4"/><rect x="4" y="10" width="26" height="56" fill="#9aa8b4"/><g fill="#5a7088"><rect x="8" y="14" width="18" height="3"/><rect x="8" y="22" width="18" height="3"/><rect x="8" y="30" width="18" height="3"/><rect x="8" y="38" width="18" height="3"/><rect x="8" y="46" width="18" height="3"/></g><rect x="34" y="24" width="22" height="42" fill="#e8e2d6"/><g fill="#8a8a8a"><rect x="34" y="32" width="22" height="2"/><rect x="34" y="42" width="22" height="2"/><rect x="34" y="52" width="22" height="2"/></g><rect x="60" y="48" width="30" height="18" fill="#f6f6f2"/><rect x="60" y="48" width="30" height="5" fill="#2a9a5a"/><rect x="58" y="16" width="5" height="20" fill="#d23a2a"/><text x="60.5" y="24" font-size="5" fill="#fff">居</text><text x="60.5" y="31" font-size="5" fill="#fff">酒</text><rect y="66" width="160" height="14" fill="#55575c"/><g stroke="#333" stroke-width="1"><path d="M100 66 V18 M96 22 H104 M140 66 V18 M136 22 H144"/><path d="M100 24 Q120 30 140 24 M100 27 Q120 33 140 27" fill="none"/></g><rect x="108" y="44" width="5" height="10" fill="#c8302a"/><rect x="104" y="40" width="13" height="3" fill="#c8302a"/></svg><b>日本の市街地</b></div></div>
  <div class="ft" id="mselD"></div></div><div class="mbtns"><button id="mback">◀ 戻る</button><button id="mgo">出撃</button></div></div></div>
 <div id="title">
 <svg viewBox="0 0 400 200" preserveAspectRatio="none"><path d="M0 70 Q80 20 160 60 T400 40 V200 H0Z" fill="#a67c45"/><path d="M0 120 Q120 70 240 110 T400 90 V200 H0Z" fill="#8a6638"/>
@@ -260,7 +262,12 @@ function texMat(d,n,c){const m=new BABYLON.StandardMaterial('tm',scene);m.diffus
   g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.5,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);T.puff=mk(c,1,1,1);}
 }
 // なだらかな起伏のある地形(中心は平地)
-const ghDesert=(x,z)=>(Math.sin(x*.021+1.3)*Math.cos(z*.017)*3.4+Math.sin(x*.047+z*.039)*1.4+Math.cos(x*.09-z*.07)*.55+Math.sin(x*.21+z*.17)*.15+Math.abs(Math.sin(x*.012+z*.02))*2.6)*Math.min(1,Math.hypot(x,z)/25);
+// 砂漠の名所: オアシス(中心x,z,半径)と轍の道
+const OASIS=[-85,62,9],DROAD=[[-150,-30],[-90,-12],[-30,-22],[20,6],[80,22],[150,10]];
+function distPoly(x,z,P){let m=1e9;for(let i=0;i<P.length-1;i++)m=Math.min(m,segDist(P[i][0],P[i][1],P[i+1][0],P[i+1][1],x,z));return m;}
+const ghDesert0=(x,z)=>(Math.sin(x*.021+1.3)*Math.cos(z*.017)*3.4+Math.sin(x*.047+z*.039)*1.4+Math.cos(x*.09-z*.07)*.55+Math.sin(x*.21+z*.17)*.15+Math.abs(Math.sin(x*.012+z*.02))*2.6)*Math.min(1,Math.hypot(x,z)/25);
+const OASIS_H=ghDesert0(OASIS[0],OASIS[1])-1.5; // オアシスはすり鉢状にくぼませる
+const ghDesert=(x,z)=>{const h=ghDesert0(x,z),d=Math.hypot(x-OASIS[0],z-OASIS[1]);if(d>OASIS[2]+7)return h;const t=Math.min(1,Math.max(0,(OASIS[2]+7-d)/8));return h+(OASIS_H-h)*t*t*(3-2*t);};
 let ghCur=ghDesert;const gh=(x,z)=>ghCur(x,z); // 地形の高さ(マップで切り替え。市街地は平ら)
 const desertRoot=new BABYLON.TransformNode('desert',scene); // 砂漠だけのもの(マップ切り替えで表示/非表示)
 await tick(.7,'地形を生成中');
@@ -276,6 +283,8 @@ const ground=BABYLON.MeshBuilder.CreateGround('g',{width:B*2+10,height:B*2+10,su
   const rock=Math.max(0,Math.min(1,sl*5-.3+(n>.7?(n-.7)*1.6:0)+(Math.sin(x*.045)*Math.sin(z*.05)>.45?.6:0))); // 岩場・礫
   const rr=.46+j*.08+n*.03,rg=.38+j*.07+n*.025,rb=.3+j*.06+n*.02;
   r+=(rr-r)*rock;g+=(rg-g)*rock;b+=(rb-b)*rock;
+  {const dr=distPoly(x,z,DROAD);if(dr<3.2){const k=(1-dr/3.2)*.35+(Math.abs(dr-1.1)<.35?.25:0);r-=k*.14;g-=k*.13;b-=k*.1;}} // 轍の道(踏み固められて暗い2本の轍)
+  {const d=Math.hypot(x-OASIS[0],z-OASIS[1]);if(d<OASIS[2]+10){const k=Math.min(1,(OASIS[2]+10-d)/8);r-=k*.28;g-=k*.12;b-=k*.18;}} // オアシスの周りは湿って緑がかる
   C.push(r,g,b,1);}
  ground.updateVerticesData('position',P);ground.updateVerticesData('normal',N);ground.setVerticesData('color',C,true);}
 const gm=new BABYLON.StandardMaterial('gm',scene);gm.diffuseColor=BABYLON.Color3.White();gm.specularColor=BABYLON.Color3.Black();gm.diffuseTexture=T.sand;if(!MOBILE){gm.bumpTexture=T.sandN;gm.bumpTexture.level=.5;}
@@ -479,9 +488,10 @@ function makeRuin(x,gy,z){
 }
 function genObs(){
   obs.forEach(o=>o.mesh&&o.mesh.dispose());obs.length=0;
-  if(MAPID==='city'||MAPID==='hills'){(MAPID==='city'?buildCity():buildHills()).obs.forEach(o=>obs.push(o));obsIndex();return;} // 市街地・丘陵: 固定(作り直さない) // 市街地: 建物は固定(作り直さない)
+  if(MAPID!=='desert'){mapBuilt(MAPID).obs.forEach(o=>obs.push(o));obsIndex();return;} // 砂漠以外: 固定(作り直さない)
+  desertData().obs.forEach(o=>obs.push(o));                                                       // 砂漠: 固定の名所(オアシス等)の上に岩をランダム配置 // 市街地・丘陵: 固定(作り直さない) // 市街地: 建物は固定(作り直さない)
   for(let i=0;i<(MOBILE?55:90);i++){
-    let x,z;do{x=(Math.random()*2-1)*(B-8);z=(Math.random()*2-1)*(B-8);}while(Math.hypot(x,z)<18);
+    let x,z;do{x=(Math.random()*2-1)*(B-8);z=(Math.random()*2-1)*(B-8);}while(Math.hypot(x,z)<18||obs.some(o=>obsIn(o,x,z,8)));
     const gy=gh(x,z),q=Math.random(),sd=Math.random()*50,mt=rockMats[i%4];
     if(q<.5){ // 岩の群れ(大岩+周りの小岩)
       const w=3+Math.random()*6,h=w*(.55+Math.random()*.35),m=makeRock(sd),arr=[m];
@@ -512,6 +522,337 @@ function genObs(){
   const s=.6+Math.random()*.9,b=bm.createInstance('bi');b.scaling.set(s,s*(.7+Math.random()*.5),s);b.position.set(x,gh(x,z)+.62*s,z);b.rotation.y=Math.random()*3;b.isPickable=false;b.parent=desertRoot;b.freezeWorldMatrix();}
  for(let i=0;i<(MOBILE?120:320);i++){const x=(Math.random()*2-1)*(B-4),z=(Math.random()*2-1)*(B-4);
   const s=.12+Math.random()*.35,b=pb.createInstance('pi');b.scaling.set(s,s*.7,s*(.7+Math.random()*.6));b.position.set(x,gh(x,z)+s*.12,z);b.rotation.y=Math.random()*6;b.isPickable=false;b.parent=desertRoot;b.freezeWorldMatrix();}}
+// ===== マップ作りの共通キット =====
+// Canvasで描いたテクスチャ、実寸UVの箱・切妻屋根・寄棟屋根・円柱・板・看板、当たり判定(箱/円)、素材ごとの結合
+const JPF='"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic","Meiryo",sans-serif';
+function ctex(w,h,f,alpha){const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new BABYLON.DynamicTexture('mt',c,scene,true);t.wrapU=t.wrapV=1;t.anisotropicFilteringLevel=MOBILE?2:8;if(alpha)t.hasAlpha=true;t.update();return t;}
+function grainC(x,w,h,a,R){for(let i=0;i<w*h/40;i++){x.fillStyle='rgba('+(R()<.5?'0,0,0':'255,255,255')+','+(R()*a)+')';x.fillRect(R()*w,R()*h,1+R()*2,1+R()*2);}}
+function mapKit(name,seed){
+  const K={root:new BABYLON.TransformNode(name,scene),R:srnd(seed),ob:[],parts:{},fx:[],upd:[]};
+  K.add=(k,m)=>{(K.parts[k]=K.parts[k]||[]).push(m);return m;};
+  K.box=(k,w,h,d,x,y,z,ry,uw,uh)=>{uw=uw||3.2;uh=uh||3;const fu=[0,1,2,3,4,5].map(i=>i<2?new BABYLON.Vector4(0,0,w/uw,h/uh):i<4?new BABYLON.Vector4(0,0,d/uw,h/uh):new BABYLON.Vector4(0,0,w/uw,d/uw));
+    const b=BABYLON.MeshBuilder.CreateBox('kb',{width:w,height:h,depth:d,faceUV:fu,wrap:true},scene);b.position.set(x,y,z);b.rotation.y=ry||0;return K.add(k,b);};
+  K.cyl=(k,dt,db,h,x,y,z,tess,rx,rz,ry)=>{const c=BABYLON.MeshBuilder.CreateCylinder('kc',{diameterTop:dt,diameterBottom:db,height:h,tessellation:tess||12},scene);c.position.set(x,y,z);c.rotation.set(rx||0,ry||0,rz||0);return K.add(k,c);};
+  K.gable=(k,w,d,hr,x,y,z,ry,ow,ol)=>{ // 切妻屋根: 棟はローカルz方向(奥行きd)。ow/ol: 横・妻側の張り出し
+    ow=ow===undefined?.3:ow;ol=ol===undefined?.3:ol;const shape=[new BABYLON.Vector3(-w/2-ow,0,0),new BABYLON.Vector3(0,hr,0),new BABYLON.Vector3(w/2+ow,0,0)];
+    const m=BABYLON.MeshBuilder.ExtrudeShape('kg',{shape,path:[new BABYLON.Vector3(0,0,-d/2-ol),new BABYLON.Vector3(0,0,d/2+ol)],cap:BABYLON.Mesh.CAP_ALL,sideOrientation:2},scene);
+    const uv=m.getVerticesData('uv');for(let i=0;i<uv.length;i++)uv[i]*=i%2?(d+2*ol)/2.5:(w+hr)/2.5;m.setVerticesData('uv',uv);m.position.set(x,y,z);m.rotation.y=ry||0;return K.add(k,m);};
+  K.hip=(k,w,d,h,x,y,z,ry)=>{ // 寄棟・方形屋根(四角錐を縦横に伸ばす)
+    const c=BABYLON.MeshBuilder.CreateCylinder('kh',{diameterTop:0,diameterBottom:1.4142,height:h,tessellation:4},scene);c.rotation.y=Math.PI/4;c.bakeCurrentTransformIntoVertices();
+    c.scaling.set(w,1,d);c.position.set(x,y+h/2,z);c.rotation.y=ry||0;return K.add(k,c);};
+  K.plane=(k,w,d,x,z,y,uvk,ry)=>{const g=BABYLON.MeshBuilder.CreateGround('kp',{width:w,height:d},scene);const uv=g.getVerticesData('uv');for(let i=0;i<uv.length;i++)uv[i]*=(i%2?d:w)/uvk;g.setVerticesData('uv',uv);g.position.set(x,y,z);g.rotation.y=ry||0;return K.add(k,g);};
+  K.sign=(k,w,h,x,y,z,ry)=>{const m=BABYLON.MeshBuilder.CreatePlane('ks',{width:w,height:h,sideOrientation:2},scene);m.position.set(x,y,z);m.rotation.y=ry||0;return K.add(k,m);}; // 看板(テクスチャ全体を貼る板)
+  K.solid=(x,z,w,d,h,ry)=>{ry=ry||0;K.ob.push({box:1,x,z,hw:w/2,hd:d/2,c:Math.cos(ry),s:-Math.sin(ry),h,rad:Math.hypot(w,d)/2,mesh:null});};
+  K.circ=(x,z,r,h)=>K.ob.push({x,z,r,h,mesh:null});
+  K.free=(x,z,pad)=>!K.ob.some(o=>obsIn(o,x,z,pad||0));
+  K.boxFree=(x,z,w,d,ry,pad)=>{const c=Math.cos(ry),sn=Math.sin(ry);return [[0,0],[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2],[0,d/2],[0,-d/2]].every(([a,b])=>K.free(x+a*c+b*sn,z-a*sn+b*c,pad));};
+  K.mat=(name,tex,col,opt)=>{const m=new BABYLON.StandardMaterial('k_'+name,scene);if(tex)m.diffuseTexture=tex;m.diffuseColor=col||BABYLON.Color3.White();m.specularColor=new BABYLON.Color3(.05,.05,.05);if(opt)Object.assign(m,opt);return m;};
+  K.finish=(mats,flat)=>{const ground=[];for(const k in K.parts){const g=BABYLON.Mesh.MergeMeshes(K.parts[k],true,true);if(!g)continue;g.material=mats[k]||mats._default;g.parent=K.root;g.isPickable=false;g.metadata={occ:1};
+    g.receiveShadows=true;if(flat&&flat.test(k))ground.push(g);else sg.addShadowCaster(g);g.freezeWorldMatrix();}K.root.setEnabled(false);return ground;};
+  return K;
+}
+// 遠景の稜線テクスチャ(山並み・街並みのシルエット)
+function farRidge(layers,haze,builder){
+  const W=2048,H=256,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');builder(x,W,H);
+  const g=x.createLinearGradient(0,H*.3,0,H);g.addColorStop(0,'rgba('+haze+',0)');g.addColorStop(1,'rgba('+haze+',.82)');x.globalCompositeOperation='source-atop';x.fillStyle=g;x.fillRect(0,0,W,H);
+  const t=new BABYLON.DynamicTexture('fr',c,scene,true);t.hasAlpha=true;t.wrapU=1;t.update();t.level=.9;return t;
+}
+// マップの外の地面(マップを囲む4枚の板)
+function outerRing(K,col,tex,uv){const om=new BABYLON.StandardMaterial('outer_'+K.root.name,scene);om.disableLighting=true;om.emissiveColor=col;if(tex){om.emissiveTexture=tex;tex.uScale=tex.vScale=uv||120;}
+  const E=B+5,F=1100,ps=[[0,(E+F)/2,2*F,F-E],[0,-(E+F)/2,2*F,F-E],[(E+F)/2,0,F-E,2*E],[-(E+F)/2,0,F-E,2*E]].map(([x,z,w,d])=>{const m=BABYLON.MeshBuilder.CreateGround('o',{width:w,height:d},scene);m.position.set(x,-.3,z);return m;});
+  const og=BABYLON.Mesh.MergeMeshes(ps,true);og.material=om;og.parent=K.root;og.isPickable=false;og.freezeWorldMatrix();return og;}
+// ===== 砂漠の名所: オアシスと集落・ベドウィンのテント・油井・放棄車両・電柱(固定。岩は毎回ランダム) =====
+let desertStd=null;
+function desertData(){
+  if(desertStd)return desertStd;
+  const K=mapKit('desertX',909),R=K.R,G=ghDesert;
+  const cloth=ctex(128,128,(x,w,h)=>{x.fillStyle='#2e2622';x.fillRect(0,0,w,h);for(let y=0;y<h;y+=16){x.fillStyle=(y/16)%2?'#4a3a30':'#8a6a48';x.fillRect(0,y,w,6);}grainC(x,w,h,.12,R);});
+  const water=K.mat('water',null,new BABYLON.Color3(.2,.36,.38),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.88});
+  // オアシス: 水面・葦・ヤシ・日干しレンガの家
+  {const [ox,oz,r]=OASIS;const w=BABYLON.MeshBuilder.CreateDisc('ow',{radius:r+1.5,tessellation:40,sideOrientation:2},scene);w.rotation.x=Math.PI/2;w.position.set(ox,OASIS_H+.65,oz);w.material=water;w.parent=K.root;w.isPickable=false;
+   K.circ(ox,oz,r+.5,OASIS_H+.6);
+   for(let i=0;i<(MOBILE?70:160);i++){const a=R()*6.283,d=r+.5+R()*2.5,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d;K.cyl('reed',.03,.07,1.2+R()*1.4,x,G(x,z)+.8,z,4,(R()-.5)*.3,(R()-.5)*.3);}
+   for(let i=0;i<9;i++){const a=i/9*6.283+R()*.3,d=r+4+R()*5,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d;const pm=makePalm(x,G(x,z),z);pm.mesh.parent=K.root;K.ob.push({...pm,mesh:null});}  // ヤシは固定の名所(mesh:null: 障害物の作り直しで消さない)
+   for(let i=0;i<5;i++){const a=-.4+i*.45,d=r+16+R()*3,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d,y=G(x,z),w2=5+R()*2,dd=5+R()*2,h=3+R();
+     K.box('mud',w2,h+1.5,dd,x,y+h/2-.6,z,a,3,3);K.box('mud',w2+.3,.5,dd+.3,x,y+h+.3,z,a,3,3);                         // 平屋根と胸壁
+     for(let k=0;k<4;k++)K.box('beam',.18,.18,1,x+Math.cos(a)*(k-1.5)*1.2,y+h-.3,z-Math.sin(a)*(k-1.5)*1.2+0,a+Math.PI/2);  // 突き出た梁
+     K.box('door',1,2,.1,x+Math.sin(a)*dd/2,y+1,z+Math.cos(a)*dd/2,a);K.solid(x,z,w2,dd,y+h+.6,a);}}
+  // ベドウィンのテント(縞の毛織物)と焚き火
+  [[95,-75,.3],[104,-66,1.2],[88,-62,2.4]].forEach(([x,z,a])=>{const y=G(x,z);K.gable('tent',6,9,1.7,x,y+1.2,z,a,.5,0);
+    for(const [dx,dz] of [[-3,-4.5],[3,-4.5],[-3,4.5],[3,4.5]]){const c=Math.cos(a),sn=Math.sin(a);K.cyl('beam',.1,.1,1.4,x+dx*c+dz*sn,y+.6,z-dx*sn+dz*c,5);}
+    K.plane('rug',4,6,x,z,y+.05,6,a);K.solid(x,z,6.6,9,y+2.9,a);});
+  {const fx=96,fz=-68,y=G(fx,fz);for(let i=0;i<8;i++){const a=i/8*6.283;K.cyl('stone',.3,.4,.3,fx+Math.cos(a)*.8,y+.15,fz+Math.sin(a)*.8,6);}
+   const f=new BABYLON.ParticleSystem('campfire',MOBILE?40:90,scene);f.particleTexture=T.puff;f.emitter=new BABYLON.Vector3(fx,y+.3,fz);f.updateSpeed=1/60;f.minEmitBox=new BABYLON.Vector3(-.3,0,-.3);f.maxEmitBox=new BABYLON.Vector3(.3,0,.3);
+   f.direction1=new BABYLON.Vector3(-.2,1,-.2);f.direction2=new BABYLON.Vector3(.2,1.4,.2);f.minEmitPower=1;f.maxEmitPower=2;f.minLifeTime=.4;f.maxLifeTime=.9;f.minSize=.3;f.maxSize=.7;f.emitRate=MOBILE?30:70;
+   f.color1=new BABYLON.Color4(1,.7,.3,.9);f.color2=new BABYLON.Color4(1,.4,.1,.8);f.colorDead=new BABYLON.Color4(.2,.2,.2,0);f.blendMode=BABYLON.ParticleSystem.BLENDMODE_ADD;K.fx.push(f);K.circ(fx,fz,1.2,y+1);}
+  // 放棄されたトラックと古い戦車の残骸
+  [[30,-8,.4],[-45,-30,2.1],[115,30,-1],[-120,-15,.9]].forEach(([x,z,a])=>{const y=G(x,z),c=Math.cos(a),sn=Math.sin(a),P=(l,f)=>[x+l*c+f*sn,z-l*sn+f*c];
+    const [cx,cz]=P(0,2.6);K.box('rust',2.4,2.2,2.2,cx,y+1.5,cz,a,3,3);K.box('glassD',2.2,.8,.05,...P(0,3.72).slice(0,1),y+2,P(0,3.72)[1],a);
+    const [bx,bz]=P(0,-1.2);K.box('rust',2.5,.4,5.4,bx,y+1,bz,a,3,3);for(const s_ of [-1,1])K.box('rust',.1,.9,5.4,...[P(s_*1.2,-1.2)[0]],y+1.6,P(s_*1.2,-1.2)[1],a,3,3);
+    for(const [l,f] of [[-1.15,2.4],[1.15,2.4],[-1.15,-2.2],[1.15,-2.2]]){const [wx,wz]=P(l,f);K.cyl('tire',.95,.95,.35,wx,y+.42,wz,10,0,Math.PI/2,a);}
+    K.solid(x,z,2.6,7.6,y+2.7,a);});
+  {const x=40,z=-62,a=.8,y=G(x,z);K.box('rust',3.2,1.3,6,x,y+.9,z,a,3,3);K.cyl('rust',2.6,3,1,x,y+2,z,10);K.cyl('rust',.25,.25,4,x+Math.sin(a+.6)*2.4,y+2.1,z+Math.cos(a+.6)*2.4,8,Math.PI/2,0,a+.6);K.solid(x,z,3.4,6.2,y+2.6,a);}
+  // 油井ポンプ(天秤がゆっくり上下する)
+  const beams=[];[[60,95],[-105,-95]].forEach(([x,z])=>{const y=G(x,z);K.box('steelD',2,.4,7,x,y+.2,z,0,3,3);K.box('steelD',.3,4.2,.3,x-.6,y+2.3,z,0,3,3);K.box('steelD',.3,4.2,.3,x+.6,y+2.3,z,0,3,3);
+    K.box('steelD',1.6,1,1.4,x,y+.9,z-2.6,0,3,3);K.cyl('steelD',.5,.5,1.6,x,y+.4,z+3,8);
+    const piv=new BABYLON.TransformNode('pj',scene);piv.parent=K.root;piv.position.set(x,y+4.5,z);
+    const bm=BABYLON.MeshBuilder.CreateBox('pjb',{width:.5,height:.6,depth:7},scene);bm.parent=piv;bm.material=K.mat('pj',null,new BABYLON.Color3(.55,.15,.1));
+    const hd=BABYLON.MeshBuilder.CreateBox('pjh',{width:.6,height:1.8,depth:.8},scene);hd.parent=piv;hd.position.set(0,-.4,3.6);hd.material=bm.material;sg.addShadowCaster(bm);sg.addShadowCaster(hd);
+    beams.push(piv);K.solid(x,z,2.2,7.4,y+5.5,0);});
+  let tt=0;K.upd.push(dt=>{tt+=dt;beams.forEach((b,i)=>b.rotation.x=Math.sin(tt*.9+i)*.32);});
+  // 轍の道に沿う電柱と電線
+  {const L=[];for(let i=0;i<DROAD.length-1;i++){const [x0,z0]=DROAD[i],[x1,z1]=DROAD[i+1],n=Math.ceil(Math.hypot(x1-x0,z1-z0)/16);for(let k=0;k<n;k++){const t=k/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t,nx=-(z1-z0),nz=x1-x0,nl=Math.hypot(nx,nz);L.push([x+nx/nl*4.5,z+nz/nl*4.5]);}}
+   L.forEach(([x,z],i)=>{const y=G(x,z);K.cyl('pole',.22,.32,8,x,y+4,z,6);K.box('pole',2.2,.15,.15,x,y+7.6,z,0,3,3);K.circ(x,z,.35,y+8);
+     if(i){const [px,pz]=L[i-1],py=G(px,pz),dx=x-px,dz=z-pz,d=Math.hypot(dx,dz),a=Math.atan2(dx,dz);for(const o of [-.9,0,.9]){const m=BABYLON.MeshBuilder.CreateBox('w',{width:.04,height:.04,depth:d},scene);m.position.set((x+px)/2+Math.cos(a)*o,(y+py)/2+7.5,(z+pz)/2-Math.sin(a)*o);m.rotation.y=a;m.rotation.x=-Math.atan2(y-py,d);K.add('wire',m);}}});}
+  const mats={reed:K.mat('reed',null,new BABYLON.Color3(.42,.5,.25)),mud:brickM,beam:K.mat('beam',T.bark,new BABYLON.Color3(.6,.45,.3)),door:K.mat('door',null,new BABYLON.Color3(.32,.2,.12)),tent:K.mat('tent',cloth,null,{backFaceCulling:false}),
+    rug:K.mat('rug',cloth,new BABYLON.Color3(1.4,.7,.5)),stone:K.mat('stone',T.rock,new BABYLON.Color3(.7,.68,.64)),rust:K.mat('rust',T.metal,new BABYLON.Color3(.55,.32,.2)),glassD:K.mat('glassD',null,new BABYLON.Color3(.1,.12,.12)),
+    tire:K.mat('tire',null,new BABYLON.Color3(.06,.06,.06)),steelD:K.mat('steelD',T.metal,new BABYLON.Color3(.3,.3,.32)),pole:K.mat('pole',T.bark,new BABYLON.Color3(.55,.45,.35)),wire:K.mat('wire',null,new BABYLON.Color3(.05,.05,.05))};
+  K.finish(mats,/^(rug)$/);K.root.parent=desertRoot;K.root.setEnabled(true);
+  return desertStd={root:desertRoot,obs:K.ob,ground:[scene.getMeshByName('g'),scene.getMeshByName('outer')],sky:farTex.desert,fx:K.fx,upd:K.upd};
+}
+// ===== ヨーロッパの伝統的な街並み(中世の旧市街) =====
+// 川(z=62〜78)が東西に流れ、石橋が2本(x=-8〜8, 70〜84)。橋の上だけ地形の高さを0にして渡れるようにする
+const OT_R=[62,78],OT_BR=[[-8,8],[70,84]];
+const otInRiver=(x,z)=>z>OT_R[0]&&z<OT_R[1];
+const ghOldVis=(x,z)=>{const c=(OT_R[0]+OT_R[1])/2,hw=(OT_R[1]-OT_R[0])/2,d=Math.abs(z-c);return d<hw+2?-2.6*Math.min(1,(hw+2-d)/2.5):0;};
+const ghOld=(x,z)=>OT_BR.some(([a,b])=>x>a&&x<b)?0:ghOldVis(x,z);
+function buildOldTown(){
+  const K=mapKit('oldtown',1517),R=K.R,E=B+5,W=140; // W: 城壁の位置
+  // ---- テクスチャ ----
+  const plasters=['#efe4cc','#ead2a8','#f0d6cc','#dfe6d6','#f2ead8'],timber='#4a3020';
+  const half=plasters.map(pc=>ctex(128,120,(x,w,h)=>{ // 木組み(ハーフティンバー)の壁: 漆喰+黒褐色の梁と斜めの筋交い+小割りの窓+花の窓箱
+    x.fillStyle=pc;x.fillRect(0,0,w,h);grainC(x,w,h,.07,R);x.fillStyle=timber;
+    x.fillRect(0,0,w,7);x.fillRect(0,h-7,w,7);x.fillRect(0,0,7,h);x.fillRect(w-7,0,7,h);
+    x.strokeStyle=timber;x.lineWidth=6;x.beginPath();x.moveTo(7,h-7);x.lineTo(30,30);x.moveTo(w-7,h-7);x.lineTo(w-30,30);x.stroke();
+    x.fillStyle='#6a4a30';x.fillRect(38,26,52,58);x.fillStyle='#2c3a40';x.fillRect(42,30,44,50);x.fillStyle='#e8e0cc';x.fillRect(62,30,4,50);x.fillRect(42,52,44,3);
+    x.fillStyle='rgba(180,210,230,.35)';x.fillRect(44,32,16,18);
+    x.fillStyle='#5a3a24';x.fillRect(36,86,56,8);for(let i=0;i<9;i++){x.fillStyle=['#d23a3a','#e86aa0','#f0c040','#ffffff'][R()*4|0];x.beginPath();x.arc(40+i*6,85,3.4,0,6.283);x.fill();}x.fillStyle='#3e6a2a';x.fillRect(38,88,52,3);}));
+  const stoneFloor=ctex(128,138,(x,w,h)=>{x.fillStyle='#b4a890';x.fillRect(0,0,w,h);for(let y=0;y<h;y+=14)for(let i=((y/14)%2)*12;i<w;i+=24){x.fillStyle='rgba(0,0,0,.18)';x.fillRect(i,y,24,1.5);x.fillRect(i,y,1.5,14);}
+    x.fillStyle='#4a3424';x.beginPath();x.moveTo(40,h);x.lineTo(40,52);x.quadraticCurveTo(64,30,88,52);x.lineTo(88,h);x.fill();x.fillStyle='#2a2420';x.fillRect(46,58,36,h-58);   // アーチの扉/店
+    x.fillStyle='#8a6a40';x.fillRect(8,40,24,30);x.fillStyle='#2c3a40';x.fillRect(11,43,18,24);x.fillRect(96,40,24,30);x.fillStyle='#2c3a40';x.fillRect(99,43,18,24);grainC(x,w,h,.1,R);});
+  const roofT=['#8e3e28','#7a3422','#9a5032'].map(c=>ctex(128,128,(x,w,h)=>{x.fillStyle=c;x.fillRect(0,0,w,h);for(let y=0;y<h;y+=8)for(let i=((y/8)%2)*6;i<w;i+=12){x.fillStyle='rgba(0,0,0,'+(.12+R()*.18)+')';x.fillRect(i,y+6,12,2);x.fillStyle='rgba(255,255,255,'+(R()*.08)+')';x.fillRect(i+1,y,10,5);}}));
+  const cob=ctex(128,128,(x,w,h)=>{x.fillStyle='#5c564c';x.fillRect(0,0,w,h);for(let y=0;y<h;y+=9)for(let i=((y/9)%2)*5;i<w+10;i+=10){const v=105+R()*55|0;x.fillStyle='rgb('+v+','+(v-8)+','+(v-18)+')';x.beginPath();x.ellipse(i,y+4.5,4.4,3.8,0,0,6.283);x.fill();}});
+  const fan=ctex(256,256,(x,w,h)=>{x.fillStyle='#5c564c';x.fillRect(0,0,w,h);for(let r=8;r<200;r+=7)for(let a=0;a<6.283;a+=7/r){const v=120+R()*50|0;x.fillStyle='rgb('+v+','+(v-6)+','+(v-16)+')';x.beginPath();x.ellipse(w/2+Math.cos(a)*r*.75,h+Math.sin(a)*r*.75-60,3,2.6,a,0,6.283);x.fill();}}); // 扇形の石畳
+  const ashlar=ctex(128,128,(x,w,h)=>{x.fillStyle='#c8bca2';x.fillRect(0,0,w,h);for(let y=0;y<h;y+=16)for(let i=((y/16)%2)*16;i<w;i+=32){x.fillStyle='rgba(0,0,0,.2)';x.fillRect(i,y,32,1.5);x.fillRect(i,y,1.5,16);x.fillStyle='rgba(255,255,255,'+(R()*.08)+')';x.fillRect(i+2,y+2,28,12);}grainC(x,w,h,.08,R);});
+  const clock=ctex(128,128,(x,w,h)=>{x.fillStyle='#1e2a3a';x.beginPath();x.arc(64,64,62,0,6.283);x.fill();x.strokeStyle='#d8b04a';x.lineWidth=5;x.stroke();x.fillStyle='#d8b04a';x.font='bold 14px serif';x.textAlign='center';x.textBaseline='middle';
+    ['XII','I','II','III','IIII','V','VI','VII','VIII','IX','X','XI'].forEach((t,i)=>{const a=i/12*6.283-Math.PI/2;x.fillText(t,64+Math.cos(a)*46,64+Math.sin(a)*46);});x.lineWidth=5;x.beginPath();x.moveTo(64,64);x.lineTo(64,28);x.moveTo(64,64);x.lineTo(90,72);x.stroke();});
+  const stripe=(a,b)=>ctex(64,64,(x,w,h)=>{for(let i=0;i<8;i++){x.fillStyle=i%2?a:b;x.fillRect(i*8,0,8,h);}});
+  const signs=['🥨','🍺','🔑','👢','☕','🍞'].map(e=>ctex(64,64,(x,w,h)=>{x.fillStyle='#2a1e14';x.fillRect(0,0,w,h);x.strokeStyle='#c89a3a';x.lineWidth=4;x.strokeRect(3,3,w-6,h-6);x.font='38px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,w/2,h/2+2);}));
+  // ---- 地面: 石畳(川の谷はくぼませ、川床は暗く) ----
+  const g=BABYLON.MeshBuilder.CreateGround('otg',{width:E*2,height:E*2,subdivisions:MOBILE?60:110,updatable:true},scene);
+  {const P=g.getVerticesData('position'),C=[];for(let k=0;k<P.length;k+=3){const h=ghOldVis(P[k],P[k+2]);P[k+1]=h;const v=h<-.2?.55:1;C.push(v,v*.97,v*.92,1);}
+   g.updateVerticesData('position',P);g.createNormals(true);g.setVerticesData('color',C);
+   const uv=g.getVerticesData('uv');for(let i=0;i<uv.length;i++)uv[i]*=E*2/4;g.setVerticesData('uv',uv);}
+  K.add('cobble',g);
+  K.plane('fan',46,36,0,0,.04,46);                                                                                     // マルクト広場(扇形の石畳)
+  // ---- 川: 水面・護岸・手すり。橋のない所は通れない(砲弾は水面を越える) ----
+  K.plane('water',E*2,OT_R[1]-OT_R[0]+3,0,(OT_R[0]+OT_R[1])/2,-1.15,8);
+  [OT_R[0]-.4,OT_R[1]+.4].forEach(z=>{K.box('ashlar',E*2,3,.8,0,-1.2,z,0,4,4);});
+  {let a=-E;[...OT_BR,[E,E]].forEach(([b0,b1])=>{if(b0>a){const c=(a+b0)/2,len=b0-a;K.solid(c,(OT_R[0]+OT_R[1])/2,len,OT_R[1]-OT_R[0]+1,-.3);
+     [OT_R[0]-.8,OT_R[1]+.8].forEach(z=>{for(let x=a+1;x<b0-1;x+=2.5)K.cyl('iron',.08,.08,1,x,.5,z,5);K.box('iron',len-2,.08,.08,c,.95,z,0,4,4);});}a=b1;});}
+  // 石橋: 床版・欄干・橋脚・街灯
+  OT_BR.forEach(([b0,b1])=>{const cx=(b0+b1)/2,wd=b1-b0,zc=(OT_R[0]+OT_R[1])/2,len=OT_R[1]-OT_R[0]+4;
+    K.box('ashlar',wd,1.2,len,cx,-.6,zc,0,4,4);for(const sx of [-1,1]){K.box('ashlar',.6,1.1,len,cx+sx*(wd/2-.3),.55,zc,0,4,4);K.solid(cx+sx*(wd/2-.3),zc,.7,len,1.1);
+      for(const z of [zc-len/2+1,zc+len/2-1]){K.cyl('iron',.14,.18,3.6,cx+sx*(wd/2-.3),2.7,z,8);K.box('lampG',.45,.6,.45,cx+sx*(wd/2-.3),4.7,z,0,4,4);}}
+    for(const z of [zc-4,zc+4])K.box('ashlar',wd*.7,2,2,cx,-2.1,z,0,4,4);});
+  // ---- マルクト広場: 市庁舎(アーケード・時計塔)・井戸・屋台・カフェ ----
+  {const hx=0,hz=28;K.box('ashlar',28,4,12,hx,2,hz,0,4,4);for(let i=0;i<7;i++){K.box('arch',2.6,3.2,.1,hx-12+i*4,1.8,hz-6.02,0,2.6,3.2);}               // 1階アーケード
+   K.box('half4',28,9,12,hx,8.5,hz);K.gable('roofT1',12,28,7,hx,13,hz,Math.PI/2,.4,.3);for(let i=0;i<5;i++)K.gable('roofT1',2.4,1.6,1.6,hx-10+i*5,14,hz-6.2,0,.2,.1); // 屋根窓
+   K.box('ashlar',6,24,6,hx,12,hz-4,0,4,4);for(const [dx,dz,ry] of [[0,-3.06,0],[3.06,0,Math.PI/2],[-3.06,0,-Math.PI/2]])K.sign('clock',3.6,3.6,hx+dx,19,hz-4+dz,ry);       // 時計塔と文字盤
+   K.cyl('roofS',0,7.8,9,hx,28.5,hz-4,4,0,0,Math.PI/4);K.cyl('iron',.08,.08,2,hx,34,hz-4,4);K.solid(hx,hz,28,12,22);K.solid(hx,hz-4,6.4,6.4,33);}
+  {const wx=-9,wz=-5;K.cyl('ashlar',4,4.4,.9,wx,.45,wz,8);K.cyl('water',3.2,3.2,.1,wx,.86,wz,8);K.cyl('ashlar',.6,.8,3.4,wx,2.1,wz,8);K.cyl('roofS',0,1.6,1.4,wx,4.5,wz,8);K.circ(wx,wz,2.4,2);} // 井戸(泉)
+  [[-15,-10,0],[-6,-12,0],[4,-12,0],[13,-10,0],[17,0,Math.PI/2],[-18,2,Math.PI/2]].forEach(([x,z,a],i)=>{                                    // 市場の屋台
+    for(const [dx,dz] of [[-1.3,-.9],[1.3,-.9],[-1.3,.9],[1.3,.9]]){const c=Math.cos(a),sn=Math.sin(a);K.cyl('wood',.12,.12,2.4,x+dx*c+dz*sn,1.2,z-dx*sn+dz*c,5);}
+    K.box('wood',2.8,.9,1.6,x,.45,z,a,4,4);K.box('goods'+(i%3),2.6,.3,1.4,x,1.05,z,a,4,4);K.gable('awn'+(i%2),3.2,2.2,.7,x,2.4,z,a+Math.PI/2,.1,.1);K.solid(x,z,3,2,2.6,a);});
+  for(let i=0;i<6;i++){const x=-14+i*5.6,z=13;K.cyl('wood',.9,.9,.08,x,.75,z,12);K.cyl('iron',.08,.08,.75,x,.37,z,5);K.cyl('iron',.06,.06,2.6,x,1.3,z,5);K.cyl('awn'+(i%2),0,3,1,x,2.8,z,10);K.circ(x,z,.8,1.2);} // カフェ
+  // ---- ゴシック教会(身廊・鐘楼と尖塔・控え壁・バラ窓) ----
+  {const cx=-48,cz=-34;K.box('ashlar',14,16,30,cx,8,cz,0,4,4);K.gable('roofS',14,30,10,cx,16,cz,0,.4,.3);
+   for(let i=0;i<6;i++)for(const sx of [-1,1])K.box('ashlar',1.4,10,1.6,cx+sx*7.6,5,cz-12.5+i*5,0,4,4);
+   for(let i=0;i<5;i++)for(const sx of [-1,1])K.box('glassC',.1,7,2,cx+sx*7.02,9,cz-10+i*5);
+   K.box('ashlar',9,34,9,cx,17,cz-19,0,4,4);K.cyl('roofS',0,9.6,22,cx,45,cz-19,8);K.sign('rose',5,5,cx,22,cz-23.55,0);K.box('arch',3,6,.1,cx,3,cz-23.55,0,3,6);
+   K.solid(cx,cz,15,30.5,26);K.solid(cx,cz-19,9.2,9.2,56);}
+  // ---- 通り(曲がりくねった道)と、その両側に並ぶ木組みの家 ----
+  const ST=[[[0,-18],[4,-45],[-2,-80],[6,-112],[0,-150]],[[-23,0],[-50,4],[-85,-6],[-118,2],[-150,0]],[[23,0],[52,-4],[82,6],[115,-2],[150,0]],
+    [[0,34],[-2,56],[0,84],[4,100],[-3,124],[0,150]],[[77,58],[77,86],[70,110],[78,135]],[[28,-28],[58,-58],[95,-92]],[[-30,-28],[-62,-70],[-100,-102]],
+    [[38,38],[60,52]],[[-36,34],[-80,50]],[[-60,-110],[-20,-125],[30,-118],[70,-128]],[[-118,-40],[-108,-80],[-120,-120]],[[112,-30],[118,-70],[110,-110]],[[60,100],[100,96],[130,104]],[[-30,100],[-70,96],[-110,106]]];
+  const SW=7.5,reserved=(x,z,pad)=>(Math.abs(x)<24+pad&&Math.abs(z)<19+pad)||(z>OT_R[0]-3-pad&&z<OT_R[1]+3+pad)||Math.abs(x)>W-6||Math.abs(z)>W-6;
+  const roadNear=(x,z,pad)=>ST.some(P=>distPoly(x,z,P)<SW/2+pad);
+  const house=(x,z,w,d,ry)=>{ // 正面(ローカル-z)が通りを向く。上の階は通り側へ張り出す(ジェッティ)
+    const F=2+(R()*3|0),pv=R()*5|0,c=Math.cos(ry),sn=Math.sin(ry),fx=-sn,fz=-c,H=3.4+F*3;
+    K.box('stone',w,3.4,d,x,1.7,z,ry,3.2,3.4);
+    K.box('half'+pv,w,F*3,d+.5,x+fx*.25,3.4+F*1.5,z+fz*.25,ry);K.box('beamO',w+.05,.25,d+.55,x+fx*.25,3.45,z+fz*.25,ry,4,4);                  // 張り出した上階
+    K.gable('roofT'+(R()*3|0),w,d+.5,w*.78,x+fx*.25,H,z+fz*.25,ry,.35,.35);                                                                  // 急な切妻(妻面が通り側)
+    if(R()<.6)K.box('stoneD',.7,1.6,.7,x+c*(w*.25)-fx*1.5,H+w*.5,z-sn*(w*.25)-fz*1.5,ry,4,4);                                               // 煙突
+    if(R()<.35){const sx=x+fx*(d/2+.45)+c*(w/2-.6),sz=z+fz*(d/2+.45)-sn*(w/2-.6);K.box('iron',.06,.06,1.1,sx,3,sz,ry);K.sign('sign'+(R()*6|0),.8,.8,sx+fx*.2,2.4,sz+fz*.2,ry+Math.PI/2);} // 吊り看板
+    if(R()<.5)K.box('lampG',.3,.45,.3,x+fx*(d/2+.25)-c*(w/2-.5),2.8,z+fz*(d/2+.25)+sn*(w/2-.5),ry,4,4);                                     // 壁の灯り
+    K.solid(x+fx*.15,z+fz*.15,w,d+.4,H+w*.6,ry);};
+  ST.forEach(P=>{for(let i=0;i<P.length-1;i++){const [x0,z0]=P[i],[x1,z1]=P[i+1],L=Math.hypot(x1-x0,z1-z0),ux=(x1-x0)/L,uz=(z1-z0)/L;
+    for(const side of [-1,1]){let t=1;while(t<L-2){const w=5.5+R()*3.5,d=8+R()*3,cx=x0+ux*(t+w/2),cz=z0+uz*(t+w/2),nx=-uz*side,nz=ux*side,off=SW/2+d/2+.3;
+      const hx=cx+nx*off,hz=cz+nz*off,ry=Math.atan2(nx,nz); // ローカル-zが通り側を向く
+      if(!reserved(hx,hz,d/2)&&!roadNear(hx,hz,d/2-1.2)&&K.boxFree(hx,hz,w+.3,d+.4,ry,0)&&R()<.92)house(hx,hz,w,d,ry);
+      // 裏の列(奥にもう一軒): 町を密に
+      const off2=off+d+.6;const hx2=cx+nx*off2,hz2=cz+nz*off2;if(R()<.5&&!reserved(hx2,hz2,d/2)&&!roadNear(hx2,hz2,d/2-.5)&&K.boxFree(hx2,hz2,w+.3,d+.4,ry,0))house(hx2,hz2,w,d,ry);
+      t+=w+.15;}}}});
+  // 川沿いの並木・街路の灯り・樽と荷車
+  for(let x=-E+6;x<E-6;x+=11){if(OT_BR.some(([a,b])=>x>a-3&&x<b+3))continue;for(const z of [OT_R[0]-3.2,OT_R[1]+3.2]){if(!K.free(x,z,1.6))continue;K.cyl('bark',.3,.45,3.6,x,1.8,z,7);
+    for(let k=0;k<3;k++){const c=BABYLON.MeshBuilder.CreateIcoSphere('tl',{radius:1.3+R()*.5,subdivisions:1},scene);c.position.set(x+(R()-.5),4.2+k*.8,z+(R()-.5));c.scaling.y=.85;K.add('leaf',c);}K.circ(x,z,.6,7);}}
+  ST.forEach(P=>{for(let i=0;i<P.length-1;i++){const [x0,z0]=P[i],[x1,z1]=P[i+1],L=Math.hypot(x1-x0,z1-z0);for(let t=8;t<L;t+=22){const x=x0+(x1-x0)*t/L+(z1-z0)/L*(SW/2-.6),z=z0+(z1-z0)*t/L-(x1-x0)/L*(SW/2-.6);
+    if(reserved(x,z,0)||!K.free(x,z,.8))continue;K.cyl('iron',.12,.18,3.4,x,1.7,z,6);K.box('lampG',.45,.6,.45,x,3.6,z,0,4,4);K.cyl('roofS',0,.7,.4,x,4.1,z,4);K.circ(x,z,.35,4);}}});
+  for(let i=0;i<14;i++){const x=(R()*2-1)*120,z=(R()*2-1)*120;if(reserved(x,z,1)||!K.free(x,z,1.5)||!roadNear(x,z,1))continue;if(R()<.5){K.cyl('wood',.9,1,1.1,x,.55,z,10);K.cyl('wood',.9,1,1.1,x+1,.55,z+.3,10);K.circ(x+.5,z+.15,1.1,1.1);}
+    else{K.box('wood',1.6,.15,2.6,x,.8,z,R()*3,4,4);K.cyl('wood',1.2,1.2,.15,x-.9,.6,z,12,0,Math.PI/2);K.circ(x,z,1.4,1.2);}}
+  // ---- 城壁と門塔(通りの出口に門。門は戦車が通れる) ----
+  const gates=[[0,-W],[0,W],[-W,0],[W,0]];
+  for(const [ax,az,horiz] of [[0,-W,1],[0,W,1],[-W,0,0],[W,0,0]]){for(let t=-W;t<W;t+=6){const x=horiz?t+3:ax,z=horiz?az:t+3;if(gates.some(([gx,gz])=>Math.hypot(gx-x,gz-z)<6))continue;
+      K.box('ashlar',horiz?6:3,8,horiz?3:6,x,4,z,0,4,4);if(!MOBILE||t%12===0)for(const o of [-1.5,1.5])K.box('ashlar',horiz?1.4:3.2,1.2,horiz?3.2:1.4,x+(horiz?o:0),8.6,z+(horiz?0:o),0,4,4);K.solid(x,z,horiz?6:3,horiz?3:6,8);}}
+  gates.forEach(([x,z])=>{const ry=x?Math.PI/2:0;for(const o of [-5.5,5.5]){const tx=x+(x?0:o),tz=z+(x?o:0);K.box('ashlar',4,14,4,tx,7,tz,0,4,4);K.cyl('roofS',0,6,5,tx,16.5,tz,4,0,0,Math.PI/4);K.solid(tx,tz,4,4,14);}
+    K.box('ashlar',x?3.4:8,4,x?8:3.4,x,12,z,0,4,4);});
+  [[-W,-W],[W,-W],[-W,W],[W,W]].forEach(([x,z])=>{K.cyl('ashlar',8,9,16,x,8,z,14);K.cyl('roofT0',0,10,7,x,19.5,z,14);K.circ(x,z,4.5,16);});
+  // ---- 素材 ----
+  const MM=(k,t,col,o)=>K.mat(k,t,col,o);
+  const mats={cobble:MM('cobble',cob),fan:MM('fan',fan,null,{zOffset:-2}),water:MM('water',null,new BABYLON.Color3(.22,.34,.36),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.9}),
+    ashlar:MM('ashlar',ashlar),stone:MM('stone',stoneFloor),stoneD:MM('stoneD',ashlar,new BABYLON.Color3(.7,.62,.56)),arch:MM('arch',null,new BABYLON.Color3(.16,.13,.11)),beamO:MM('beamO',null,new BABYLON.Color3(.29,.19,.12)),
+    iron:MM('iron',null,new BABYLON.Color3(.1,.1,.1)),lampG:MM('lampG',null,new BABYLON.Color3(.95,.85,.55),{emissiveColor:new BABYLON.Color3(.5,.4,.2)}),wood:MM('wood',T.bark,new BABYLON.Color3(.75,.58,.4)),
+    roofS:MM('roofS',cityTextures().roof[1],null,{backFaceCulling:false}),clock:MM('clock',clock,null,{emissiveColor:new BABYLON.Color3(.15,.15,.15)}),bark:MM('bark',T.bark),leaf:MM('leaf',cityTextures().leaf),
+    glassC:MM('glassC',null,new BABYLON.Color3(.3,.25,.55),{emissiveColor:new BABYLON.Color3(.08,.06,.15)}),rose:MM('rose',ctex(128,128,(x,w,h)=>{x.fillStyle='#c8bca2';x.fillRect(0,0,w,h);x.fillStyle='#2a2440';x.beginPath();x.arc(64,64,60,0,6.283);x.fill();for(let i=0;i<12;i++){x.fillStyle=['#b02a2a','#2a4ab0','#d8b030'][i%3];x.beginPath();x.moveTo(64,64);x.arc(64,64,54,i/12*6.283,(i+.8)/12*6.283);x.fill();}x.fillStyle='#d8b030';x.beginPath();x.arc(64,64,12,0,6.283);x.fill();})),
+    awn0:MM('awn0',stripe('#f4efe4','#b8302a'),null,{backFaceCulling:false}),awn1:MM('awn1',stripe('#f4efe4','#2a6a3a'),null,{backFaceCulling:false}),
+    goods0:MM('goods0',null,new BABYLON.Color3(.85,.3,.2)),goods1:MM('goods1',null,new BABYLON.Color3(.9,.7,.2)),goods2:MM('goods2',null,new BABYLON.Color3(.4,.6,.25))};
+  half.forEach((t,i)=>mats['half'+i]=MM('half'+i,t));roofT.forEach((t,i)=>mats['roofT'+i]=MM('roofT'+i,t,null,{backFaceCulling:false}));signs.forEach((t,i)=>mats['sign'+i]=MM('sign'+i,t));
+  const ground=K.finish(mats,/^(cobble|fan|water)$/);
+  outerRing(K,new BABYLON.Color3(.38,.46,.26),ctex(64,64,(x,w,h)=>{x.fillStyle='#7a9a52';x.fillRect(0,0,w,h);grainC(x,w,h,.2,R);}),160);
+  const sky=farRidge(0,'205,200,190',(x,Wd,H)=>{[[.42,'rgb(130,150,130)',1],[.55,'rgb(110,125,100)',2]].forEach(([b,col,sd])=>{x.fillStyle=col;x.beginPath();x.moveTo(0,H);for(let i=0;i<=Wd;i+=4){const u=i/Wd;let v=0;for(let k=1;k<6;k++)v+=Math.sin(u*6.283*k+sd*k*1.7)*(.4/k);x.lineTo(i,H*(b+.08*v));}x.lineTo(Wd,H);x.fill();});
+    x.fillStyle='rgb(120,110,100)';for(let i=0;i<Wd;i+=60+R()*80){const h=12+R()*20,b=H*.6;x.fillRect(i,b-h,10,h);x.beginPath();x.moveTo(i-2,b-h);x.lineTo(i+5,b-h-16-R()*12);x.lineTo(i+12,b-h);x.fill();}}); // 遠くの村の塔
+  return {root:K.root,obs:K.ob,ground,sky,fx:K.fx,upd:K.upd};
+}
+// ===== 現代の日本の市街地 =====
+// 幹線(x=0, z=0 幅20+歩道4)とスクランブル交差点、2車線道路(x,z=±64 幅10)、生活道路(±110 幅6)。z=88に鉄道高架
+function buildJapan(){
+  const K=mapKit('japan',8128),R=K.R,E=B+5,MAIN=10,SEC=5,NAR=3,LINES=[[0,MAIN],[-64,SEC],[64,SEC],[-110,NAR],[110,NAR]],RAIL=88;
+  // ---- テクスチャ ----
+  const asph=ctex(256,256,(x,w,h)=>{x.fillStyle='#4c4d50';x.fillRect(0,0,w,h);grainC(x,w,h,.3,R);x.fillStyle='rgba(30,30,30,.25)';for(let i=0;i<4;i++){x.beginPath();x.ellipse(R()*w,R()*h,20,10,R()*3,0,6.283);x.fill();}});
+  const walk=ctex(128,128,(x,w,h)=>{for(let y=0;y<h;y+=16)for(let i=((y/16)%2)*8;i<w;i+=16){const v=150+R()*30|0;x.fillStyle=R()<.1?'rgb(176,140,120)':'rgb('+v+','+v+','+(v-4)+')';x.fillRect(i,y,15,15);}});
+  const lot=ctex(128,128,(x,w,h)=>{x.fillStyle='#8c8a84';x.fillRect(0,0,w,h);grainC(x,w,h,.25,R);});
+  const offT=[['#6a8aa6','#3a5068'],['#9aa4ac','#2c3a46'],['#c8ccce','#34404c']].map(([a,b],k)=>ctex(128,144,(x,w,h)=>{ // ガラスのカーテンウォール/窓の並んだ外壁
+    x.fillStyle=a;x.fillRect(0,0,w,h);if(k===0){const g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(0,0,0,.2)');x.fillStyle=g;x.fillRect(0,0,w,h);x.fillStyle='#2c3640';for(let i=0;i<w;i+=32)x.fillRect(i,0,3,h);x.fillRect(0,h-10,w,10);}
+    else{x.fillStyle=b;x.fillRect(10,24,108,80);x.fillStyle='rgba(200,220,235,.35)';x.fillRect(12,26,50,40);x.fillStyle=a;x.fillRect(62,24,4,80);x.fillStyle='rgba(0,0,0,.15)';x.fillRect(0,h-8,w,8);}grainC(x,w,h,.05,R);}));
+  const manT=['#efebe2','#d8d2c6','#e8e2d8'].map(c=>ctex(128,120,(x,w,h)=>{x.fillStyle=c;x.fillRect(0,0,w,h);x.fillStyle='#3a4a58';x.fillRect(14,14,100,66);x.fillStyle='rgba(200,220,235,.3)';x.fillRect(16,16,46,30);x.fillStyle=c;x.fillRect(62,14,4,66); // バルコニーの手すり壁と掃き出し窓
+    x.fillStyle='#f6f4ee';x.fillRect(0,78,w,30);x.fillStyle='rgba(0,0,0,.25)';x.fillRect(0,106,w,4);if(R()<.6){x.fillStyle=['#7aa0c8','#e8b0a0','#f0f0f0'][R()*3|0];x.fillRect(20+R()*60,60,16,20);}}));  // 洗濯物
+  const houseT=['#efe6d2','#dcd6cc','#f4f0e8','#c8b8a0'].map(c=>ctex(128,120,(x,w,h)=>{x.fillStyle=c;x.fillRect(0,0,w,h);x.strokeStyle='rgba(0,0,0,.08)';for(let y=4;y<h;y+=8){x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();} // サイディング
+    x.fillStyle='#f4f4f0';x.fillRect(34,26,60,52);x.fillStyle='#34424c';x.fillRect(38,30,52,44);x.fillStyle='#f4f4f0';x.fillRect(62,30,4,44);x.fillStyle='#8a8a86';x.fillRect(30,24,68,5);}));
+  const kawara=ctex(128,128,(x,w,h)=>{x.fillStyle='#4a5058';x.fillRect(0,0,w,h);for(let i=0;i<w;i+=8){x.fillStyle='rgba(255,255,255,.08)';x.fillRect(i,0,3,h);x.fillStyle='rgba(0,0,0,.25)';x.fillRect(i+6,0,2,h);}for(let y=0;y<h;y+=12){x.fillStyle='rgba(0,0,0,.2)';x.fillRect(0,y,w,2);}});
+  const konbini=ctex(256,96,(x,w,h)=>{x.fillStyle='#fafaf6';x.fillRect(0,0,w,h);x.fillStyle='#2a9a5a';x.fillRect(0,0,w,14);x.fillStyle='#2a5aa8';x.fillRect(0,14,w,8);x.fillStyle='#f0a030';x.fillRect(0,22,w,4); // 店舗の正面: 帯・ガラス・ポスター
+    x.fillStyle='#283440';x.fillRect(8,32,w-16,58);x.fillStyle='rgba(255,255,240,.55)';x.fillRect(10,34,w-20,40);for(let i=0;i<8;i++){x.fillStyle=['#e84a3a','#f0c030','#3a8ad0','#ffffff'][i%4];x.fillRect(16+i*29,40,12,16);}x.fillStyle='#bfc8cc';x.fillRect(w/2-14,34,28,56);});
+  const konSign=ctex(256,48,(x,w,h)=>{x.fillStyle='#ffffff';x.fillRect(0,0,w,h);x.fillStyle='#2a9a5a';x.fillRect(0,0,w,16);x.fillStyle='#2a5aa8';x.fillRect(0,32,w,16);x.fillStyle='#f0a030';x.fillRect(0,16,w,4);
+    x.fillStyle='#1a3a6a';x.font='bold 20px '+JPF;x.textBaseline='middle';x.fillText('コンビニ',16,26);x.fillStyle='#d23a2a';x.font='bold 18px sans-serif';x.fillText('24H',w-60,26);});
+  const vend=['#c8302a','#2a5aa8','#f4f4f0'].map(c=>ctex(64,128,(x,w,h)=>{x.fillStyle=c;x.fillRect(0,0,w,h);x.fillStyle='#f8f8f2';x.fillRect(4,6,w-8,62);for(let r=0;r<3;r++)for(let i=0;i<5;i++){x.fillStyle=['#e84a3a','#3a8ad0','#f0c030','#4aa04a','#8a5a3a'][(r+i)%5];x.fillRect(7+i*11,10+r*20,7,13);}
+    x.fillStyle='#202020';x.fillRect(8,96,w-16,16);x.fillStyle='#4a4a4a';x.fillRect(w-16,74,8,14);}));
+  const kanji=['居酒屋','ラーメン','カラオケ','歯科','薬局','不動産','英会話','焼肉','書店','美容室','ホテル','学習塾'];
+  const vsign=kanji.map((t,i)=>ctex(48,192,(x,w,h)=>{const bg=['#d23a2a','#1a3a8a','#f4f0e6','#2a7a4a','#f0c030','#2a2a2a'][i%6],fg=['#ffffff','#ffffff','#c8302a','#ffffff','#2a2a2a','#f0c030'][i%6];
+    x.fillStyle=bg;x.fillRect(0,0,w,h);x.strokeStyle=fg;x.lineWidth=3;x.strokeRect(3,3,w-6,h-6);x.fillStyle=fg;x.font='bold 30px '+JPF;x.textAlign='center';x.textBaseline='middle';const n=t.length;for(let k=0;k<n;k++)x.fillText(t[k],w/2,h/(n+1)*(k+1));}));
+  const tomare=ctex(128,64,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#ffffff';x.font='bold 46px '+JPF;x.textAlign='center';x.textBaseline='middle';x.fillText('止まれ',w/2,h/2);},true);
+  const train=ctex(256,64,(x,w,h)=>{x.fillStyle='#c8ccd0';x.fillRect(0,0,w,h);x.fillStyle='#2a9a5a';x.fillRect(0,40,w,6);x.fillStyle='#2a2e34';for(let i=8;i<w;i+=40)x.fillRect(i,12,28,20);x.fillStyle='#8a9096';x.fillRect(0,56,w,8);});
+  const signal=ctex(96,32,(x,w,h)=>{x.fillStyle='#2a2e30';x.fillRect(0,0,w,h);[['#3ad06a',1],['#5a5020',0],['#5a2018',0]].forEach(([c,on],i)=>{x.fillStyle=c;x.beginPath();x.arc(16+i*32,16,11,0,6.283);x.fill();if(on){x.fillStyle='rgba(255,255,255,.4)';x.beginPath();x.arc(13+i*32,13,4,0,6.283);x.fill();}});});
+  const signalR=ctex(96,32,(x,w,h)=>{x.fillStyle='#2a2e30';x.fillRect(0,0,w,h);[['#1a4a2a',0],['#5a5020',0],['#f03a2a',1]].forEach(([c,on],i)=>{x.fillStyle=c;x.beginPath();x.arc(16+i*32,16,11,0,6.283);x.fill();});});
+  // ---- 地面: 区画(コンクリ)・車道・歩道・路面標示 ----
+  K.plane('lot',E*2,E*2,0,0,0,6);
+  const spans=(skipW)=>{const cut=LINES.map(([m,hw])=>[m-hw-skipW,m+hw+skipW]).sort((a,b)=>a[0]-b[0]),out=[];let a=-E;cut.forEach(([c0,c1])=>{if(c0>a)out.push([a,c0]);a=Math.max(a,c1);});if(a<E)out.push([a,E]);return out;};
+  LINES.forEach(([l,hw])=>{K.plane('asph',hw*2,E*2,l,0,.02,10);spans(0).forEach(([a,b])=>K.plane('asph',b-a,hw*2,(a+b)/2,l,.02,10));
+    if(hw>NAR){const sw=hw===MAIN?4:2.5;for(const sd of [-1,1]){K.plane('walk',sw,E*2,l+sd*(hw+sw/2),0,.12,4);K.plane('walk',E*2,sw,0,l+sd*(hw+sw/2),.121,4);
+      spans(sw).forEach(([a,b])=>{K.box('curb',.2,.18,b-a,l+sd*hw,.09,(a+b)/2,0,4,4);K.box('curb',b-a,.18,.2,(a+b)/2,.09,l+sd*hw,0,4,4);});}}});
+  // 車線・センターライン・停止線・横断歩道・スクランブル・止まれ
+  spans(4).forEach(([a,b])=>{for(let t=a+2;t<b-2;t+=6){K.plane('lineW',.15,3,-5,t,.04,1);K.plane('lineW',.15,3,5,t,.04,1);K.plane('lineW',3,.15,t,-5,.041,1);K.plane('lineW',3,.15,t,5,.041,1);}
+    K.plane('lineY',.15,b-a,-.2,(a+b)/2,.042,1);K.plane('lineY',.15,b-a,.2,(a+b)/2,.042,1);K.plane('lineY',b-a,.15,(a+b)/2,-.2,.043,1);K.plane('lineY',b-a,.15,(a+b)/2,.2,.043,1);});
+  for(let i=0;i<10;i++)for(const sd of [-1,1]){const t=-9+i*2;K.plane('lineW',1,4.5,t,sd*12.5,.05,1);K.plane('lineW',4.5,1,sd*12.5,t,.05,1);}
+  for(let i=-1;i<=1;i++)for(const a of [Math.PI/4,-Math.PI/4]){const d=i*1.6;K.plane('lineW',.9,24,Math.cos(a)*d,-Math.sin(a)*d,.055,1,a);}             // スクランブル交差点の斜め横断歩道(幅4.5の帯に3本)
+  [[-64,5],[64,5],[-64,-5],[64,-5],[5,-64],[-5,64],[5,64],[-5,-64]].forEach(([x,z])=>{const v=Math.abs(x)===64;for(let i=0;i<6;i++){if(v)K.plane('lineW',.9,3.5,x+(x>0?-1:1)*(7+i*.0),z+(i-2.5)*1.4,.05,1,Math.PI/2);}}); // 2車線道路との交差点の横断歩道
+  [[-110,20,0],[110,-20,Math.PI],[20,-110,-Math.PI/2],[-20,110,Math.PI/2],[-110,-40,0],[110,40,Math.PI]].forEach(([x,z,a])=>K.sign('tomare',3,1.5,x,.06,z,a).rotation.x=Math.PI/2); // 止まれ
+  // ---- 信号機(大交差点の四隅と2車線の交差点) ----
+  const sigPole=(x,z,ry,red)=>{K.cyl('pole',.22,.26,6,x,3,z,8);const c=Math.cos(ry),sn=Math.sin(ry);K.box('pole',.15,.15,4,x+sn*2,5.8,z+c*2,ry,4,4);K.sign(red?'sigR':'sigG',2.2,.75,x+sn*3.8,5.8,z+c*3.8,ry);K.box('pedS',.5,1,.35,x,2.8,z,ry,4,4);K.circ(x,z,.35,6);};
+  sigPole(-12,-12,0,0);sigPole(12,12,Math.PI,0);sigPole(12,-12,-Math.PI/2,1);sigPole(-12,12,Math.PI/2,1);
+  [[-64,0],[64,0],[0,-64],[0,64]].forEach(([x,z])=>{const v=x!==0;sigPole(x+(v?-7:-12),z+(v?-12:-7),v?0:Math.PI/2,v);sigPole(x+(v?7:12),z+(v?12:7),v?Math.PI:-Math.PI/2,v);});
+  // ---- 歩道橋(z=-40で幹線をまたぐ) ----
+  {const z=-40,y=6;K.box('bridge',30,.6,2.6,0,y,z,0,4,4);for(const sd of [-1,1]){K.box('rail',30,1.1,.08,0,y+.85,z+sd*1.3,0,4,4);
+     K.cyl('bridge',.6,.6,y,sd*11.5,y/2,z-1,10);K.cyl('bridge',.6,.6,y,sd*11.5,y/2,z+1,10);K.circ(sd*11.5,z,1.6,y);
+     const st=BABYLON.MeshBuilder.CreateBox('st',{width:2.2,height:.4,depth:11},scene);st.position.set(sd*15.6,y/2,z+5.6);st.rotation.x=-Math.atan2(y,11);K.add('bridge',st);K.solid(sd*15.6,z+5.6,2.4,11,y*.5);}}
+  // ---- 電柱と電線(2車線道路・生活道路沿い) ----
+  const poles=(line,vert,off)=>{const P=[];for(let t=-E+8;t<E-8;t+=16){if(LINES.some(([m,hw])=>Math.abs(t-m)<hw+4))continue;P.push(vert?[line+off,t]:[t,line+off]);}
+    P.forEach(([x,z],i)=>{if(!K.free(x,z,.6))return;K.cyl('pole',.26,.36,11,x,5.5,z,8);K.box('pole',vert?1.8:.14,.14,vert?.14:1.8,x,10.3,z,0,4,4);if(R()<.3)K.cyl('trans',.7,.7,1.1,x+(vert?.5:0),8.4,z+(vert?0:.5),10);K.circ(x,z,.35,11);
+      if(i&&Math.hypot(x-P[i-1][0],z-P[i-1][1])<17){const [px,pz]=P[i-1],d=Math.hypot(x-px,z-pz),a=Math.atan2(x-px,z-pz);for(const [o,hh] of [[-.7,10.2],[.7,10.2],[0,9.4],[0,8.6]]){const m=BABYLON.MeshBuilder.CreateBox('w',{width:.035,height:.035,depth:d},scene);m.position.set((x+px)/2+Math.cos(a)*o,hh-.25,(z+pz)/2-Math.sin(a)*o);m.rotation.y=a;K.add('wire',m);}}});};
+  for(const [l,hw] of LINES)if(hw<MAIN){poles(l,true,hw+(hw===SEC?1.3:.6));poles(l,false,-(hw+(hw===SEC?1.3:.6)));}
+  // ---- 鉄道の高架と電車 ----
+  {const y=7.4;K.box('conc',E*2,1.2,9,0,y,RAIL,0,4,4);for(const sd of [-1,1])K.box('conc',E*2,1.2,.3,0,y+1.2,RAIL+sd*4.35,0,4,4);
+   for(let x=-E+6;x<E;x+=18){if(LINES.some(([m,hw])=>Math.abs(x-m)<hw+2))continue;K.box('conc',2.2,y-.6,3,x,(y-.6)/2,RAIL,0,4,4);K.solid(x,RAIL,2.4,3.2,y);}
+   for(let x=-E+4;x<E;x+=30){K.cyl('pole',.25,.25,6,x,y+3.6,RAIL-4,6);K.box('pole',.12,.12,8.6,x,y+6.4,RAIL,0,4,4);}
+   for(let i=0;i<6;i++){const x=-40+i*19;K.box('train',18.6,3.6,2.9,x,y+2.6,RAIL+1.5,0,18.6,3.6);K.box('trainR',18.6,.3,2.9,x,y+4.55,RAIL+1.5,0,4,4);}
+   const m=BABYLON.MeshBuilder.CreateBox('wire',{width:E*2,height:.04,depth:.04},scene);m.position.set(0,y+6.2,RAIL+1.5);K.add('wire',m);}
+  // ---- 建物: 街区ごとに(幹線沿い=商業ビル、外側=住宅・マンション、特別な区画=神社・公園・駐車場) ----
+  const EDGES=[-E+4,-110,-64,0,64,110,E-4],hwOf=l=>{const L=LINES.find(([m])=>m===l);return L?L[1]+(L[1]===MAIN?4:L[1]===SEC?2.5:.4):0;};
+  const office=(x,z,w,d,F,ry,fx,fz)=>{const H=4.5+F*3.6,v=R()*3|0;K.box('shopJ',w,4.5,d,x,2.25,z,ry,3.2,4.5);K.box('off'+v,w,F*3.6,d,x,4.5+F*1.8,z,ry,3.2,3.6);K.box('conc',w+.2,.6,d+.2,x,H+.3,z,ry,4,4);
+    if(R()<.6)K.cyl('tank',2,2,2,x+(R()-.5)*w*.4,H+1.6,z+(R()-.5)*d*.4,12);for(let k=0;k<3;k++)K.box('ac',1.2,.9,.8,x+(R()-.5)*w*.6,H+1,z+(R()-.5)*d*.6,ry,4,4);
+    if(R()<.75){const along=fx?d:w,sx=x+fx*(fx?w/2+.6:0)+(fx?0:(R()<.5?-1:1)*(along/2-.6)),sz=z+fz*(fz?d/2+.6:0)+(fz?0:(R()<.5?-1:1)*(along/2-.6));K.sign('vs'+(R()*kanji.length|0),1.2,4.8,sx,6+R()*4,sz,Math.atan2(fz,fx)+Math.PI/2);} // 縦看板
+    K.solid(x,z,w,d,H+1,ry);};
+  const mansionB=(x,z,w,d,F,ry)=>{const H=F*3,v=R()*3|0;K.box('man'+v,w,H,d,x,H/2,z,ry,3.2,3);K.box('conc',w+.3,.4,d+.3,x,H+.2,z,ry,4,4);K.box('stairs',2.4,H,2.2,x+Math.cos(ry)*(w/2+1.2),H/2,z-Math.sin(ry)*(w/2+1.2),ry,4,4);K.solid(x,z,w+4.8,d,H+.6,ry);};
+  const houseJ=(x,z,w,d,ry,fx,fz)=>{const v=R()*4|0;K.box('house'+v,w,5.6,d,x,2.8,z,ry,3.2,2.8);K.hip('kawara',w+1.2,d+1.2,2.2,x,5.6,z,ry);K.box('ac',.9,.6,.4,x-fx*(d/2+.25),.6,z-fz*(w/2+.25),ry,4,4);
+    // ブロック塀(門の所は開ける)と駐車スペースの軽自動車
+    const lw=w+3,ld=d+3;for(const [a,b,ww,dd] of [[0,-ld/2,lw,.15],[-lw/2,0,.15,ld],[lw/2,0,.15,ld]]){const c=Math.cos(ry),sn=Math.sin(ry);K.box('block',ww,1.2,dd,x+a*c+b*sn,.6,z-a*sn+b*c,ry,4,4);}
+    K.solid(x,z,w+.4,d+.4,7.8,ry);};
+  const konbiniB=(x,z,ry,fx,fz)=>{K.box('white',16,4.6,11,x,2.3,z,ry,4,4);K.sign('kon',15,5.6,x+fx*5.56,2.8,z+fz*5.56,Math.atan2(fx,fz)+Math.PI);K.sign('konS',16.2,1.4,x+fx*5.6,4.2,z+fz*5.6,Math.atan2(fx,fz)+Math.PI);
+    for(let i=0;i<2;i++)K.box('vend'+(i%3),1.1,1.85,.8,x+fx*5.9+(fz?(i?7:6):0),.93,z+fz*5.9+(fx?(i?7:6):0),ry,1.1,1.85);K.solid(x,z,16,11,4.8,ry);
+    for(let i=0;i<5;i++)K.plane('lineW',.15,5,x+fx*9+(fz?(i-2)*2.8:0),z+fz*9+(fx?(i-2)*2.8:0),.06,1,ry);};
+  const keicar=(x,z,ry,col)=>{K.box('car'+col,1.5,1.1,3.4,x,.75,z,ry,4,4);K.box('glassJ',1.4,.7,1.9,x-Math.sin(ry)*.2,1.6,z-Math.cos(ry)*.2,ry,4,4);for(const [l,f] of [[-.72,1.1],[.72,1.1],[-.72,-1.1],[.72,-1.1]]){const c=Math.cos(ry),sn=Math.sin(ry);K.cyl('tire',.55,.55,.25,x+l*c+f*sn,.28,z-l*sn+f*c,10,0,Math.PI/2,ry);}K.solid(x,z,1.6,3.5,2,ry);};
+  const treeJ=(x,z)=>{if(!K.free(x,z,1))return;K.cyl('bark',.25,.35,3,x,1.5,z,7);for(let k=0;k<3;k++){const c=BABYLON.MeshBuilder.CreateIcoSphere('tl',{radius:1.1+R()*.5,subdivisions:1},scene);c.position.set(x+(R()-.5)*.8,3.6+k*.7,z+(R()-.5)*.8);K.add('leafJ',c);}K.circ(x,z,.5,6);};
+  for(let i=0;i<EDGES.length-1;i++)for(let j=0;j<EDGES.length-1;j++){
+    const x0=EDGES[i]+hwOf(EDGES[i])+.5,x1=EDGES[i+1]-hwOf(EDGES[i+1])-.5,z0=EDGES[j]+hwOf(EDGES[j])+.5,z1=EDGES[j+1]-hwOf(EDGES[j+1])-.5,W=x1-x0,D=z1-z0;if(W<8||D<8)continue;
+    const cx=(x0+x1)/2,cz=(z0+z1)/2,core=Math.max(Math.abs(cx),Math.abs(cz))<70,railBlock=z0<RAIL+6&&z1>RAIL-6;
+    if(i===1&&j===1){ // 神社: 鳥居・参道・社殿・石灯籠・ご神木
+      const sx=cx,sz=z1-3;K.cyl('torii',.5,.55,5,sx-2.4,2.5,sz,10);K.cyl('torii',.5,.55,5,sx+2.4,2.5,sz,10);K.box('torii',7.2,.45,.6,sx,5.1,sz,0,4,4);K.box('toriiK',7.8,.35,.7,sx,5.55,sz,0,4,4);K.box('torii',5.4,.3,.35,sx,4.3,sz,0,4,4);
+      K.circ(sx-2.4,sz,.4,5);K.circ(sx+2.4,sz,.4,5);K.plane('walk',2.4,D-14,sx,cz+2,.03,2);
+      K.box('wood',8,1,10,sx,.5,z0+9,0,4,4);K.box('shrine',6,3.4,8,sx,2.7,z0+9,0,4,4);K.gable('kawaraS',8,10,2.6,sx,4.4,z0+9,0,.8,.8);K.solid(sx,z0+9,8,10,7.5);
+      for(const sd of [-1,1]){K.cyl('stone',.6,.9,.6,sx+sd*2.6,.3,cz,6);K.cyl('stone',.4,.4,1.2,sx+sd*2.6,1.2,cz,6);K.box('stone',1,.6,1,sx+sd*2.6,2.1,cz,0,4,4);K.hip('stone',1.4,1.4,.5,sx+sd*2.6,2.4,cz);K.circ(sx+sd*2.6,cz,.6,2.6);}
+      for(let k=0;k<10;k++){const x=x0+2+R()*(W-4),z=z0+2+R()*(D-4);if(Math.abs(x-sx)>5)treeJ(x,z);}continue;}
+    if(i===4&&j===1){for(let k=0;k<12;k++)treeJ(x0+2+R()*(W-4),z0+2+R()*(D-4));K.box('play',1,2.4,4,cx,1.2,cz,0,4,4);K.box('play',.6,.1,4.6,cx+1.3,1.2,cz,0,4,4);K.solid(cx,cz,2.6,4.6,2.4);
+      for(let k=0;k<4;k++){K.box('wood',2,.1,.5,cx-6+k*4,.5,cz+6,0,4,4);K.circ(cx-6+k*4,cz+6,.9,.6);}continue;}                                               // 公園
+    if(i===2&&j===4){for(let r=0;r<3;r++)for(let k=0;k<6;k++){const x=x0+4+k*3.2,z=z0+5+r*7;K.plane('lineW',.15,5,x-1.6,z,.06,1);if(R()<.7)keicar(x,z,0,R()*4|0);}continue;} // コインパーキング
+    if(core){ // 商業: 外周に沿ってビル(通り側に正面)、角にコンビニ
+      const dep=Math.min(16,Math.min(W,D)/2.2);let konb=R()<.5;
+      const strip=(along,len,fixed,alongX,fx,fz)=>{let p=0;while(p<len-6){let w=Math.min(len-p,9+R()*8);if(len-p-w<6)w=len-p;
+        const cxx=alongX?along+p+w/2:fixed,czz=alongX?fixed:along+p+w/2;if(railBlock&&Math.abs(czz-RAIL)<dep/2+5){p+=w;continue;}
+        if(konb&&w>15){konbiniB(cxx,czz,alongX?0:Math.PI/2,fx,fz);konb=false;}else office(cxx,czz,alongX?w:dep,alongX?dep:w,3+(R()*(Math.abs(cxx)+Math.abs(czz)<90?10:5)|0),0,fx,fz);p+=w+.4;}};
+      strip(x0,W,z1-dep/2,true,0,1);strip(x0,W,z0+dep/2,true,0,-1);if(D-2*dep>8){strip(z0+dep,D-2*dep,x1-dep/2,false,1,0);strip(z0+dep,D-2*dep,x0+dep/2,false,-1,0);}
+    }else{ // 住宅: 小さな家の並び(間に細い路地)・時々マンション
+      const lotW=11,lotD=11;for(let a=x0+lotW/2;a<x1-lotW/2+.1;a+=lotW)for(let b=z0+lotD/2;b<z1-lotD/2+.1;b+=lotD){
+        if(railBlock&&Math.abs(b-RAIL)<10)continue;const fz=b<cz?-1:1;
+        if(R()<.14&&a+lotW*1.5<x1){mansionB(a+lotW/2,b,lotW*2-3,8,3+(R()*5|0),0);a+=lotW;continue;}
+        if(R()<.88)houseJ(a,b,7,7,0,0,fz);else{keicar(a,b,R()*3,R()*4|0);}
+        if(R()<.25)K.box('vend'+(R()*3|0),1.1,1.85,.8,a+lotW/2-.6,.93,b+fz*(lotD/2-.6),Math.PI/2,1.1,1.85);}
+    }}
+  // ---- 幹線の歩道: ガードレール(すき間あり)・街路樹・街灯・自転車 ----
+  spans(5).forEach(([a,b])=>{for(let t=a+3;t<b-3;t+=9){for(const sd of [-1,1]){
+    if((t|0)%27<18){for(const [x,z,rx] of [[sd*10.4,t,0],[t,sd*10.4,1]]){K.box('rail',rx?4.2:.1,.3,rx?.1:4.2,x,.75,z,0,4,4);K.box('rail',.1,.75,.1,x,.38,z,0,4,4);if(K.free(x,z,.3))K.solid(x,z,rx?4.2:.3,rx?.3:4.2,1);}}
+    if((t|0)%18<9){treeJ(sd*12.6,t);treeJ(t,sd*12.6);}else{for(const [x,z] of [[sd*11.2,t],[t,sd*11.2]]){if(!K.free(x,z,.5))continue;K.cyl('pole',.18,.22,8,x,4,z,6);K.box('pole',.12,.12,2.4,x-sd*(x===sd*11.2?1:0),8,z-(x===sd*11.2?0:sd),0,4,4);K.circ(x,z,.3,8);}}}}});
+  for(let i=0;i<10;i++){const x=(R()<.5?-1:1)*(11.8+R()*1.5),z=(R()*2-1)*120;if(Math.abs(z)<16||!K.free(x,z,.6))continue;K.cyl('tire',.6,.6,.06,x,.35,z-.5,10,Math.PI/2);K.cyl('tire',.6,.6,.06,x,.35,z+.5,10,Math.PI/2);K.box('bike',.08,.08,1,x,.55,z,0,4,4);}
+  // 交差点で信号待ちの車
+  [[-2.5,-18,0],[2.5,18,Math.PI],[-18,2.5,Math.PI/2],[18,-2.5,-Math.PI/2],[-6,-26,0],[6,30,Math.PI]].forEach(([x,z,a],i)=>{K.box('car'+(i%4),1.8,1.4,4.4,x,.9,z,a,4,4);K.box('glassJ',1.7,.8,2.4,x,1.9,z,a,4,4);K.solid(x,z,1.9,4.5,2.3,a);});
+  // ---- 素材 ----
+  const MM=(k,t,col,o)=>K.mat(k,t,col,o);
+  const mats={lot:MM('lot',lot),asph:MM('asph',asph,null,{zOffset:-1}),walk:MM('walk',walk,null,{zOffset:-1}),lineW:MM('lineW',null,new BABYLON.Color3(.92,.92,.9),{zOffset:-3}),lineY:MM('lineY',null,new BABYLON.Color3(.95,.72,.15),{zOffset:-3}),
+    tomare:MM('tomare',tomare,null,{useAlphaFromDiffuseTexture:true,transparencyMode:1,alphaCutOff:.4,zOffset:-3,backFaceCulling:false}),curb:MM('curb',null,new BABYLON.Color3(.72,.72,.7)),
+    pole:MM('pole',null,new BABYLON.Color3(.62,.62,.6)),trans:MM('trans',null,new BABYLON.Color3(.5,.52,.5)),wire:MM('wire',null,new BABYLON.Color3(.04,.04,.04)),
+    sigG:MM('sigG',signal,null,{emissiveColor:new BABYLON.Color3(.4,.4,.4)}),sigR:MM('sigR',signalR,null,{emissiveColor:new BABYLON.Color3(.4,.4,.4)}),pedS:MM('pedS',null,new BABYLON.Color3(.18,.18,.2)),
+    bridge:MM('bridge',null,new BABYLON.Color3(.42,.55,.62)),rail:MM('rail',null,new BABYLON.Color3(.92,.92,.9)),conc:MM('conc',lot,new BABYLON.Color3(1.05,1.05,1.05)),
+    train:MM('train',train),trainR:MM('trainR',null,new BABYLON.Color3(.6,.62,.64)),shopJ:MM('shopJ',cityTextures().shop),tank:MM('tank',null,new BABYLON.Color3(.8,.8,.78)),ac:MM('ac',null,new BABYLON.Color3(.85,.85,.82)),
+    stairs:MM('stairs',null,new BABYLON.Color3(.7,.7,.68)),kawara:MM('kawara',kawara),kawaraS:MM('kawaraS',kawara,new BABYLON.Color3(.8,.85,.9),{backFaceCulling:false}),block:MM('block',lot,new BABYLON.Color3(.95,.95,.92)),
+    white:MM('white',null,new BABYLON.Color3(.94,.94,.92)),kon:MM('kon',konbini,null,{emissiveColor:new BABYLON.Color3(.25,.25,.25)}),konS:MM('konS',konSign,null,{emissiveColor:new BABYLON.Color3(.35,.35,.35)}),
+    glassJ:MM('glassJ',null,new BABYLON.Color3(.12,.16,.2)),tire:MM('tire',null,new BABYLON.Color3(.05,.05,.05)),bark:MM('bark',T.bark),leafJ:MM('leafJ',cityTextures().leaf,new BABYLON.Color3(.9,1.1,.8)),
+    torii:MM('torii',null,new BABYLON.Color3(.82,.2,.12)),toriiK:MM('toriiK',null,new BABYLON.Color3(.1,.1,.1)),shrine:MM('shrine',T.bark,new BABYLON.Color3(.85,.65,.45)),wood:MM('wood',T.bark,new BABYLON.Color3(.7,.55,.4)),
+    stone:MM('stone',T.rock,new BABYLON.Color3(.7,.7,.68)),play:MM('play',null,new BABYLON.Color3(.85,.35,.2)),bike:MM('bike',null,new BABYLON.Color3(.2,.3,.6))};
+  offT.forEach((t,i)=>mats['off'+i]=MM('off'+i,t));manT.forEach((t,i)=>mats['man'+i]=MM('man'+i,t));houseT.forEach((t,i)=>mats['house'+i]=MM('house'+i,t));vend.forEach((t,i)=>mats['vend'+i]=MM('vend'+i,t,null,{emissiveColor:new BABYLON.Color3(.3,.3,.3)}));
+  vsign.forEach((t,i)=>mats['vs'+i]=MM('vs'+i,t,null,{emissiveColor:new BABYLON.Color3(.25,.25,.25)}));['#f2f2f0','#c83a32','#3a6aa8','#2a2a2c'].forEach((c,i)=>mats['car'+i]=MM('car'+i,null,BABYLON.Color3.FromHexString(c)));
+  const ground=K.finish(mats,/^(lot|asph|walk|lineW|lineY|tomare)$/);
+  outerRing(K,new BABYLON.Color3(.42,.43,.45),lot,60);
+  const sky=farRidge(0,'200,206,214',(x,Wd,H)=>{[[.6,'rgb(150,158,170)',.8],[.7,'rgb(120,128,140)',1]].forEach(([b,col,sc])=>{x.fillStyle=col;let i=0;x.beginPath();x.moveTo(0,H);
+    while(i<Wd){const bw=(14+R()*40)*sc,bh=(.06+R()*.3)*H*sc,y=H*b-bh;x.lineTo(i,y);x.lineTo(i+bw,y);i+=bw;if(R()<.03){x.lineTo(i,H*b-H*.55);x.lineTo(i+3,H*b-H*.62);x.lineTo(i+6,H*b-H*.55);x.lineTo(i+6,H*b);i+=6;}}x.lineTo(Wd,H);x.fill();});}); // 高層ビル群と電波塔
+  return {root:K.root,obs:K.ob,ground,sky,fx:K.fx,upd:K.upd};
+}
 // ===== ヨーロッパの市街地(初めて選ばれた時に生成) =====
 // 碁盤目の道路(中央の大通り18・ほか12)と街区。街区の外周に3〜6階建ての建物を並べ、中央は石畳の広場と噴水・北に教会。
 // 廃墟・瓦礫・焼けた車・バリケード・街路樹・街灯。建物は素材ごとに結合して描画を軽くし、当たり判定は箱
@@ -613,6 +954,12 @@ function buildCity(){
       for(let k=0;k<6;k++){const rw=1+R()*2,rh=.4+R()*.8,rd=1+R()*2,rx=x+(R()-.5)*w,rz=z+(R()-.5)*d,ry=R()*3;box('flat',rw,rh,rd,rx,.4,rz,ry,4,4);solid('r',rx,rz,rw,rd,rh+.4,ry);} // 瓦礫にも当たり判定
       solid('b',x,z,w,d,hh);
     }else{
+      // 通り側(表)の方向: 日よけ・バルコニーを付ける
+      const fx=face===2?1:face===3?-1:0,fz=face===0?1:face===1?-1:0,half=fx?w/2:d/2,along=fx?d:w;
+      if(R()<.6){const aw=BABYLON.MeshBuilder.CreateBox('aw',{width:fx?1.5:along*.85,height:.08,depth:fx?along*.85:1.5},scene);aw.position.set(x+fx*(half+.7),3.25,z+fz*(half+.7));
+        if(fx)aw.rotation.z=-fx*.35;else aw.rotation.x=fz*.35;add('awn'+(R()*3|0),aw);}                                    // 商店の日よけ
+      if(R()<.45)for(let f=1;f<F;f++){const by=3.6+f*FL-.05,bw=Math.min(along*.6,6);
+        box('stone',fx?1:bw,.15,fx?bw:1,x+fx*(half+.5),by,z+fz*(half+.5),0,4,4);box('iron',fx?.06:bw,.8,fx?bw:.06,x+fx*(half+1),by+.45,z+fz*(half+1),0,4,4);} // バルコニー
       box('fac'+fv,w,F*FL,d,x,3.6+F*FL/2,z);box('stone',w+ox,.35,d+oz,x,H+.1,z,0,4,4);                            // 壁+コーニス
       if(R()<.6)roofGable(R()<.7?'roofR':'roofS',w,d,Math.min(w,d)*.35,x,H+.28,z,ox,oz);else{box('flat',w-.2,.3,d-.2,x,H+.3,z,0,4,4);}
       if(R()<.5)box('stone',.6,1.4,.6,x+(R()-.5)*w*.6,H+1,z+(R()-.5)*d*.6,0,4,4);                                   // 煙突
@@ -670,12 +1017,20 @@ function buildCity(){
   [[30,72],[-72,30],[72,-35],[-35,-72],[100,100],[-100,-100]].forEach(([x,z])=>hedgehog(x,z));
   for(let k=0;k<8;k++){const x=(R()*2-1)*(E-20),z=(R()*2-1)*(E-20);if(Math.abs(x)<34&&Math.abs(z)<34)continue;if(ob.some(o=>obsIn(o,x,z,3)))continue;
     for(let i=0;i<5;i++)box('sandbag',1,.4,.55,x+i*.95-2,.2+(i%2)*.4,z,0,4,4);solid('b',x-.1,z,4.9,.7,1);} // 土嚢の列(当たり判定あり)
+  // ---- 路面電車の線路(大通り)・焼けたバス・電話ボックス・ベンチ・ゴミ箱・キオスク ----
+  for(const ox of [-2.2,-.8,.8,2.2])[-1,1].forEach(h=>{const a=PZ,b_=E;box('iron',.12,.06,b_-a,ox,.06,h*(a+b_)/2,0,4,4);});
+  {const bx_=-3,bz=96;box('burnt',2.6,3,11,bx_,1.7,bz,.15,4,4);box('glass',2.65,.9,9.5,bx_,2.4,bz,.15,4,4);solid('b',bx_,bz,2.7,11.2,3.3,.15);}
+  [[-10.5,40],[10.5,-60],[-10.5,-110],[10.5,120]].forEach(([x,z])=>{box('phone',1,2.4,1,x,1.2,z,0,4,4);ob.push({x,z,r:.7,h:2.5,mesh:null});});
+  for(let k=-E+20;k<E-10;k+=24){if(Math.abs(k)<36)continue;[-1,1].forEach(sd=>{if(!ob.some(o=>obsIn(o,sd*12,k+4,1.2))){box('wood',.5,.1,2,sd*12.2,.5,k+4,0,4,4);box('iron',.08,.5,1.8,sd*12.2,.25,k+4,0,4,4);box('wood',.1,.5,2,sd*12.45,.8,k+4,0,4,4);ob.push({x:sd*12.2,z:k+4,r:1,h:1,mesh:null});}
+    if(!ob.some(o=>obsIn(o,sd*10.4,k-4,.6))){const c=BABYLON.MeshBuilder.CreateCylinder('bin',{diameter:.6,height:.9,tessellation:10},scene);c.position.set(sd*10.4,.45,k-4);add('iron',c);ob.push({x:sd*10.4,z:k-4,r:.4,h:.9,mesh:null});}});}
+  {const kx=22,kz=-24;box('wood',3,2.6,2.2,kx,1.3,kz,0,4,4);box('phone',3.6,.2,2.8,kx,2.7,kz,0,4,4);box('shop',2.6,1.2,.05,kx,1.7,kz-1.12,0,3.2,3.6);ob.push({box:1,x:kx,z:kz,hw:1.6,hd:1.2,c:1,s:0,h:2.8,rad:2,mesh:null});}
   // ---- 素材ごとに結合 ----
   const mats={pave:M('pave',CT.pave),asph:M('asph',CT.asphalt,null,{zOffset:-1}),cobble:M('cobble',CT.cobble,null,{zOffset:-2}),line:M('line',null,new BABYLON.Color3(.9,.9,.86),{zOffset:-3}),stone:M('stone',CT.stone),
     shop:M('shop',CT.shop),flat:M('flat',CT.flat),roofR:M('roofR',CT.roof[0],null,{backFaceCulling:false}),roofS:M('roofS',CT.roof[1],null,{backFaceCulling:false}),
     glass:M('glass',null,new BABYLON.Color3(.12,.14,.16)),water:M('water',null,new BABYLON.Color3(.3,.4,.42),{specularColor:new BABYLON.Color3(.6,.6,.6),specularPower:64}),
     bark:M('bark',T.bark),leaf:M('leaf',CT.leaf),iron:M('iron',null,new BABYLON.Color3(.12,.12,.12)),lamp:M('lamp',null,new BABYLON.Color3(.9,.85,.6),{emissiveColor:new BABYLON.Color3(.35,.32,.2)}),
-    burnt:M('burnt',T.metal,new BABYLON.Color3(.22,.17,.14)),tire:M('tire',null,new BABYLON.Color3(.05,.05,.05)),concrete:M('concrete',CT.stone,new BABYLON.Color3(.85,.85,.82)),sandbag:M('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75))};
+    burnt:M('burnt',T.metal,new BABYLON.Color3(.22,.17,.14)),phone:M('phone',null,new BABYLON.Color3(.7,.1,.08)),wood:M('wood',T.bark,new BABYLON.Color3(.7,.55,.4)),
+    awn0:M('awn0',ctex(64,64,(x,w,h)=>{for(let i=0;i<8;i++){x.fillStyle=i%2?'#f4efe4':'#a8322a';x.fillRect(i*8,0,8,h);}})),awn1:M('awn1',ctex(64,64,(x,w,h)=>{for(let i=0;i<8;i++){x.fillStyle=i%2?'#f4efe4':'#2a6a4a';x.fillRect(i*8,0,8,h);}})),awn2:M('awn2',null,new BABYLON.Color3(.25,.3,.5)),tire:M('tire',null,new BABYLON.Color3(.05,.05,.05)),concrete:M('concrete',CT.stone,new BABYLON.Color3(.85,.85,.82)),sandbag:M('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75))};
   for(let k=0;k<5;k++){mats['fac'+k]=M('fac'+k,CT.facade[k]);mats['fac'+k+'r']=M('fac'+k+'r',CT.facade[k],new BABYLON.Color3(.55,.5,.46));} // 廃墟は煤けて暗く
   const merged=[];
   for(const k in parts){const g=BABYLON.Mesh.MergeMeshes(parts[k],true,true);if(!g)continue;g.material=mats[k]||mats.stone;g.parent=root;g.isPickable=false;g.metadata={occ:1};
@@ -690,12 +1045,16 @@ function buildCity(){
 }
 // ===== 丘陵(緑の草原・昼。初めて選ばれた時に生成) =====
 // 大きくうねる丘、谷は濃い緑・急斜面は土と岩。森と点在する木、岩の露頭、農家と納屋、干し草ロール、柵と石垣、草むら
-const ghHills=(x,z)=>(Math.sin(x*.018+.5)*Math.cos(z*.015)*8.5+Math.sin(x*.034+z*.027)*3.6+Math.cos(x*.07-z*.05)*1.3+Math.sin(x*.15+z*.11)*.3
+// 丘陵の名所: 池(中心x,z,半径)・未舗装路・麦畑
+const HPOND=[-60,-22,8],HROAD=[[-150,48],[-100,34],[-55,20],[-22,4],[28,-22],[70,-40],[110,-38],[150,-64]],HFIELD=[[-130,-130,-80,-95],[90,60,135,105],[20,95,70,130],[-140,95,-110,135]];
+const ghHills0=(x,z)=>(Math.sin(x*.018+.5)*Math.cos(z*.015)*8.5+Math.sin(x*.034+z*.027)*3.6+Math.cos(x*.07-z*.05)*1.3+Math.sin(x*.15+z*.11)*.3
   +Math.abs(Math.sin(x*.009+z*.013))*6-2)*Math.min(1,Math.hypot(x,z)/30);
+const HPOND_H=ghHills0(HPOND[0],HPOND[1])-1.4;
+const ghHills=(x,z)=>{const h=ghHills0(x,z),d=Math.hypot(x-HPOND[0],z-HPOND[1]);if(d>HPOND[2]+7)return h;const t=Math.min(1,Math.max(0,(HPOND[2]+7-d)/8));return h+(HPOND_H-h)*t*t*(3-2*t);};
 let hills=null,hills_outer=null;
 function buildHills(){
   if(hills)return hills;
-  const R=srnd(1505),root=new BABYLON.TransformNode('hills',scene),ob=[],parts={};
+  const R=srnd(1505),root=new BABYLON.TransformNode('hills',scene),ob=[],parts={},CT=cityTextures();
   const cv=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);return c;};
   const tex=(c,u,v)=>{const t=new BABYLON.DynamicTexture('ht',c,scene,true);t.wrapU=t.wrapV=1;t.uScale=u||1;t.vScale=v||1;t.anisotropicFilteringLevel=MOBILE?2:8;t.update();return t;};
   const add=(k,m)=>{(parts[k]=parts[k]||[]).push(m);return m;};
@@ -711,6 +1070,9 @@ function buildHills(){
     let r=.62+n*.05-h*.006,gg=.82+n*.06-h*.004,b=.5+n*.03;
     if(f>.55){r+=.12;gg+=.08;b-=.05;}
     const dirt=Math.max(0,Math.min(1,sl*3.2-.55));r+=(.72-r)*dirt;gg+=(.62-gg)*dirt;b+=(.48-b)*dirt;
+    {const dr=distPoly(x,z,HROAD);if(dr<2.6){const k=Math.min(1,(2.6-dr)/1.2)*(Math.abs(dr-1)<.3?1:.8);r+=(.62-r)*k;gg+=(.52-gg)*k;b+=(.38-b)*k;}} // 未舗装路(轍入り)
+    if(HFIELD.some(([a,c,b2,d2])=>x>a&&x<b2&&z>c&&z<d2)){const row=Math.sin(x*1.6)*.5+.5;r=.86+row*.06;gg=.74+row*.05;b=.36;}               // 麦畑(畝の縞)
+    {const d=Math.hypot(x-HPOND[0],z-HPOND[1]);if(d<HPOND[2]+3){const k=Math.min(1,(HPOND[2]+3-d)/3);r+=(.42-r)*k;gg+=(.4-gg)*k;b+=(.3-b)*k;}} // 池の岸(ぬかるみ)
     C.push(r,gg,b,1);}
    g.updateVerticesData('position',P);g.updateVerticesData('normal',N);g.setVerticesData('color',C,true);}
   const gm=new BABYLON.StandardMaterial('hgm',scene);gm.diffuseTexture=gT;gm.specularColor=BABYLON.Color3.Black();if(!MOBILE){gm.bumpTexture=T.sandN;gm.bumpTexture.level=.35;}
@@ -719,7 +1081,8 @@ function buildHills(){
   {const om=new BABYLON.StandardMaterial('hom',scene);om.disableLighting=true;om.emissiveColor=new BABYLON.Color3(.36,.46,.25);om.emissiveTexture=tex(grassC,160,160);
    const F=1100,ps=[[0,(E+F)/2,2*F,F-E],[0,-(E+F)/2,2*F,F-E],[(E+F)/2,0,F-E,2*E],[-(E+F)/2,0,F-E,2*E]].map(([x,z,w,d])=>{const m=BABYLON.MeshBuilder.CreateGround('ho',{width:w,height:d},scene);m.position.set(x,-1,z);return m;});
    const og=BABYLON.Mesh.MergeMeshes(ps,true);og.material=om;og.parent=root;og.isPickable=false;og.freezeWorldMatrix();hills_outer=og;}
-  const free=(x,z,pad)=>Math.hypot(x,z)>22&&!ob.some(o=>obsIn(o,x,z,pad));
+  const free=(x,z,pad)=>Math.hypot(x,z)>22&&!ob.some(o=>obsIn(o,x,z,pad))&&distPoly(x,z,HROAD)>4+pad&&!HFIELD.some(([a,c,b2,d2])=>x>a-2&&x<b2+2&&z>c-2&&z<d2+2)&&Math.hypot(x-HPOND[0],z-HPOND[1])>HPOND[2]+4;
+  ob.push({x:HPOND[0],z:HPOND[1],r:HPOND[2]+.5,h:HPOND_H+.6,mesh:null}); // 池には入れない(砲弾は水面を越える)
   // 木: 針葉樹(円錐を重ねる)と広葉樹(丸い樹冠)。森は雑音の濃い所に固まる
   const conifer=(x,z,s)=>{const y=ghHills(x,z);const t=BABYLON.MeshBuilder.CreateCylinder('ct',{diameterTop:.2,diameterBottom:.45*s,height:2*s,tessellation:6},scene);t.position.set(x,y+s,z);add('bark',t);
     for(let k=0;k<3;k++){const c=BABYLON.MeshBuilder.CreateCylinder('cc',{diameterTop:0,diameterBottom:(3.2-k*.8)*s,height:(3-k*.5)*s,tessellation:8},scene);c.position.set(x,y+(2.2+k*1.5)*s,z);add('pine',c);}
@@ -766,14 +1129,44 @@ function buildHills(){
    const t=tex(c);t.hasAlpha=true;const m=new BABYLON.StandardMaterial('tuft',scene);m.diffuseTexture=t;m.useAlphaFromDiffuseTexture=true;m.transparencyMode=1;m.alphaCutOff=.35;m.backFaceCulling=false;m.specularColor=BABYLON.Color3.Black();
    const a=BABYLON.MeshBuilder.CreatePlane('tf',{size:1.2,sideOrientation:2},scene),b=a.clone('tf2');b.rotation.y=Math.PI/2;const base=BABYLON.Mesh.MergeMeshes([a,b],true);base.material=m;base.isVisible=false;base.isPickable=false;base.parent=root;
    for(let i=0;i<(MOBILE?260:700);i++){const x=(R()*2-1)*(E-3),z=(R()*2-1)*(E-3),s=.6+R()*.8,q=base.createInstance('ti');q.parent=root;q.scaling.set(s,s*(.6+R()*.6),s);q.position.set(x,ghHills(x,z)+.4*s,z);q.rotation.y=R()*3;q.isPickable=false;q.freezeWorldMatrix();}}
+  // ---- 池の水面と葦 ----
+  const waterM=new BABYLON.StandardMaterial('hwater',scene);waterM.diffuseColor=new BABYLON.Color3(.22,.34,.36);waterM.specularColor=new BABYLON.Color3(.9,.9,.9);waterM.specularPower=96;waterM.alpha=.88;
+  {const w=BABYLON.MeshBuilder.CreateDisc('pw',{radius:HPOND[2]+1.5,tessellation:40,sideOrientation:2},scene);w.rotation.x=Math.PI/2;w.position.set(HPOND[0],HPOND_H+.6,HPOND[1]);w.material=waterM;w.parent=root;w.isPickable=false;
+   for(let i=0;i<(MOBILE?60:140);i++){const a=R()*6.283,d=HPOND[2]+.5+R()*2,x=HPOND[0]+Math.cos(a)*d,z=HPOND[1]+Math.sin(a)*d;const c=BABYLON.MeshBuilder.CreateCylinder('rd',{diameterTop:.02,diameterBottom:.06,height:1+R()*1.2,tessellation:4},scene);c.position.set(x,ghHills(x,z)+.7,z);c.rotation.set((R()-.5)*.3,0,(R()-.5)*.3);add('reed',c);}}
+  // ---- 風車(いちばん高い丘の上。羽根が回る) ----
+  const upd=[];
+  {let best=[0,0,-1e9];for(let x=-130;x<=130;x+=10)for(let z=-130;z<=130;z+=10){const h=ghHills(x,z);if(h>best[2]&&Math.hypot(x,z)>50&&ob.every(o=>!obsIn(o,x,z,6)))best=[x,z,h];}
+   const [wx,wz,wy]=best;bx('stoneH',.01,.01,.01,wx,wy,wz);const tw=BABYLON.MeshBuilder.CreateCylinder('wm',{diameterTop:3,diameterBottom:4.6,height:11,tessellation:12},scene);tw.position.set(wx,wy+5.5,wz);add('white',tw);
+   const cap=BABYLON.MeshBuilder.CreateCylinder('wc',{diameterTop:0,diameterBottom:3.6,height:2.4,tessellation:12},scene);cap.position.set(wx,wy+12.2,wz);add('roofB',cap);
+   bx('door',1.2,2.2,.1,wx,wy+1.1,wz-2.25);
+   const hub=new BABYLON.TransformNode('hub',scene);hub.parent=root;hub.position.set(wx,wy+10.5,wz-2.2);const sm=M('sail',new BABYLON.Color3(.85,.82,.74),T.bark);
+   for(let k=0;k<4;k++){const arm=BABYLON.MeshBuilder.CreateBox('sa',{width:.25,height:6.5,depth:.15},scene);arm.parent=hub;arm.rotation.z=k*Math.PI/2;arm.position.set(Math.sin(k*Math.PI/2)*-3.2,Math.cos(k*Math.PI/2)*3.2,0);arm.material=sm;sg.addShadowCaster(arm);
+     const sail=BABYLON.MeshBuilder.CreateBox('ss',{width:1.4,height:5,depth:.05},scene);sail.parent=arm;sail.position.set(.8,.4,0);sail.material=sm;sg.addShadowCaster(sail);}
+   upd.push(dt=>{hub.rotation.z+=dt*.7;});ob.push({x:wx,z:wz,r:2.5,h:wy+13,mesh:null});}
+  // ---- 礼拝堂(白壁・鐘楼) ----
+  {const cx=-100,cz=-62,cy=ghHills(cx,cz);bx('stoneH',7.4,2,12.4,cx,cy-.6,cz);bx('white',7,5,12,cx,cy+2.5,cz);roof('roofH',7,12,3.2,cx,cy+5,cz,0);
+   bx('white',3.4,9,3.4,cx,cy+4.5,cz-7.6);const sp=BABYLON.MeshBuilder.CreateCylinder('cs',{diameterTop:0,diameterBottom:4.2,height:5,tessellation:4},scene);sp.rotation.y=Math.PI/4;sp.position.set(cx,cy+11.5,cz-7.6);add('roofB',sp);
+   bx('win',1,2.2,.1,cx,cy+3,cz+6.02);bx('door',1.6,2.6,.1,cx,cy+1.3,cz-9.32);ob.push({box:1,x:cx,z:cz-1.6,hw:3.6,hd:7.8,c:1,s:0,h:cy+14,rad:8.6,mesh:null});}
+  // ---- 高圧線の鉄塔と電線 ----
+  {const lat=(()=>{const t=ctex(64,64,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#5a5e62';x.lineWidth=4;x.strokeRect(2,2,w-4,h-4);x.beginPath();x.moveTo(2,2);x.lineTo(w-2,h-2);x.moveTo(w-2,2);x.lineTo(2,h-2);x.stroke();},true);
+     const m=M('lattice',BABYLON.Color3.White(),t);m.useAlphaFromDiffuseTexture=true;m.transparencyMode=1;m.alphaCutOff=.4;m.backFaceCulling=false;return m;})();
+   const P=[];for(let i=0;i<=7;i++){const t=i/7,x=-150+300*t,z=-128+250*t+Math.sin(t*6)*12;if(Math.abs(x)<145&&Math.abs(z)<145)P.push([x,z]);}
+   P.forEach(([x,z],i)=>{if(!free(x,z,3)&&ob.some(o=>obsIn(o,x,z,1)))return;const y=ghHills(x,z);const tw=BABYLON.MeshBuilder.CreateCylinder('py',{diameterTop:.8,diameterBottom:4.2,height:18,tessellation:4},scene);tw.position.set(x,y+9,z);tw.rotation.y=Math.PI/4;tw.material=lat;tw.parent=root;
+     bx('steelP',7,.3,.3,x,y+15,z);bx('steelP',5,.3,.3,x,y+12,z);ob.push({x,z,r:1.6,h:y+18,mesh:null});
+     if(i){const [px,pz]=P[i-1],py=ghHills(px,pz),dx=x-px,dz=z-pz,d=Math.hypot(dx,dz),a=Math.atan2(dx,dz);for(const [o,hh] of [[-3.3,15],[3.3,15],[0,12]]){const m=BABYLON.MeshBuilder.CreateBox('wr',{width:.05,height:.05,depth:d},scene);m.position.set((x+px)/2+Math.cos(a)*o,(y+py)/2+hh-.6,(z+pz)/2-Math.sin(a)*o);m.rotation.y=a;m.rotation.x=-Math.atan2(y-py,d);add('wire',m);}}});}
+  // ---- 羊の群れ(牧草地) ----
+  for(let i=0;i<(MOBILE?14:30);i++){const x=20+R()*60,z=-110+R()*45;if(!free(x,z,1))continue;const y=ghHills(x,z),a=R()*6.283;
+    const b=BABYLON.MeshBuilder.CreateSphere('sh',{diameter:1,segments:5},scene);b.scaling.set(.9,.75,1.4);b.position.set(x,y+.85,z);b.rotation.y=a;add('wool',b);
+    const hd=BABYLON.MeshBuilder.CreateBox('sh',{width:.35,height:.4,depth:.45},scene);hd.position.set(x+Math.sin(a)*.75,y+1,z+Math.cos(a)*.75);hd.rotation.y=a;add('door',hd);
+    for(const [l,f] of [[-.25,.4],[.25,.4],[-.25,-.4],[.25,-.4]])bx('door',.1,.55,.1,x+l*Math.cos(a)+f*Math.sin(a),y+.28,z-l*Math.sin(a)+f*Math.cos(a));ob.push({x,z,r:.8,h:y+1.3,mesh:null});}
   // 素材ごとに結合
-  const M=(k,col,tx,opt)=>{const m=new BABYLON.StandardMaterial('hm_'+k,scene);if(tx)m.diffuseTexture=tx;m.diffuseColor=col;m.specularColor=new BABYLON.Color3(.04,.04,.04);if(opt)Object.assign(m,opt);return m;};
-  const CT=cityTextures();
+  function M(k,col,tx,opt){const m=new BABYLON.StandardMaterial('hm_'+k,scene);if(tx)m.diffuseTexture=tx;m.diffuseColor=col;m.specularColor=new BABYLON.Color3(.04,.04,.04);if(opt)Object.assign(m,opt);return m;}
   const mats={bark:M('bark',new BABYLON.Color3(.8,.7,.6),T.bark),pine:M('pine',new BABYLON.Color3(.42,.6,.42),CT.leaf),leafH:M('leafH',new BABYLON.Color3(.85,1.05,.75),CT.leaf),rock:M('rock',new BABYLON.Color3(.62,.63,.62),T.rock), // 草原に合う灰色の岩
     
     stoneH:M('stoneH',new BABYLON.Color3(.85,.82,.76),CT.stone),white:M('white',new BABYLON.Color3(.95,.93,.88),CT.stone),roofH:M('roofH',BABYLON.Color3.White(),CT.roof[0],{backFaceCulling:false}),
     roofB:M('roofB',new BABYLON.Color3(.7,.7,.72),CT.roof[1],{backFaceCulling:false}),barn:M('barn',new BABYLON.Color3(.55,.18,.13),T.bark),door:M('door',new BABYLON.Color3(.3,.2,.12)),
-    win:M('win',new BABYLON.Color3(.15,.2,.24)),hay:M('hay',new BABYLON.Color3(.85,.72,.4),CT.flat),wood:M('wood',new BABYLON.Color3(.45,.35,.24),T.bark)};
+    win:M('win',new BABYLON.Color3(.15,.2,.24)),hay:M('hay',new BABYLON.Color3(.85,.72,.4),CT.flat),wood:M('wood',new BABYLON.Color3(.45,.35,.24),T.bark),
+    reed:M('reed',new BABYLON.Color3(.4,.5,.26)),steelP:M('steelP',new BABYLON.Color3(.36,.38,.4),T.metal),wire:M('wire',new BABYLON.Color3(.05,.05,.05)),wool:M('wool',new BABYLON.Color3(.92,.9,.84),CT.flat)};
   for(const k in parts){const m=BABYLON.Mesh.MergeMeshes(parts[k],true,true);if(!m)continue;m.material=mats[k];m.parent=root;m.isPickable=false;m.metadata={occ:1};m.receiveShadows=true;sg.addShadowCaster(m);m.freezeWorldMatrix();}
   // 遠景: 青く霞んだ山並み
   const sky=(()=>{const W=2048,H=256,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
@@ -783,7 +1176,7 @@ function buildHills(){
     const g=x.createLinearGradient(0,H*.3,0,H);g.addColorStop(0,'rgba(190,205,220,0)');g.addColorStop(1,'rgba(190,205,220,.8)');x.globalCompositeOperation='source-atop';x.fillStyle=g;x.fillRect(0,0,W,H);
     const t=new BABYLON.DynamicTexture('hs',c,scene,true);t.hasAlpha=true;t.wrapU=1;t.update();t.level=.9;return t;})();
   root.setEnabled(false);
-  return hills={root,obs:ob,ground:[g],sky};
+  return hills={root,obs:ob,ground:[g],sky,upd};
 }
 // 外周の壁
 [[0,B],[0,-B],[B,0],[-B,0]].forEach(([x,z])=>{
@@ -1126,11 +1519,11 @@ function fxGround(x,y,z,rock){
   SFX.impact(player?Math.hypot(x-player.root.position.x,z-player.root.position.z):0,false);
   const gy=Math.max(y,gh(x,z));
   flash(x,gy+.3,z,.45);
-  const c=rock?MAPS[MAPID].rockDust:MAPS[MAPID].dust;
+  const wet=!rock&&MAPS[MAPID].water&&MAPS[MAPID].water(x,z),c=wet?[.78,.88,.95]:rock?MAPS[MAPID].rockDust:MAPS[MAPID].dust; // 川・池は水しぶき
   burst(x,gy,z,{n:30,hemi:1,r:.5,c1:[...c,.9],cd:[...c,0],s:[.9,1.8],grow:2.4,l:[.7,1.5],p:[6,12],g:-9}); // 土砂の噴き上がり
   burst(x,gy+.2,z,{n:14,r:1,c1:[...c,.5],cd:[...c,0],s:[1.6,2.6],grow:3,l:[1.2,2.2],p:[2,4],g:.3}); // 横に広がる砂煙
   burst(x,gy,z,{n:12,add:1,r:.2,c1:[1,.8,.45,1],cd:[.5,.2,0,0],s:[.1,.25],l:[.15,.35],p:[6,12],g:-15}); // 小さな火花
-  chips(x,gy,z,10,rock?0:2,rock?7:9);
+  if(!wet)chips(x,gy,z,10,rock?0:2,rock?7:9);
   addShake(.25,x,z);
 }
 function seat(t){ // 地形に合わせて高さと傾きを決める
@@ -1366,6 +1759,7 @@ function updateAim(dt){
 }
 scene.onBeforeRenderObservable.add(()=>{
   const dt=Math.min(engine.getDeltaTime()/1000,.05);
+  mapUpdate(dt);
   if(mode==='select'||mode==='mapsel'){selectUpdate(dt);return;}
   if(!player)return;
   if(!over){
@@ -1498,25 +1892,34 @@ scene.onBeforeRenderObservable.add(()=>{
 // 霧・空の曇り具合・照明・遠景・砂煙の色をマップごとに切り替える
 const MAPS={
   desert:{name:'中東の岩石砂漠',desc:'起伏のある岩石砂漠。岩山・岩・ヤシ・日干しレンガの廃墟が点在する開けた戦場。遠距離の撃ち合いが中心。',
-    fog:[.8,.77,.7],fogD:.0026,cover:0,sun:.9,hemi:.7,dust:[.84,.72,.53],rockDust:[.6,.56,.5],drive:[.85,.75,.58]},
+    fog:[.8,.77,.7],fogD:.0026,cover:0,sun:.9,hemi:.7,dust:[.84,.72,.53],rockDust:[.6,.56,.5],drive:[.85,.75,.58],gh:ghDesert,water:(x,z)=>Math.hypot(x-OASIS[0],z-OASIS[1])<OASIS[2]},
   hills:{name:'緑の丘陵',desc:'緑の草に覆われた起伏の大きい丘陵。森・岩の露頭・農家が点在する。稜線の陰に隠れて撃ち、谷を回り込む地形戦になる。',
-    fog:[.74,.82,.9],fogD:.0019,cover:.2,sun:1.0,hemi:.75,dust:[.42,.38,.27],rockDust:[.56,.54,.5],drive:[.5,.45,.34]},
+    fog:[.74,.82,.9],fogD:.0019,cover:.2,sun:1.0,hemi:.75,dust:[.42,.38,.27],rockDust:[.56,.54,.5],drive:[.5,.45,.34],gh:ghHills,water:(x,z)=>Math.hypot(x-HPOND[0],z-HPOND[1])<HPOND[2]},
   city:{name:'ヨーロッパの市街地',desc:'石造りの建物が並ぶ旧市街。石畳の広場と教会、碁盤目の通り、廃墟とバリケード。曲がり角での近接戦闘になる。',
-    fog:[.66,.68,.71],fogD:.0034,cover:.75,sun:.65,hemi:.85,dust:[.6,.6,.58],rockDust:[.78,.74,.66],drive:[.55,.55,.53]}};
+    fog:[.66,.68,.71],fogD:.0034,cover:.75,sun:.65,hemi:.85,dust:[.6,.6,.58],rockDust:[.78,.74,.66],drive:[.55,.55,.53]},
+  oldtown:{name:'ヨーロッパの伝統的な街並み',desc:'木組みの家が曲がりくねった石畳の道に連なる中世の旧市街。市庁舎の時計塔が建つマルクト広場、ゴシック教会、川と石橋、城壁と門塔。狭い路地での待ち伏せが鍵。',
+    fog:[.84,.8,.74],fogD:.0024,cover:.3,sun:1.05,hemi:.75,dust:[.62,.58,.52],rockDust:[.8,.74,.62],drive:[.58,.55,.5],gh:(x,z)=>ghOld(x,z),water:(x,z)=>otInRiver(x,z),build:()=>buildOldTown()},
+  japan:{name:'現代の日本の市街地',desc:'片側2車線の幹線道路とスクランブル交差点、歩道橋、電柱と電線が張り巡らされた住宅街。コンビニ・マンション・オフィスビル・鉄道の高架・神社。見通しの悪い路地と広い交差点の対比。',
+    fog:[.76,.8,.86],fogD:.0024,cover:.35,sun:.95,hemi:.85,dust:[.6,.6,.6],rockDust:[.75,.74,.72],drive:[.55,.55,.55],build:()=>buildJapan()}};
+const MAPORDER=['desert','hills','city','oldtown','japan'];
 let MAPID='desert',mapSel='desert';
+// 生成済みマップ: root(親) obs(当たり判定) ground(地面) sky(遠景) fx(パーティクル) upd(毎フレームの関数)
+const MAPB={};
+const mapBuilt=id=>id==='desert'?desertData():id==='city'?(buildCity(),city.std||(city.std={root:city.root,obs:city.obs,ground:city.ground,sky:cityTextures().sky,fx:[city.fountain],upd:city.upd||[]}))
+  :id==='hills'?(buildHills(),hills.std||(hills.std={root:hills.root,obs:hills.obs,ground:[...hills.ground,hills_outer],sky:hills.sky,fx:hills.fx||[],upd:hills.upd||[]})):(MAPB[id]||(MAPB[id]=MAPS[id].build()));
+const isBuilt=id=>id==='desert'||(id==='city'?!!city:id==='hills'?!!hills:!!MAPB[id]);
+function mapUpdate(dt){const m=isBuilt(MAPID)&&mapBuilt(MAPID);if(m&&m.upd)m.upd.forEach(f=>f(dt));}
 function loadMap(id){
-  const built={city,hills}[id];if(id===MAPID&&(id==='desert'||built&&built.root.isEnabled()))return;
-  obs.forEach(o=>o.mesh&&o.mesh.dispose());obs.length=0;MAPID=id;const m=MAPS[id];
-  if(id==='city'&&!city)buildCity();if(id==='hills'&&!hills)buildHills();
-  desertRoot.setEnabled(id==='desert');if(city){city.root.setEnabled(id==='city');if(id==='city')city.fountain.start();else city.fountain.stop();}if(hills)hills.root.setEnabled(id==='hills');
-  ghCur=id==='city'?()=>0:id==='hills'?ghHills:ghDesert;
+  if(id===MAPID&&isBuilt(id)&&mapBuilt(id).root.isEnabled())return;
+  obs.forEach(o=>o.mesh&&o.mesh.dispose());obs.length=0;const prev=MAPID;MAPID=id;const m=MAPS[id],cur=mapBuilt(id);
+  Object.keys(MAPS).forEach(k=>{if(!isBuilt(k))return;const b=mapBuilt(k),on=k===id;b.root.setEnabled(on);(b.fx||[]).forEach(f=>on?f.start():f.stop());});
+  ghCur=m.gh||(()=>0);
   genObs();
   scene.fogColor.set(...m.fog);scene.fogDensity=m.fogD;skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('cover',m.cover);
   sun.intensity=m.sun;hl.intensity=m.hemi;
-  const fm=farMt.material,ft=id==='city'?cityTextures().sky:id==='hills'?hills.sky:farTex.desert;fm.emissiveTexture=ft;fm.opacityTexture=ft;
+  const fm=farMt.material;fm.emissiveTexture=cur.sky;fm.opacityTexture=cur.sky;
   dust.color1=new BABYLON.Color4(...m.drive,.5);dust.color2=new BABYLON.Color4(m.drive[0]*.9,m.drive[1]*.9,m.drive[2]*.9,.4);dust.colorDead=new BABYLON.Color4(...m.drive,0);
-  if(probe){probe.renderList.length=0;[scene.getMeshByName('sky'),farMt].forEach(x=>probe.renderList.push(x));
-    (id==='city'?city.ground:id==='hills'?[...hills.ground,hills_outer]:[scene.getMeshByName('g'),scene.getMeshByName('outer')]).forEach(x=>x&&probe.renderList.push(x));probe.cubeTexture.resetRefreshCounter();}
+  if(probe){probe.renderList.length=0;[scene.getMeshByName('sky'),farMt,...cur.ground].forEach(x=>x&&probe.renderList.push(x));probe.cubeTexture.resetRefreshCounter();}
 }
 // ===== 戦車選択画面 =====
 // ゲームの3Dシーンをそのまま背景に使い、マップ中央に選んだ戦車を置いて回転プレビューする(ドラッグでも回せる)
@@ -1561,7 +1964,7 @@ function enterMapSel(){ // マップ選択(戦車選択の次)。背景は選ん
 function showMapSel(){
   document.querySelectorAll('.mcard').forEach(c=>c.classList.toggle('on',c.dataset.map===mapSel));
   const D=document.getElementById('mselD');D.textContent=MAPS[mapSel].desc;
-  if((mapSel==='city'&&!city)||(mapSel==='hills'&&!hills)){D.textContent=MAPS[mapSel].name+'を生成中…';document.getElementById('mgo').disabled=true; // 初回だけ生成に少し時間がかかるので、表示を更新してから作る
+  if(!isBuilt(mapSel)){D.textContent=MAPS[mapSel].name+'を生成中…';document.getElementById('mgo').disabled=true; // 初回だけ生成に少し時間がかかるので、表示を更新してから作る
     setTimeout(()=>{loadMap(mapSel);D.textContent=MAPS[mapSel].desc;document.getElementById('mgo').disabled=false;if(preview)preview.root.position.y=gh(0,0);},60);return;}
   loadMap(mapSel);if(preview)preview.root.position.y=gh(0,0);
 }
@@ -1580,7 +1983,7 @@ addEventListener('pointerdown',()=>SFX.init()); // iOSなどは操作がある�
 document.getElementById('toSel').onclick=enterSelect;
 addEventListener('keydown',e=>{
   if(mode==='select'){if(e.code==='ArrowLeft')document.getElementById('selL').onclick();if(e.code==='ArrowRight')document.getElementById('selR').onclick();if(e.code==='Enter'||e.code==='Space')enterMapSel();}
-  else if(mode==='mapsel'){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){const L=['desert','hills','city'],i=L.indexOf(mapSel);mapSel=L[(i+(e.code==='ArrowRight'?1:2))%3];showMapSel();}if(e.code==='Escape')document.getElementById('mback').onclick();if(e.code==='Enter'||e.code==='Space')startBattle();}});
+  else if(mode==='mapsel'){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){const L=MAPORDER,n=L.length,i=L.indexOf(mapSel);mapSel=L[(i+(e.code==='ArrowRight'?1:n-1))%n];showMapSel();}if(e.code==='Escape')document.getElementById('mback').onclick();if(e.code==='Enter'||e.code==='Space')startBattle();}});
 function selectUpdate(dt){
   prevRot+=dt*.35;
   if(mode==='mapsel'){const a=prevRot*.4,R=MOBILE?95:85;cam.position.set(Math.sin(a)*R,48,Math.cos(a)*R);cam.setTarget(new BABYLON.Vector3(0,0,0));cam.fov=.8;
