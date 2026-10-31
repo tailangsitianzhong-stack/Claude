@@ -710,6 +710,87 @@ def _(k):
     for sz in (-1, 1): k.box('main', 'portland', 9, 46, 9, -40, 23, sz * 10, bev=.1); k.cyl('main', 'lead', 7, 8, -40, 50, sz * 10, 'y', 12, .1, d2=0)
     return dict()
 
+# ================================================================ 実在の車をモデルにした車(名前・ロゴは付けず形で表す)
+PAL.update({'pearl': ((.94, .94, .91), 'paint'), 'beige2': ((.8, .74, .6), 'paint'), 'brg': ((.08, .25, .15), 'paint'), 'navy2': ((.12, .16, .3), 'paint')})
+
+def veh(k, col, W, body, cab, axles, wd=.55, roof=None, lights=None, bev=.08):
+    """側面形(z,y)の車体 body とキャビン cab=[前下,前上,後上,後下] から車を作る。axles=前後の車軸の z"""
+    k.prism('main', col, body, -W / 2, W / 2, 'x', bev, 2)
+    k.prism('main', roof or col, cab, -W / 2 + .07, W / 2 - .07, 'x', .05, 1)
+    cx = sum(p[0] for p in cab) / 4; cy = sum(p[1] for p in cab) / 4
+    win = [(cx + (p[0] - cx) * .84, cy + (p[1] - cy) * .72) for p in cab]; bp = (win[1][0] + win[2][0]) / 2
+    for sx in (-1, 1):
+        a, b = sorted((sx * (W / 2 - .075), sx * (W / 2 - .055)))
+        k.prism('main', 'glass', [win[0], win[1], (bp + .05, win[1][1]), (bp + .05, win[0][1])], a, b, 'x', 0, 1)
+        k.prism('main', 'glass', [(bp - .05, win[3][1]), (bp - .05, win[2][1]), win[2], win[3]], a, b, 'x', 0, 1)
+    for (p0, p1, sg) in ((cab[0], cab[1], 1), (cab[2], cab[3], -1)):
+        dz, dy = p1[0] - p0[0], p1[1] - p0[1]; n = math.hypot(dz, dy); oz, oy = dy / n * .025 * sg, -dz / n * .025 * sg
+        k.seg('main', 'glass', W - .34, .02, p0[0] + dz * .1 + oz, p0[1] + dy * .1 + oy, p1[0] - dz * .1 + oz, p1[1] - dy * .1 + oy, 0, bev=0)
+    zf = max(p[0] for p in body); zr = min(p[0] for p in body); (fy, ry_) = lights or (.55, .6)
+    for sx in (-1, 1):
+        k.box('main', 'lampW', .26, .12, .05, sx * (W / 2 - .2), fy, zf + .01, bev=.01)
+        k.box('main', 'lampR', .22, .14, .05, sx * (W / 2 - .18), ry_, zr - .01, bev=.01)
+        k.box('main', col, .07, .08, .14, sx * (W / 2 + .03), cab[0][1] + .1, cab[0][0] - .12, bev=.02)
+        for z in axles: k.wheel('main', sx * (W / 2 - .12), wd / 2, z, wd, .22, 'alu')
+    k.box('main', 'dgrey', W - .5, .12, .05, 0, fy - .12, zf + .02, bev=.01); k.box('main', 'white', .42, .12, .02, 0, fy - .25, zf + .04, bev=0)
+    k.box('main', 'black', W + .02, .1, (axles[0] - axles[-1]) - wd, 0, wd / 2, (axles[0] + axles[-1]) / 2, bev=.02)
+
+def pickup_bed(k, col, W, z0, z1, y0, h):
+    k.box('main', 'dgrey', W - .1, .08, z1 - z0, 0, y0 + .04, (z0 + z1) / 2, bev=0)
+    for sx in (-1, 1): k.box('main', col, .07, h, z1 - z0, sx * (W / 2 - .035), y0 + h / 2, (z0 + z1) / 2, bev=.02)
+    k.box('main', col, W, h, .07, 0, y0 + h / 2, z0 + .035, bev=.02)
+
+V = {
+  'prius': lambda k, c: (veh(k, c, 1.35, [(-1.75, .25), (1.75, .25), (1.78, .48), (1.5, .62), (.7, .72), (-1.5, .84), (-1.76, .62)], [(.74, .72), (-.1, 1.12), (-.75, 1.1), (-1.55, .84)], [1.05, -1.05], .5, lights=(.55, .7)), dict(box=[1.4, 3.6, 1.2])),
+  'nbox': lambda k, c: (veh(k, c, 1.13, [(-1.3, .22), (1.3, .22), (1.32, .55), (1.1, .7), (-1.3, .72)], [(1.05, .72), (.78, 1.36), (-1.25, 1.38), (-1.3, .74)], [.85, -.85], .46), dict(box=[1.15, 2.7, 1.4])),
+  'hiace': lambda k, c: (veh(k, c, 1.32, [(-1.8, .28), (1.8, .28), (1.82, .6), (1.75, .8), (-1.8, .8)], [(1.72, .82), (1.5, 1.5), (-1.78, 1.52), (-1.8, .82)], [1.15, -1.25], .52, lights=(.62, .66)), dict(box=[1.35, 3.7, 1.55])),
+  'golf': lambda k, c: (veh(k, c, 1.36, [(-1.62, .25), (1.62, .25), (1.65, .5), (1.4, .66), (.6, .72), (-1.55, .74), (-1.64, .55)], [(.62, .72), (0, 1.1), (-1.2, 1.1), (-1.55, .76)], [1.0, -1.0], .5), dict(box=[1.4, 3.35, 1.15])),
+  'eclass': lambda k, c: (veh(k, c, 1.42, [(-1.85, .26), (1.85, .26), (1.88, .52), (1.6, .68), (.75, .74), (-1.35, .76), (-1.8, .7), (-1.86, .5)], [(.78, .74), (.15, 1.12), (-.75, 1.12), (-1.4, .78)], [1.15, -1.1], .52), dict(box=[1.45, 3.8, 1.15])),
+  'mini': lambda k, c: (veh(k, c, 1.33, [(-1.45, .24), (1.45, .24), (1.48, .5), (1.3, .66), (.7, .7), (-1.45, .72)], [(.75, .7), (.45, 1.08), (-1.38, 1.08), (-1.45, .74)], [.95, -.95], .48, roof='white', bev=.12), dict(box=[1.35, 3.0, 1.1])),
+  'rangerover': lambda k, c: (veh(k, c, 1.5, [(-1.9, .35), (1.9, .35), (1.92, .75), (1.7, .9), (-1.9, .92)], [(1.2, .92), (.75, 1.38), (-1.8, 1.4), (-1.88, .94)], [1.3, -1.3], .62, roof='black', lights=(.78, .82)), dict(box=[1.55, 3.9, 1.45])),
+  'landcruiser': lambda k, c: (veh(k, c, 1.45, [(-1.8, .4), (1.8, .4), (1.83, .85), (1.7, .98), (-1.8, 1.0)], [(1.05, .98), (.75, 1.5), (-1.78, 1.52), (-1.8, 1.0)], [1.15, -1.15], .64, lights=(.8, .85), bev=.05), k.wheel('main', 0, 1.0, -1.92, .62, .22, 'black'), dict(box=[1.5, 3.8, 1.55])),
+  'panda': lambda k, c: (veh(k, c, 1.15, [(-1.38, .24), (1.38, .24), (1.4, .55), (1.25, .66), (.65, .68), (-1.38, .7)], [(.7, .68), (.42, 1.1), (-1.3, 1.1), (-1.38, .72)], [.85, -.85], .45, bev=.05), dict(box=[1.2, 2.85, 1.12])),
+  'fiat500': lambda k, c: (veh(k, c, 1.0, [(-1.15, .22), (1.15, .22), (1.18, .45), (1.0, .6), (.4, .62), (-1.1, .62), (-1.17, .42)], [(.45, .62), (.15, .98), (-.55, .98), (-.95, .64)], [.72, -.72], .4, bev=.14), dict(box=[1.05, 2.4, 1.0])),
+}
+def hilux(k, c, gun=False):
+    veh(k, c, 1.4, [(-2, .42), (2, .42), (2.03, .78), (1.8, .95), (-.78, .95), (-.78, .62), (-2, .62)], [(1.2, .95), (.75, 1.42), (-.7, 1.42), (-.75, .95)], [1.35, -1.25], .62, lights=(.82, .8))
+    pickup_bed(k, c, 1.4, -2, -.78, .62, .5)
+    if gun:  # 荷台の機関銃(テクニカル)
+        k.cyl('main', 'iron', .12, 1.0, 0, 1.15, -1.4, 'y', 6, 0); k.box('main', 'iron', .25, .3, .9, 0, 1.75, -1.3, bev=.02)
+        k.cyl('main', 'iron', .09, 1.6, 0, 1.78, -.4, 'z', 6, 0); k.box('main', 'iron', .5, .45, .05, 0, 1.6, -1.6, bev=0)
+    return dict(box=[1.45, 4.1, 1.5])
+def carry(k, c):
+    k.prism('main', c, [(1.3, .3), (1.33, .62), (1.25, 1.3), (.45, 1.32), (.4, .62), (.4, .3)], -.57, .57, 'x', .06, 2)
+    k.box('main', 'glass', 1.0, .5, .03, 0, 1.02, 1.3, pitch=.1, bev=0)
+    for sx in (-1, 1): k.box('main', 'glass', .03, .42, .6, sx * .58, 1.0, .85, bev=0); k.box('main', 'lampW', .2, .12, .04, sx * .38, .55, 1.34, bev=0)
+    k.box('main', 'dgrey', 1.14, .1, 2.6, 0, .3, 0, bev=.02); pickup_bed(k, c, 1.14, -1.3, .38, .38, .32)
+    for sx in (-1, 1):
+        for z in (.95, -.8): k.wheel('main', sx * .45, .21, z, .42, .18, 'alu')
+    return dict(box=[1.15, 2.7, 1.35])
+def ape(k, c):
+    k.prism('main', c, [(.95, .25), (1.05, .7), (.95, 1.35), (.3, 1.4), (.2, .25)], -.45, .45, 'x', .12, 2)
+    k.box('main', 'glass', .7, .45, .03, 0, 1.05, 1.0, pitch=.15, bev=0); k.box('main', 'lampW', .16, .12, .04, 0, .72, 1.07, bev=0)
+    k.box('main', 'dgrey', .9, .08, 1.4, 0, .45, -.5, bev=0); pickup_bed(k, c, .9, -1.2, .2, .45, .35)
+    k.wheel('main', 0, .2, .75, .4, .14, 'alu')
+    for sx in (-1, 1): k.wheel('main', sx * .42, .2, -.8, .4, .14, 'alu')
+    return dict(box=[.95, 2.3, 1.4])
+
+VARIANTS = [('prius', 'pearl'), ('prius', 'silver'), ('nbox', 'white'), ('nbox', 'black'), ('hiace', 'white'), ('golf', 'red'), ('golf', 'silver'), ('eclass', 'black'), ('eclass', 'silver'),
+            ('mini', 'brg'), ('mini', 'red'), ('rangerover', 'black'), ('landcruiser', 'beige2'), ('landcruiser', 'white'), ('panda', 'red'), ('fiat500', 'ltblue')]
+for (shape, col) in VARIANTS:
+    def _mk(shape, col):
+        @prop('v_%s_%s' % (shape, col))
+        def _(k): return V[shape](k, col)[-1]
+    _mk(shape, col)
+@prop('v_hilux_white')
+def _(k): return hilux(k, 'white')
+@prop('v_technical')
+def _(k): return hilux(k, 'beige2', gun=True)
+@prop('v_carry_white')
+def _(k): return carry(k, 'white')
+@prop('v_ape')
+def _(k): return ape(k, 'ltblue')
+
 LANDMARKS = [n for n in P if n not in BEFORE]
 
 if __name__ == '__main__':
