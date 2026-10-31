@@ -27,14 +27,19 @@ body.sel #sel{display:block}
 #selP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}
 #selP .dots{text-align:center;margin-bottom:8px;letter-spacing:.4em}
 #go{display:block;width:100%;font-size:20px;letter-spacing:.3em;padding:10px;border-radius:999px;border:2px solid #fff;background:rgba(150,50,40,.9);color:#fff}
-#go{position:sticky;bottom:0}
+/* 詳細欄: パネル全体は画面内に収め、中身(.scr)だけを縦にスクロールさせる。全要素の touch-action:none を打ち消してタッチでも動かせるように */
+#selP,#mselP{flex-direction:column;overflow:hidden!important}#selP{display:flex}body.msel #mselP{display:flex!important}
+#selP .scr,#mselP .scr{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-right:4px;margin-bottom:8px;
+ -webkit-mask-image:linear-gradient(#000 calc(100% - 14px),transparent);mask-image:linear-gradient(#000 calc(100% - 14px),transparent)}
+#selP .scr,#selP .scr *,#mselP .scr,#mselP .scr *{touch-action:pan-y}
+#go,.mbtns{flex:0 0 auto}
 #selP{max-height:calc(100vh - 60px);max-height:calc(100dvh - 60px);overflow:auto} /* Safariはツールバー分100vhが大きいのでdvh(実際の表示高さ)を使う */
 #mselP{display:none;position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(560px,94vw);box-sizing:border-box;padding:14px 16px;border-radius:14px;background:rgba(14,18,14,.72);border:1px solid rgba(255,255,255,.25);pointer-events:auto;backdrop-filter:blur(4px);max-height:calc(100dvh - 60px);overflow:auto}
 body.msel #mselP{display:block}body.msel #selP,body.msel .arw{display:none}
 #mselP .mt{text-align:center;font-size:16px;letter-spacing:.3em;margin-bottom:8px}
 .mcards{display:flex;gap:8px}.mcard{flex:1;border:2px solid rgba(255,255,255,.25);border-radius:10px;overflow:hidden;cursor:pointer;background:rgba(0,0,0,.3);text-align:center;font-size:13px}
 .mcard svg{display:block;width:100%;height:auto}.mcard b{display:block;padding:5px 2px}.mcard.on{border-color:#ffd36a;box-shadow:0 0 0 2px rgba(255,211,106,.4)}
-#mselP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}.mbtns{display:flex;gap:10px;position:sticky;bottom:0}
+#mselP .ft{font-size:12px;line-height:1.5;margin:8px 0 10px;opacity:.92}.mbtns{display:flex;gap:10px}
 #mback{flex:1;font-size:16px;padding:9px;border-radius:999px;border:2px solid #fff;background:rgba(60,70,80,.85);color:#fff}#mgo{flex:2;font-size:20px;letter-spacing:.3em;padding:9px;border-radius:999px;border:2px solid #fff;background:rgba(150,50,40,.9);color:#fff}
 @media (max-height:620px){#mselP{padding:9px 12px}.mcard b{padding:3px;font-size:11px}#mselP .ft{font-size:10.5px;margin:5px 0 7px}#mback{font-size:14px;padding:6px}#mgo{font-size:16px;padding:6px}}
 @media (min-aspect-ratio:13/10){#mselP{left:auto;right:12px;top:44px;bottom:auto;transform:none;width:min(380px,44vw)}}
@@ -92,13 +97,13 @@ body.sel #snd{top:auto;bottom:12px}
 <div id="dmg"></div><div id="mflash"></div><button id="snd">🔊</button>
 <div id="over"><div id="msg">GAME OVER</div><div class="row"><button id="restart">もう一度</button><button id="toSel">戦車選択</button></div></div>
 <div id="sel"><h2 id="selH">戦車選択</h2><button class="arw" id="selL">◀</button><button class="arw" id="selR">▶</button>
-<div id="selP"><div class="dots" id="selD"></div><div><span class="nm" id="selN"></span><span class="nt" id="selC"></span></div><div class="sp" id="selS"></div>
-<div class="bars" id="selB"></div><div class="ft" id="selF"></div><button id="go">次へ ▶ マップ選択</button></div>
-<div id="mselP"><div class="mt">マップ選択</div>
+<div id="selP"><div class="scr"><div class="dots" id="selD"></div><div><span class="nm" id="selN"></span><span class="nt" id="selC"></span></div><div class="sp" id="selS"></div>
+<div class="bars" id="selB"></div><div class="ft" id="selF"></div></div><button id="go">次へ ▶ マップ選択</button></div>
+<div id="mselP"><div class="scr"><div class="mt">マップ選択</div>
  <div class="mcards"><div class="mcard" data-map="desert"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#9bb4cc"/><path d="M0 46 Q40 30 80 44 T160 38 V80 H0Z" fill="#c8a46a"/><path d="M0 60 Q60 48 110 60 T160 56 V80 H0Z" fill="#a67c45"/><rect x="104" y="22" width="14" height="26" fill="#9a5a3a"/><path d="M30 50 q2 -14 4 -18 M34 32 l-8 4 M34 32 l8 4 M34 32 l-6 -3 M34 32 l7 -2" stroke="#3d4a20" stroke-width="2" fill="none"/></svg><b>中東の岩石砂漠</b></div>
  <div class="mcard" data-map="hills"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#8fbde6"/><circle cx="134" cy="16" r="7" fill="#fff6c8"/><path d="M0 40 Q30 28 60 36 T120 30 T160 34 V80 H0Z" fill="#7d9bb0"/><path d="M0 52 Q40 34 80 48 T160 44 V80 H0Z" fill="#6f9a48"/><path d="M0 66 Q50 52 100 64 T160 60 V80 H0Z" fill="#5b8a38"/><g fill="#2e5a2a"><path d="M22 52 l5 -14 l5 14Z"/><path d="M30 54 l5 -16 l5 16Z"/><path d="M38 52 l4 -12 l4 12Z"/></g><rect x="104" y="50" width="12" height="8" fill="#f2efe6"/><path d="M102 50 L110 44 L118 50Z" fill="#8e4a32"/><rect x="120" y="48" width="10" height="10" fill="#8c2e22"/></svg><b>緑の丘陵</b></div>
  <div class="mcard" data-map="city"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#a9b0b8"/><rect y="62" width="160" height="18" fill="#56565a"/><rect x="6" y="26" width="30" height="36" fill="#d8ccb2"/><path d="M4 26 L21 14 L38 26Z" fill="#8e4a32"/><rect x="40" y="32" width="26" height="30" fill="#cfa86e"/><rect x="70" y="10" width="12" height="52" fill="#c9c2b2"/><path d="M68 10 L76 -4 L84 10Z" fill="#4a4c52"/><rect x="88" y="24" width="32" height="38" fill="#b9b6ae"/><rect x="124" y="30" width="30" height="32" fill="#9a5a44"/><g fill="#46545c"><rect x="12" y="32" width="6" height="8"/><rect x="24" y="32" width="6" height="8"/><rect x="12" y="46" width="6" height="8"/><rect x="24" y="46" width="6" height="8"/><rect x="46" y="38" width="5" height="8"/><rect x="56" y="38" width="5" height="8"/><rect x="94" y="30" width="6" height="8"/><rect x="108" y="30" width="6" height="8"/><rect x="94" y="44" width="6" height="8"/><rect x="108" y="44" width="6" height="8"/><rect x="130" y="36" width="6" height="8"/><rect x="142" y="36" width="6" height="8"/></g></svg><b>ヨーロッパの市街地</b></div></div>
- <div class="ft" id="mselD"></div><div class="mbtns"><button id="mback">◀ 戻る</button><button id="mgo">出撃</button></div></div></div>
+ <div class="ft" id="mselD"></div></div><div class="mbtns"><button id="mback">◀ 戻る</button><button id="mgo">出撃</button></div></div></div>
 <div id="title">
 <svg viewBox="0 0 400 200" preserveAspectRatio="none"><path d="M0 70 Q80 20 160 60 T400 40 V200 H0Z" fill="#a67c45"/><path d="M0 120 Q120 70 240 110 T400 90 V200 H0Z" fill="#8a6638"/>
 <g fill="#2b3322" transform="translate(250 78)"><rect x="0" y="22" width="86" height="10" rx="4"/><rect x="8" y="12" width="52" height="12"/><polygon points="52,12 60,6 66,6 66,12"/><rect x="58" y="8" width="62" height="3"/><rect x="2" y="30" width="82" height="6" rx="3" fill="#161a12"/></g></svg>
@@ -597,7 +602,7 @@ function buildCity(){
     box('shop',w,3.6,d,x,1.8,z);
     if(ruin){ // 崩れた上階: 高さのばらつく壁の破片
       const n=Math.max(2,w/2.2|0);for(let k=0;k<n;k++){const hk=FL*(.5+R()*(F-.5)),wk=w/n;box('fac'+fv+'r',wk+.02,hk,d*(.3+R()*.7),x-w/2+wk*(k+.5),3.6+hk/2,z);}
-      for(let k=0;k<6;k++)box('flat',1+R()*2,.4+R()*.8,1+R()*2,x+(R()-.5)*w,.4,z+(R()-.5)*d,R()*3,4,4);
+      for(let k=0;k<6;k++){const rw=1+R()*2,rh=.4+R()*.8,rd=1+R()*2,rx=x+(R()-.5)*w,rz=z+(R()-.5)*d,ry=R()*3;box('flat',rw,rh,rd,rx,.4,rz,ry,4,4);solid('r',rx,rz,rw,rd,rh+.4,ry);} // 瓦礫にも当たり判定
       solid('b',x,z,w,d,hh);
     }else{
       box('fac'+fv,w,F*FL,d,x,3.6+F*FL/2,z);box('stone',w+ox,.35,d+oz,x,H+.1,z,0,4,4);                            // 壁+コーニス
@@ -612,7 +617,7 @@ function buildCity(){
     if(kind<.1&&!inPlaza(x0,x1,z0,z1)){ // 公園: 木と低い生け垣
       for(let k=0;k<8;k++)tree(x0+2+R()*(W-4),z0+2+R()*(D-4));return;}
     if(kind<.2){ // 空き地(瓦礫)
-      for(let k=0;k<14;k++){const bx=x0+R()*W,bz=z0+R()*D;box('flat',1+R()*3,.5+R()*1.2,1+R()*3,bx,.5,bz,R()*3,4,4);}
+      for(let k=0;k<14;k++){const bx=x0+R()*W,bz=z0+R()*D,rw=1+R()*3,rh=.5+R()*1.2,rd=1+R()*3,ry=R()*3;box('flat',rw,rh,rd,bx,.5,bz,ry,4,4);solid('r',bx,bz,rw,rd,rh+.5,ry);}
       for(let k=0;k<3;k++){const bx=x0+3+R()*(W-6),bz=z0+3+R()*(D-6),s=2.5+R()*2;solid('r',bx,bz,s,s,1.4);}return;}
     const dep=Math.min(10,Math.max(7,Math.min(W,D)/3));
     const strip=(ax,len,fixed,alongX,face)=>{let p=0;while(p<len-4){let w=Math.min(len-p,7+R()*6);if(len-p-w<5)w=len-p;if(R()<.12){p+=w;continue;} // 時々すき間(路地)
@@ -655,7 +660,8 @@ function buildCity(){
     if(vert)car(cx,cz,R()*.6-.3+(R()<.5?0:Math.PI));else car(cx,cz,Math.PI/2+R()*.6-.3);}
   [[0,62,0,3],[0,-62,0,3],[62,0,Math.PI/2,3],[-62,0,Math.PI/2,3],[50,-80,0,2],[-100,40,Math.PI/2,2],[100,-20,Math.PI/2,2]].forEach(([x,z,ry,n])=>barrier(x+(ry?0:4),z+(ry?4:0),ry,n));
   [[30,72],[-72,30],[72,-35],[-35,-72],[100,100],[-100,-100]].forEach(([x,z])=>hedgehog(x,z));
-  for(let k=0;k<8;k++){const x=(R()*2-1)*(E-20),z=(R()*2-1)*(E-20);if(Math.abs(x)<34&&Math.abs(z)<34)continue;if(!ob.some(o=>obsIn(o,x,z,2)))for(let i=0;i<5;i++)box('sandbag',1,.4,.55,x+i*.95-2,.2+(i%2)*.4,z,0,4,4);}
+  for(let k=0;k<8;k++){const x=(R()*2-1)*(E-20),z=(R()*2-1)*(E-20);if(Math.abs(x)<34&&Math.abs(z)<34)continue;if(ob.some(o=>obsIn(o,x,z,3)))continue;
+    for(let i=0;i<5;i++)box('sandbag',1,.4,.55,x+i*.95-2,.2+(i%2)*.4,z,0,4,4);solid('b',x-.1,z,4.9,.7,1);} // 土嚢の列(当たり判定あり)
   // ---- 素材ごとに結合 ----
   const mats={pave:M('pave',CT.pave),asph:M('asph',CT.asphalt,null,{zOffset:-1}),cobble:M('cobble',CT.cobble,null,{zOffset:-2}),line:M('line',null,new BABYLON.Color3(.9,.9,.86),{zOffset:-3}),stone:M('stone',CT.stone),
     shop:M('shop',CT.shop),flat:M('flat',CT.flat),roofR:M('roofR',CT.roof[0],null,{backFaceCulling:false}),roofS:M('roofS',CT.roof[1],null,{backFaceCulling:false}),
@@ -737,12 +743,14 @@ function buildHills(){
     for(let k=0;k<4;k++){const [hx,hz]=P(-7+k*1.8,8+(k%2));const y=ghHills(hx,hz),b=BABYLON.MeshBuilder.CreateCylinder('hay',{diameter:1.6,height:1.3,tessellation:16},scene);
       b.rotation.z=Math.PI/2;b.rotation.y=ry;b.position.set(hx,y+.8,hz);add('hay',b);ob.push({x:hx,z:hz,r:.9,h:y+1.6,mesh:null});}};
   [[60,-45,.4],[-70,70,-1.1],[-40,-95,2.2]].forEach(([x,z,ry])=>farm(x,z,ry));
-  // 柵(木)と石垣: 低いので当たり判定なし(戦車は踏み越える)
+  // 柵(木)と石垣(当たり判定あり)
+  const seg=(x,z,a,hw,hd,h)=>ob.push({box:1,x,z,hw,hd,c:Math.cos(a),s:-Math.sin(a),h,rad:Math.hypot(hw,hd),mesh:null}); // 区間ごとの細長い箱の当たり判定
   const fence=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),n=Math.ceil(L/2.5),a=Math.atan2(x1-x0,z1-z0);
+    for(let i=0;i<n;i++){const x=x0+(x1-x0)*(i+.5)/n,z=z0+(z1-z0)*(i+.5)/n;seg(x,z,a,.2,L/n/2,ghHills(x,z)+1.3);}
     for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n,z=z0+(z1-z0)*i/n,y=ghHills(x,z);bx('wood',.16,1.2,.16,x,y+.6,z);
       if(i<n){const x2=x0+(x1-x0)*(i+.5)/n,z2=z0+(z1-z0)*(i+.5)/n,y2=ghHills(x2,z2);[.45,.95].forEach(h=>bx('wood',.08,.1,L/n,x2,y2+h,z2,a));}}};
   const wall=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),n=Math.ceil(L/1.6),a=Math.atan2(x1-x0,z1-z0);
-    for(let i=0;i<n;i++){const x=x0+(x1-x0)*(i+.5)/n,z=z0+(z1-z0)*(i+.5)/n;bx('stoneH',.7,.8+R()*.2,L/n+.05,x,ghHills(x,z)+.35,z,a);}};
+    for(let i=0;i<n;i++){const x=x0+(x1-x0)*(i+.5)/n,z=z0+(z1-z0)*(i+.5)/n;bx('stoneH',.7,.8+R()*.2,L/n+.05,x,ghHills(x,z)+.35,z,a);seg(x,z,a,.35,L/n/2+.03,ghHills(x,z)+1);}};
   fence(45,-62,80,-62);fence(80,-62,80,-28);fence(-88,52,-52,52);fence(-52,52,-52,88);
   wall(-120,10,-30,30);wall(20,40,110,25);wall(-20,-60,-10,-130);wall(100,-110,130,-20);
   // 草むら(インスタンス): アルファ付きの葉を十字に組む
@@ -1347,9 +1355,11 @@ scene.onBeforeRenderObservable.add(()=>{
   if(!over&&enemies.length===0){wave++;player.hp=Math.min(player.max,player.hp+1);spawnEnemies(Math.min(2+wave,10));hud();}
   // カメラ追従
   // 戦車の斜め後ろ上から追う(D=距離)。発砲時はカメラが後ろへ押される(camKick)
-  view.pitch=.32+aimPitch*.85;camKick*=Math.exp(-dt*5);const pp=player.root.position,sx=Math.sin(camYaw),sz=Math.cos(camYaw),cp=Math.cos(view.pitch),D=13+camKick;
-  {const cx=pp.x-sx*cp*D,cz=pp.z-sz*cp*D;cam.position.set(cx,Math.max(pp.y+2+Math.sin(view.pitch)*D,gh(cx,cz)+2),cz);}
-  {const tg=new BABYLON.Vector3(pp.x+sx*4.5,pp.y+1.6+aimPitch*24,pp.z+sz*4.5);
+  view.pitch=.42+aimPitch*.6;camKick*=Math.exp(-dt*5);const pp=player.root.position,sx=Math.sin(camYaw),sz=Math.cos(camYaw),cp=Math.cos(view.pitch),D=10+camKick; // 近く・高めから見下ろし、戦車を大きく映す(戦車全体が下半分に収まり、遠くの照準も見える角度)
+  // 少し右へずらした斜め後ろから(戦車の立体感が出る)。注視点は戦車の少し先で、戦車全体が画面下半分に収まる
+  const LAT=1.6,rx=Math.cos(camYaw),rz=-Math.sin(camYaw);
+  {const cx=pp.x-sx*cp*D+rx*LAT,cz=pp.z-sz*cp*D+rz*LAT;cam.position.set(cx,Math.max(pp.y+2+Math.sin(view.pitch)*D,gh(cx,cz)+2),cz);}
+  {const tg=new BABYLON.Vector3(pp.x+sx*2.5+rx*LAT*.5,pp.y+1.2+aimPitch*18,pp.z+sz*2.5+rz*LAT*.5);
    if(shake>.001){ // 画面揺れ: カメラ位置と注視点を別々に揺らして回転方向にも振れさせる
      const a=shake*shake,r=()=>Math.random()-.5;
      cam.position.addInPlaceFromFloats(r()*a*.7,r()*a*.7,r()*a*.7);tg.addInPlaceFromFloats(r()*a*1.4,r()*a*1.4,r()*a*1.4);
