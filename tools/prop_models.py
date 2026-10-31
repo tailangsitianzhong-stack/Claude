@@ -654,6 +654,10 @@ def build(name, buf, out):
     dg = bpy.context.evaluated_depsgraph_get()
     # 各部品: 色を属性 base に入れてから(ベベル等を適用して)部品(part)×素材の種類ごとに結合
     groups = {}
+    lo_ = Vector((1e9,) * 3); hi_ = Vector((-1e9,) * 3)
+    for o, _, _ in k.objs:
+        for c in o.bound_box: w = o.matrix_world @ Vector(c); lo_ = Vector(map(min, lo_, w)); hi_ = Vector(map(max, hi_, w))
+    sub_len = max(.9, (hi_ - lo_).length / 45)                                          # AO用に分割する辺の長さ(大きな名所ほど粗く)
     for o, part, col in k.objs:
         rgb, cat = PAL[col]
         me = bpy.data.meshes.new_from_object(o.evaluated_get(dg)); me.transform(o.matrix_world)
@@ -672,7 +676,7 @@ def build(name, buf, out):
         bm = bmesh.new(); bm.from_mesh(j.data)                                           # AOの階調のため長い辺を分割
         bmesh.ops.triangulate(bm, faces=bm.faces)
         for _ in range(2):
-            long = [e for e in bm.edges if e.calc_length() > .9]
+            long = [e for e in bm.edges if e.calc_length() > sub_len]
             if long: bmesh.ops.subdivide_edges(bm, edges=long, cuts=1, use_grid_fill=False)
             bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 3])
         bm.to_mesh(j.data); bm.free(); j.data.set_sharp_from_angle(angle=math.radians(40))

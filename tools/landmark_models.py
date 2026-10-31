@@ -646,6 +646,70 @@ def _(k):
             k.lathe('main', 'copper', [(0, 40), (6, 40), (5, 45), (2, 49), (0, 50)], sx * 30, 0, sz * 25, 16)
     return dict()
 
+@prop('bvg_bus')
+def _(k):
+    """ベルリンの黄色い2階建てバス(BVG)"""
+    PAL['bvgY'] = ((.95, .78, .1), 'paint')
+    L, W, H = 8.6, 2.0, 3.3
+    k.box('main', 'bvgY', W, H - .3, L, 0, H / 2 + .25, 0, bev=.2)
+    for y in (1.55, 2.95):
+        for sx in (-1, 1): k.box('main', 'glass', .05, .75, L - 1.2, sx * (W / 2 + .01), y, -.2, bev=0)
+    k.box('main', 'glass', W - .3, 1.1, .05, 0, 1.6, L / 2 + .01, bev=0); k.box('main', 'glass', W - .3, .7, .05, 0, 2.95, L / 2 + .01, bev=0)
+    k.box('main', 'black', 1.2, .3, .06, 0, 3.45, L / 2 + .02, bev=0); k.box('main', 'lampY', 1.0, .2, .07, 0, 3.45, L / 2 + .02, bev=0)
+    for z in (-2.7, 2.6):
+        for sx in (-1, 1): k.wheel('main', sx * (W / 2 - .2), .45, z, .9, .3, 'grey')
+    return dict(box=[W + .1, L + .1, H + .2])
+
+@prop('siegessaule')
+def _(k):
+    """戦勝記念塔(遠景用): 赤い花崗岩の台座・砂岩の柱(金の帯)・金色の勝利の女神"""
+    k.lathe('main', 'sandstD', [(0, 0), (14, 0), (14, 6), (11, 6), (11, 14), (0, 14)], 0, 0, 0, 16)
+    k.lathe('main', 'sandst', [(0, 14), (4.2, 14), (3.6, 54), (0, 54)], 0, 0, 0, 16)
+    for y in (26, 34, 42): k.torus('main', 'gold', 4.0 - (y - 14) * .012, .5, 0, y, 0, 'y', 16, 4)
+    k.lathe('main', 'sandst', [(0, 54), (5, 54), (5, 56), (0, 56)], 0, 0, 0, 16)
+    k.cyl('main', 'gold', 2.4, 7, 0, 60, 0, 'y', 10, .05, d2=1.4); k.blob('main', 'gold', 1.0, 0, 64.5, 0, sub=1, rough=0)
+    for sx in (-1, 1): k.box('main', 'gold', 4, 1.6, .3, sx * 2.2, 63, -.6, roll=sx * .5, bev=.1)
+    return dict()
+
+@prop('shard')
+def _(k):
+    """ザ・シャード(遠景用・310m→240): 傾いたガラスの面が集まる細長いピラミッド"""
+    k.lathe('main', 'glassL', [(0, 0), (30, 0), (24, 60), (16, 130), (8, 195), (2.5, 232), (0, 240)], 0, 0, 0, 4)
+    for i in range(4):
+        a = i * math.pi / 2 + math.pi / 4; k.tube('main', 'steel', [(math.cos(a) * r, h, math.sin(a) * r) for r, h in ((30, 0), (24, 60), (16, 130), (8, 195), (2.5, 232))], .5)
+    return dict()
+
+@prop('gherkin')
+def _(k):
+    """30セント・メリー・アクス(ガーキン・遠景用): 卵形のガラスの塔と、らせんの濃い帯"""
+    prof = [(r, h) for r, h in ((0, 0), (17, 0), (21, 30), (22, 60), (19, 100), (12, 125), (4, 138), (0, 140))]
+    k.lathe('main', 'glassL', prof, 0, 0, 0, 24)
+    for i in range(6):
+        pts = []
+        for j in range(15):
+            t = j / 14; h = 140 * t; r = 0
+            for (r0, h0), (r1, h1) in zip(prof[:-1], prof[1:]):
+                if h0 <= h <= h1 and h1 > h0: r = r0 + (r1 - r0) * (h - h0) / (h1 - h0)
+            a = i * math.pi / 3 + t * 4; pts.append((math.cos(a) * (r + .3), h, math.sin(a) * (r + .3)))
+        k.tube('main', 'glass', pts, 1.6)
+    return dict()
+
+@prop('walkie')
+def _(k):
+    """20フェンチャーチ・ストリート(ウォーキートーキー・遠景用): 上ほど広がるガラスの塔"""
+    k.prism('main', 'glassL', [(-16, 0), (16, 0), (22, 90), (18, 120), (-14, 124), (-20, 95)], -18, 18, 'x', .2, 1)
+    return dict()
+
+@prop('stpauls')
+def _(k):
+    """セント・ポール大聖堂(遠景用): ドラムと列柱・鉛のドーム・頂塔と金の十字、西正面の2本の塔"""
+    k.box('main', 'portland', 90, 26, 30, 0, 13, 0, bev=.2); k.box('main', 'portland', 30, 26, 70, 0, 13, 0, bev=.2)
+    k.lathe('main', 'portland', [(0, 26), (16, 26), (16, 40), (14, 40), (14, 48), (0, 48)], 0, 0, 0, 24)
+    k.lathe('main', 'lead', [(0, 48), (15, 48), (14.5, 54), (12, 62), (7, 68), (2, 71), (0, 71)], 0, 0, 0, 24)
+    k.lathe('main', 'portland', [(0, 71), (3, 71), (2.5, 80), (0, 80)], 0, 0, 0, 12); k.cyl('main', 'gold', 1.2, 5, 0, 83, 0, 'y', 8, 0)
+    for sz in (-1, 1): k.box('main', 'portland', 9, 46, 9, -40, 23, sz * 10, bev=.1); k.cyl('main', 'lead', 7, 8, -40, 50, sz * 10, 'y', 12, .1, d2=0)
+    return dict()
+
 LANDMARKS = [n for n in P if n not in BEFORE]
 
 if __name__ == '__main__':
