@@ -9,8 +9,24 @@ html,body{margin:0;height:100%;overflow:hidden;background:#222;font-family:sans-
 *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:none}
 #c{width:100%;height:100%;display:block;outline:none}
 #hud{position:fixed;top:8px;left:8px;right:8px;color:#fff;font-weight:bold;text-shadow:0 1px 3px #000;display:flex;justify-content:space-between;pointer-events:none;font-size:16px}
-#hp{width:140px;height:12px;background:#400;border:1px solid #fff;margin-top:4px}
-#hpb{height:100%;background:#4f4;width:100%}
+#hp{width:140px;height:10px;background:rgba(60,10,6,.8);border:1px solid rgba(216,164,58,.8);margin-top:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6)}
+#hpb{height:100%;background:linear-gradient(#b8e050,#6aa020);width:100%}
+/* ミリタリー調のUI: 角を斜めに落とした暗いパネル・琥珀色の縁・等幅の文字 */
+#hud{font-family:"Consolas","Menlo","Courier New",monospace;letter-spacing:.06em}
+#hud>div{background:linear-gradient(90deg,rgba(14,16,12,.78),rgba(14,16,12,.35));padding:5px 12px 6px;border-left:3px solid #d8a43a;clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%)}
+#hud>div:last-child{border-left:0;border-right:3px solid #d8a43a;background:linear-gradient(270deg,rgba(14,16,12,.78),rgba(14,16,12,.35));clip-path:polygon(0 0,100% 0,100% 100%,9px 100%,0 calc(100% - 9px))}
+.mil{position:fixed;pointer-events:none;border:1px solid rgba(216,164,58,.45);background:linear-gradient(rgba(10,12,9,.28),rgba(10,12,9,.12));z-index:2}
+.mil::before{content:attr(data-l);position:absolute;top:-1px;left:10px;transform:translateY(-100%);font:bold 9px "Consolas","Menlo",monospace;letter-spacing:.2em;color:#d8a43a;background:rgba(10,12,9,.7);padding:1px 6px}
+#milTL{left:4px;top:82px;width:158px;height:158px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+#milBR{right:6px;bottom:8px;width:232px;height:196px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
+@media (max-height:620px){#milTL{width:108px;height:108px;top:80px}#milBR{width:216px;height:180px}}
+#compass{position:fixed;top:6px;left:50%;transform:translateX(-50%);width:min(440px,44vw);height:30px;overflow:hidden;pointer-events:none;z-index:3;
+  background:linear-gradient(rgba(10,12,9,.7),rgba(10,12,9,.35));border-bottom:2px solid rgba(216,164,58,.7);-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
+#cstrip{position:absolute;top:0;left:0;height:100%;font:bold 11px "Consolas","Menlo",monospace;color:#e8e2d0}
+#cstrip span{position:absolute;top:3px;transform:translateX(-50%);white-space:nowrap}#cstrip span.c{color:#ffcc55;font-size:15px;top:1px}#cstrip i{position:absolute;bottom:0;width:1px;height:6px;background:rgba(232,226,208,.7)}
+#cmark{position:fixed;top:30px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #ffcc55;z-index:3;pointer-events:none}
+#cdeg{position:fixed;top:38px;left:50%;transform:translateX(-50%);font:bold 11px "Consolas","Menlo",monospace;color:#ffcc55;text-shadow:0 1px 2px #000;z-index:3;pointer-events:none}
+body.sel #compass,body.sel #cmark,body.sel #cdeg,body.sel .mil{display:none}
 #over{position:fixed;inset:0;background:rgba(0,0,0,.7);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;font-size:28px;gap:16px}
 #over .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}#over #toSel{background:#456}
 body.sel #hud,body.sel .stick,body.sel #fire,body.sel #zoom,body.sel #reload,body.sel #rt,body.sel #tgt{display:none!important}
@@ -114,9 +130,11 @@ body.sel #menuB,body.sel #mini,body.nomini #mini{display:none}
  <path d="M-50 0 V6 M-38 0 V4 M-26 0 V6 M26 0 V6 M38 0 V4 M50 0 V6" stroke-width="1.5"/>
  <path d="M0 14 V24" stroke-width="1.5"/><circle cx="0" cy="0" r="1.6" fill="currentColor" stroke="none"/></svg><div id="rtx"></div></div>
 <div id="dmg"></div><div id="mflash"></div><button id="snd">🔊</button>
+<div class="mil" id="milTL" data-l="TAC MAP"></div><div class="mil" id="milBR" data-l="WEAPON SYS"></div>
+<div id="compass"><div id="cstrip"></div></div><div id="cmark"></div><div id="cdeg">000</div>
 <button id="menuB" title="設定(Esc)">⚙</button><canvas id="mini" width="300" height="300"></canvas>
 <div id="menu"><div class="box"><b>設定</b><button id="mResume">▶ 再開</button>
- <div class="row">影<button id="mShadow">ON</button></div><div class="row" id="mAoRow">陰影の強調(SSAO)<button id="mAo">ON</button></div><div class="row">ミニマップ<button id="mMini">ON</button></div>
+ <div class="row">影<button id="mShadow">ON</button></div><div class="row" id="mAoRow">陰影の強調(SSAO)<button id="mAo">ON</button></div><div class="row">ミニマップ<button id="mMini">ON</button></div><div class="row" id="mOlRow">輪郭線(アニメ調)<button id="mOutline">ON</button></div>
  <button id="mBack" class="warn">戦車選択に戻る</button><div class="hint">「戦車選択に戻る」は2回押すと戻ります</div></div></div>
 <div id="over"><div id="msg">GAME OVER</div><div class="row"><button id="restart">もう一度</button><button id="toSel">戦車選択</button></div></div>
 <div id="sel"><h2 id="selH">戦車選択</h2><button class="arw" id="selL">◀</button><button class="arw" id="selR">▶</button>
@@ -190,17 +208,20 @@ const scene=new BABYLON.Scene(engine);scene.skipPointerMovePicking=true;
 scene.clearColor=new BABYLON.Color4(.8,.77,.7,1);
 scene.fogMode=BABYLON.Scene.FOGMODE_EXP2;scene.fogDensity=0.0026;scene.fogColor=new BABYLON.Color3(.8,.77,.7);
 const cam=new BABYLON.FreeCamera('cam',new BABYLON.Vector3(0,22,-18),scene);cam.minZ=.8;cam.maxZ=2600; // 描画範囲を必要なだけにして奥行きの精度を上げる(重なった面のちらつき防止)
+// ===== 見た目の方針(ダークで重厚なアニメ調の市街戦) =====
+// dark: 夕暮れ〜曇天の暗くドラマチックな光と霧 / cobble: ロンドン・ベルリンの車道を石畳にする / outline: 黒い輪郭線(セル調)
+const STYLE={dark:true,cobble:true,outline:true};
 // ===== 太陽と影 =====
 // 日なたは強い直射光、日陰は空からの弱い光だけにして明暗をはっきりさせる(強さはマップごとの値に SUNK/HEMK を掛ける)
 const hl=new BABYLON.HemisphericLight('h',new BABYLON.Vector3(0,1,0),scene);hl.intensity=.4;
-const SUN=new BABYLON.Vector3(.58,.55,.48).normalize(); // 太陽の方向(地面→太陽)。高さ約36°で影が長く伸びる
-const SUNK=MOBILE?1.35:1.9,HEMK=MOBILE?.72:.68;
-const sun=new BABYLON.DirectionalLight('s',SUN.negate(),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=1.6;sun.diffuse=new BABYLON.Color3(1,.92,.78);
+const SUN=STYLE.dark?new BABYLON.Vector3(-.82,.36,-.42).normalize():new BABYLON.Vector3(.58,.55,.48).normalize(); // 太陽の方向(地面→太陽)。ダーク調は西南西・高さ約20°の夕日で、横から当たる光と長い影
+const SUNK=STYLE.dark?(MOBILE?1.45:2.05):(MOBILE?1.35:1.9),HEMK=STYLE.dark?(MOBILE?.66:.62):(MOBILE?.72:.68); // ダーク調は環境光を下げて影を濃く
+const sun=new BABYLON.DirectionalLight('s',SUN.negate(),scene);sun.position=new BABYLON.Vector3(40,80,40);sun.intensity=1.6;sun.diffuse=STYLE.dark?new BABYLON.Color3(1,.72,.48):new BABYLON.Color3(1,.92,.78); // 夕日のオレンジ
 let sg;
 const CSM=!MOBILE&&engine.webGLVersion>=2&&!!BABYLON.CascadedShadowGenerator;
 if(CSM){ // PC: カスケードシャドウ。カメラの近くほど細かい4段の影マップで、足元はくっきり・遠くの建物の影も描く
   sg=new BABYLON.CascadedShadowGenerator(2048,sun);sg.numCascades=4;sg.lambda=.82;sg.shadowMaxZ=380;sg.stabilizeCascades=true;sg.cascadeBlendPercentage=.08;sg.depthClamp=true;
-  sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_HIGH;sg.bias=.0012;sg.normalBias=.012;sg.darkness=.08;sg.autoCalcDepthBounds=false;
+  sg.usePercentageCloserFiltering=true;sg.filteringQuality=BABYLON.ShadowGenerator.QUALITY_HIGH;sg.bias=.0012;sg.normalBias=.012;sg.darkness=STYLE.dark?0:.08;sg.autoCalcDepthBounds=false;
 }else{ // スマホ: プレイヤーのまわり(±40)だけの1枚の影マップ。WebGL2 なら軽いPCFで縁をなめらかに、それ以外はポアソン・サンプリング
   sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.orthoLeft=-40;sun.orthoRight=40;sun.orthoTop=40;sun.orthoBottom=-40;sun.shadowMinZ=1;sun.shadowMaxZ=320;
   sg=new BABYLON.ShadowGenerator(2048,sun);sg.bias=.0008;sg.normalBias=.015;sg.darkness=.15;
@@ -320,21 +341,22 @@ ground.material=gm;ground.receiveShadows=true;ground.parent=desertRoot;ground.fr
  const E=B+5,F=1100,parts=[[0,(E+F)/2,2*F,F-E],[0,-(E+F)/2,2*F,F-E],[(E+F)/2,0,F-E,2*E],[-(E+F)/2,0,F-E,2*E]].map(([x,z,w,d])=>{const m=BABYLON.MeshBuilder.CreateGround('o',{width:w,height:d},scene);m.position.set(x,-.2,z);return m;});
  const og=BABYLON.Mesh.MergeMeshes(parts,true);og.name='outer';og.material=om;og.isPickable=false;og.parent=desertRoot;og.freezeWorldMatrix();}
 // 画面効果:トーンマッピング・コントラスト・ビネット
-{const ip=scene.imageProcessingConfiguration;if(MOBILE){ip.isEnabled=false;}else{ip.toneMappingEnabled=true;ip.toneMappingType=1;ip.exposure=1.15;ip.contrast=1.25;ip.vignetteEnabled=true;ip.vignetteWeight=1.6;ip.vignetteStretch=.3;}}
-hl.groundColor=new BABYLON.Color3(.36,.32,.27); // 下向きの面(軒下・車体の下)は暗く
+{const ip=scene.imageProcessingConfiguration;if(MOBILE){ip.isEnabled=false;}else{ip.toneMappingEnabled=true;ip.toneMappingType=1;ip.exposure=STYLE.dark?1.3:1.15;ip.contrast=STYLE.dark?1.35:1.25;ip.vignetteEnabled=true;ip.vignetteWeight=1.6;ip.vignetteStretch=.3;}}
+hl.groundColor=STYLE.dark?new BABYLON.Color3(.16,.15,.16):new BABYLON.Color3(.36,.32,.27); // 下向きの面(軒下・車体の下)は暗く
+if(STYLE.dark)hl.diffuse=new BABYLON.Color3(.62,.68,.82); // 空の光は青みがかった冷たい色(夕日の暖色と対比)
 // ===== 空(GLSLシェーダー): 大気の色・太陽とハロー・流れる積雲と巻雲・砂塵の地平線 =====
 BABYLON.Effect.ShadersStore.skyVertexShader=`precision highp float;
 attribute vec3 position;uniform mat4 worldViewProjection;varying vec3 vDir;
 void main(){vDir=position;gl_Position=worldViewProjection*vec4(position,1.);}`;
 BABYLON.Effect.ShadersStore.skyFragmentShader=`precision highp float;
-varying vec3 vDir;uniform vec3 sunDir;uniform vec3 fogCol;uniform float time;uniform float cover;
+varying vec3 vDir;uniform vec3 sunDir;uniform vec3 fogCol;uniform float time;uniform float cover;uniform float dusk;
 float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}
 float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<${MOBILE?4:6};i++){v+=a*n2(p);p=m*p;a*=.5;}return v;}
 void main(){
  vec3 d=normalize(vDir);float h=d.y,mu=dot(d,sunDir),hp=max(h,0.);
- vec3 col=mix(vec3(.66,.70,.76),vec3(.16,.34,.64),pow(hp,.32));      // 地平線→天頂のグラデーション
+ vec3 col=mix(mix(vec3(.66,.70,.76),vec3(.86,.5,.32),dusk),mix(vec3(.16,.34,.64),vec3(.09,.11,.2),dusk),pow(hp,.32));      // 地平線→天頂のグラデーション(dusk: 夕焼けの地平線と暗い天頂)
  col=mix(col,fogCol,exp(-hp*28.)*.9);                                   // 砂塵で霞む地平線
  col+=vec3(1.,.78,.5)*(pow(max(mu,0.),5.)*.16+pow(max(mu,0.),60.)*.3);   // 太陽まわりの暖色ハロー(ミー散乱)
  if(h>0.){
@@ -356,8 +378,8 @@ void main(){
  col+=(h21(gl_FragCoord.xy)-.5)/255.;                                   // 帯状ムラ防止のディザ
  gl_FragColor=vec4(max(col,vec3(0.)),1.);
 }`;
-const skyMat=new BABYLON.ShaderMaterial('skym',scene,{vertex:'sky',fragment:'sky'},{attributes:['position'],uniforms:['worldViewProjection','sunDir','fogCol','time','cover']});
-skyMat.backFaceCulling=false;skyMat.setVector3('sunDir',SUN);skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('time',0);skyMat.setFloat('cover',0);
+const skyMat=new BABYLON.ShaderMaterial('skym',scene,{vertex:'sky',fragment:'sky'},{attributes:['position'],uniforms:['worldViewProjection','sunDir','fogCol','time','cover','dusk']});
+skyMat.backFaceCulling=false;skyMat.setVector3('sunDir',SUN);skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('time',0);skyMat.setFloat('cover',0);skyMat.setFloat('dusk',STYLE.dark?.85:0);
 {const sky=BABYLON.MeshBuilder.CreateSphere('sky',{diameter:2400,segments:MOBILE?16:32},scene);
  sky.material=skyMat;sky.infiniteDistance=true;sky.isPickable=false;sky.applyFog=false;}
 // 遠景の山並み(Canvasで描いた3層の稜線。遠いほど霞ませる)
@@ -406,6 +428,24 @@ if(!MOBILE)try{const pp=new BABYLON.DefaultRenderingPipeline('dp',false,scene,[c
  pp.fxaaEnabled=true;pp.samples=4; /* パイプライン経由でもMSAA */if(!MOBILE){pp.bloomEnabled=true;pp.bloomThreshold=.85;pp.bloomWeight=.3;pp.bloomKernel=24;pp.sharpenEnabled=true;pp.sharpen.edgeAmount=.25;
   pp.chromaticAberrationEnabled=true;pp.chromaticAberration.aberrationAmount=6;pp.chromaticAberration.radialIntensity=.8; // 画面端のわずかな色ずれ
   pp.grainEnabled=true;pp.grain.intensity=5;pp.grain.animated=true;}}catch(e){}                                             // フィルムグレイン
+// 黒い輪郭線(セル調): 奥行きと面の向き(法線)が急に変わる所を検出して黒く描く。遠くほど細く薄くする
+BABYLON.Effect.ShadersStore.outlineFragmentShader=`precision highp float;varying vec2 vUV;uniform sampler2D textureSampler;uniform sampler2D depthS;uniform sampler2D normS;uniform vec2 texel;uniform float thick;
+float D(vec2 u){return texture2D(depthS,u).r;}vec3 N(vec2 u){return texture2D(normS,u).xyz;}
+void main(){vec4 c=texture2D(textureSampler,vUV);float d=D(vUV);if(d<=0.){gl_FragColor=c;return;}
+ float w=thick*clamp(1.4-d/140.,.55,1.);vec2 o=texel*w;
+ float l=abs(D(vUV+vec2(o.x,0.))+D(vUV-vec2(o.x,0.))+D(vUV+vec2(0.,o.y))+D(vUV-vec2(0.,o.y))-4.*d)/max(d,.5);
+ vec3 n=N(vUV);float nd=distance(n,N(vUV+vec2(o.x,0.)))+distance(n,N(vUV-vec2(o.x,0.)))+distance(n,N(vUV+vec2(0.,o.y)))+distance(n,N(vUV-vec2(0.,o.y)));
+ float e=max(smoothstep(.045,.14,l),smoothstep(.55,1.3,nd)*.85)*(1.-smoothstep(160.,320.,d));
+ gl_FragColor=vec4(mix(c.rgb,c.rgb*.08,e*.92),c.a);}`;
+let outlinePP=null;
+function outlineSet(on){
+  if(on&&!outlinePP&&engine.webGLVersion>=2)try{const gbr=scene.enableGeometryBufferRenderer();const G=BABYLON.GeometryBufferRenderer,tx=gbr.getGBuffer().textures;
+    gbr.getGBuffer().renderListPredicate=m=>m.renderingGroupId===0&&!/^(f|trail|shk|trj|sunpt|bb)$/.test(m.name); // 照準マーカー・閃光・軌跡などの補助物には輪郭を付けない
+    const di=gbr.getTextureIndex(G.DEPTH_TEXTURE_TYPE),ni=gbr.getTextureIndex(G.NORMAL_TEXTURE_TYPE);
+    outlinePP=new BABYLON.PostProcess('outline','outline',['texel','thick'],['depthS','normS'],1,cam);
+    outlinePP.onApply=e=>{e.setTexture('depthS',tx[di<0?0:di]);e.setTexture('normS',tx[ni<0?1:ni]);e.setFloat2('texel',1/outlinePP.width,1/outlinePP.height);e.setFloat('thick',MOBILE?1.1:1.4);};}catch(e){outlinePP=null;}
+  if(outlinePP)outlinePP.isEnabled=!!on;
+}
 // 画面空間の環境遮蔽(SSAO): 建物の足元・壁の入隅・車体の下など、光の届きにくい所を暗くして接地感を出す(PCのみ)
 if(!MOBILE&&engine.webGLVersion>=2)try{const ao=new BABYLON.SSAO2RenderingPipeline('ssao',scene,{ssaoRatio:.5,blurRatio:.5},[cam],true);
  ao.radius=2.4;ao.totalStrength=1.15;ao.base=.12;ao.samples=12;ao.maxZ=260;ao.minZAspect=.5;ao.expensiveBlur=false;ao.bilateralSoften=.02;}catch(e){}
@@ -684,7 +724,7 @@ function buildOldTown(){
   K.prop('shard',-240,0,-330,0,{far:true});K.prop('gherkin',-300,0,330,0,{far:true});K.prop('walkie',-420,0,240,.4,{far:true});K.prop('stpauls',-760,0,160,0,{far:true});
   // ---- 素材 ----
   const MM=(k,t,col,o)=>K.mat(k,t,col,o);
-  const mats={pave:MM('pave',CT.pave),asph:MM('asph',CT.asphalt,null,{zOffset:-1}),walk:MM('walk',CT.pave,new BABYLON.Color3(1.05,1.05,1.05),{zOffset:-2}),stoneP:MM('stoneP',CT.pave,new BABYLON.Color3(1.1,1.08,1.04),{zOffset:-2}),
+  const mats={pave:MM('pave',CT.pave),asph:STYLE.cobble?MM('asph',CT.cobble,new BABYLON.Color3(.82,.8,.78),{zOffset:-1}):MM('asph',CT.asphalt,null,{zOffset:-1}),walk:MM('walk',CT.pave,new BABYLON.Color3(1.05,1.05,1.05),{zOffset:-2}),stoneP:MM('stoneP',CT.pave,new BABYLON.Color3(1.1,1.08,1.04),{zOffset:-2}),
     grass:MM('grass',grass,null,{zOffset:-1}),lineW:MM('lineW',null,new BABYLON.Color3(.92,.92,.9),{zOffset:-3}),lineY:MM('lineY',null,new BABYLON.Color3(.95,.8,.2),{zOffset:-3}),curb:MM('curb',CT.stone,new BABYLON.Color3(.85,.85,.83)),
     water:MM('water',null,new BABYLON.Color3(.25,.3,.28),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.92}),quay:MM('quay',ashlar,new BABYLON.Color3(.85,.82,.76)),
     stone:MM('stone',CT.stone),slate:MM('slate',slate),chim:MM('chim',null,new BABYLON.Color3(.55,.32,.24)),pot:MM('pot',null,new BABYLON.Color3(.7,.4,.28)),tol:MM('tol',ashlar,new BABYLON.Color3(.9,.88,.8)),
@@ -962,7 +1002,7 @@ function buildCity(){
   K.prop('fernsehturm',760,0,-70,0,{far:true});K.prop('berliner_dom',430,0,40,0,{far:true,s:.8});K.prop('siegessaule',-560,0,0,0,{far:true});
   // ---- 素材 ----
   const MM=(k,t,col,o)=>K.mat(k,t,col,o);
-  const mats={pave:MM('pave',CT.pave),asph:MM('asph',CT.asphalt,null,{zOffset:-1}),walk:MM('walk',CT.pave,new BABYLON.Color3(1.05,1.05,1.05),{zOffset:-2}),cobble:MM('cobble',CT.cobble,null,{zOffset:-2}),
+  const mats={pave:MM('pave',CT.pave),asph:STYLE.cobble?MM('asph',CT.cobble,new BABYLON.Color3(.82,.8,.78),{zOffset:-1}):MM('asph',CT.asphalt,null,{zOffset:-1}),walk:MM('walk',CT.pave,new BABYLON.Color3(1.05,1.05,1.05),{zOffset:-2}),cobble:MM('cobble',CT.cobble,null,{zOffset:-2}),
     gravel:MM('gravel',gravel,null,{zOffset:-2}),grass:MM('grass',grass,null,{zOffset:-1}),lineW:MM('lineW',null,new BABYLON.Color3(.9,.9,.86),{zOffset:-3}),lineY:MM('lineY',null,new BABYLON.Color3(.9,.9,.86),{zOffset:-3}),
     curb:MM('curb',CT.stone,new BABYLON.Color3(.9,.9,.88)),stone:MM('stone',CT.stone),water:MM('water',null,new BABYLON.Color3(.2,.3,.32),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.92}),
     quay:MM('quay',CT.stone,new BABYLON.Color3(.8,.78,.74)),slate:MM('slate',slate,null,{backFaceCulling:false}),blshop:fcBump(MM('blshop',blS.a),blS.n),blmod:fcBump(MM('blmod',blM.a),blM.n),ldbr:fcBump(MM('ldbr',brk.a),brk.n),
@@ -1312,7 +1352,7 @@ function fire(t,owner,spread=0){
   b.trail=new BABYLON.TrailMesh('trail',m.metadata.tail,scene,{diameter:owner==='p'?.14:.12,length:MOBILE?14:26,segments:MOBILE?14:26,autoStart:true});
   b.trail.material=owner==='p'?trailMatP:trailMatE;b.trail.isPickable=false;glow.addIncludedOnlyMesh(b.trail);
   bullets.push(b);
-  flash(o.x,o.y,o.z,.8);
+  flash(o.x,o.y,o.z,owner==='p'?1.5:1,owner==='p'?.18:.14); // マズルフラッシュの閃光(短く強く)
   t.rc=0; // 反動開始
   t.spv-=1.1;t.v-=.35; // 反動で車体が前を持ち上げ、わずかに後ろへ押される
   const P=owner==='p',cp=Math.cos(p),fd=[Math.sin(a)*cp,Math.sin(p),Math.cos(a)*cp],rt=[Math.cos(a),0,-Math.sin(a)],gy=gh(o.x,o.z);
@@ -1325,6 +1365,7 @@ function muzzleBlast(o,fd,rt,gy,P){
   const s=P?1:.6,f=(k,sp)=>[fd[0]*k,fd[1]*k+.05,fd[2]*k];
   burst(o.x,o.y,o.z,{n:36*s,add:1,dir:f(1),spread:.22,r:.15,c1:[1,.9,.55,1],c2:[1,.5,.12,1],cd:[.4,.12,.02,0],s:[1.1*s,2.4*s],grow:1.7,l:[.1,.26],p:[18,40]}); // 火球
   [-1,1].forEach(sd=>burst(o.x,o.y,o.z,{n:10*s,add:1,dir:[rt[0]*sd+fd[0]*.4,.1,rt[2]*sd+fd[2]*.4],spread:.15,r:.1,c1:[1,.8,.45,1],cd:[.4,.15,.05,0],s:[.6,1.3],grow:1.6,l:[.08,.18],p:[10,20]})); // 横噴き
+  burst(o.x,o.y,o.z,{n:18*s,add:1,dir:f(1),spread:.08,r:.05,c1:[1,1,.85,1],c2:[1,.85,.4,1],cd:[.6,.25,.05,0],s:[.6*s,1.2*s],grow:2.2,l:[.05,.12],p:[40,70]}); // 砲口の前に伸びる白い閃光
   burst(o.x,o.y,o.z,{n:26*s,dir:f(1),spread:.6,r:.4,c1:[.62,.6,.57,.7],c2:[.75,.72,.68,.6],cd:[.8,.78,.75,0],s:[1.4,2.8],grow:3.6,l:[1.6,3.4],p:[3,11],g:.35}); // 漂う砲煙
   burst(o.x,gy+.15,o.z,{n:30*s,ring:1,c1:[.84,.72,.54,.75],c2:[.78,.66,.5,.6],cd:[.84,.74,.58,0],s:[1.4,2.8],grow:2.6,l:[.7,1.5],p:[9,18],g:-.6}); // 地面を走る衝撃波の砂煙
   if(P){shockRing(o.x,gy+.12,o.z);burst(o.x,o.y,o.z,{rate:9,dur:2.2,r:.05,c1:[.7,.68,.65,.35],cd:[.8,.78,.75,0],s:[.3,.6],grow:3,l:[1,2],p:[.2,.6],g:.9});} // 砲口から立ち上る残り煙
@@ -1366,10 +1407,10 @@ function killShell(b){
 const fLight=MOBILE?null:new BABYLON.PointLight('fl',new BABYLON.Vector3(0,-50,0),scene);
 if(fLight){fLight.diffuse=new BABYLON.Color3(1,.7,.35);fLight.specular=new BABYLON.Color3(.3,.2,.1);fLight.intensity=0;}
 const flashMat=new BABYLON.StandardMaterial('fm',scene);flashMat.emissiveColor=new BABYLON.Color3(1,.6,.1);flashMat.disableLighting=true;
-function flash(x,y,z,s){
+function flash(x,y,z,s,dur){
   const m=BABYLON.MeshBuilder.CreateSphere('f',{diameter:s*2,segments:8},scene);m.position.set(x,y,z);
   m.material=flashMat;
-  flashes.push({m,t:0,s});
+  flashes.push({m,t:0,s,d:dur||.35});glow.addIncludedOnlyMesh(m); // 発光させてにじませる
   if(fLight&&s*2>=fLight.intensity){fLight.position.set(x,y+1,z);fLight.intensity=s*2;fLight.range=8+s*10;}
 }
 // ===== 効果音(Web Audioで合成。音声ファイルなし) =====
@@ -1473,15 +1514,20 @@ function recoil(t,dt){ // 発砲の反動: 砲身が後退して戻り、車体�
 // 戦車に命中(kill=撃破)
 function fxTank(x,y,z,kill){
   {const d=player?Math.hypot(x-player.root.position.x,z-player.root.position.z):0;if(kill)SFX.explode(d);else SFX.impact(d,true);}
-  flash(x,y,z,kill?2:.6);
-  burst(x,y,z,{n:40,add:1,r:.3,c1:[1,.92,.55,1],c2:[1,.55,.15,1],cd:[.6,.15,0,0],s:[.15,.4],l:[.25,.6],p:[8,18],g:-18}); // 火花
+  flash(x,y,z,kill?3.2:.8,kill?.9:.35);
+  burst(x,y,z,{n:kill?70:40,add:1,r:.3,c1:[1,.92,.55,1],c2:[1,.55,.15,1],cd:[.6,.15,0,0],s:[.15,.4],l:[.25,.6],p:[8,18],g:-18}); // 火花
   burst(x,y,z,{n:10,r:.5,c1:[.22,.2,.18,.75],c2:[.35,.32,.28,.6],cd:[.4,.38,.35,0],s:[1.2,2.2],grow:2.2,l:[.8,1.6],p:[1,3],g:2}); // 黒煙
   chips(x,y,z,kill?14:6,1,kill?11:6);
   if(kill){
     burst(x,y,z,{n:30,add:1,r:1.2,c1:[1,.72,.3,1],c2:[1,.4,.1,1],cd:[.3,.1,.05,0],s:[2,4],grow:1.8,l:[.4,.9],p:[3,8],g:2}); // 火球
+    burst(x,y+.5,z,{n:MOBILE?30:60,add:1,r:1.6,c1:[1,.95,.6,1],c2:[1,.6,.15,1],cd:[.5,.12,.02,0],s:[3,6],grow:2,l:[.5,1.1],p:[4,10],g:3}); // 白熱した爆炎の核(黄〜橙)
+    burst(x,y+1,z,{n:MOBILE?14:26,add:1,hemi:1,r:.8,c1:[1,.65,.2,1],cd:[.4,.08,0,0],s:[1.5,3],grow:1.6,l:[.8,1.6],p:[6,12],g:4}); // 上へ噴き上がる炎の舌
+    burst(x,y+2,z,{n:MOBILE?18:34,r:1.4,c1:[.9,.88,.85,.7],c2:[.7,.68,.66,.6],cd:[.6,.58,.56,0],s:[2.5,4.5],grow:2.6,l:[1.6,3],p:[2,5],g:1.2}); // 濃い白煙
+    burst(x,y+1.5,z,{rate:MOBILE?18:34,dur:7,hemi:1,r:.8,c1:[.05,.045,.04,.85],c2:[.14,.12,.1,.7],cd:[.25,.24,.22,0],s:[2.4,4],grow:3,l:[3,5],p:[1.5,3],g:3.5}); // 立ち上る黒煙の柱(長く残る)
+    burst(x,y+1,z,{n:MOBILE?40:90,add:1,r:.5,c1:[1,.85,.4,1],cd:[.6,.15,0,0],s:[.08,.22],l:[.8,1.8],p:[10,22],g:-12}); // 飛び散る火の粉
     burst(x,gh(x,z)+.5,z,{rate:25,dur:3,hemi:1,r:1,c1:[.12,.11,.1,.75],c2:[.25,.23,.2,.6],cd:[.35,.34,.32,0],s:[1.6,2.8],grow:2.2,l:[1.5,2.5],p:[1,2.5],g:3}); // 立ち上る煙
     burst(x,gh(x,z)+.3,z,{n:24,hemi:1,r:2,c1:[.8,.68,.5,.6],cd:[.8,.7,.55,0],s:[2,3],grow:2.5,l:[1,1.8],p:[6,10],g:-2}); // 衝撃で舞う砂
-    addShake(.9,x,z);
+    addShake(1.1,x,z);
   }else addShake(.35,x,z);
 }
 // 地面・障害物に着弾(rock=岩/壁)
@@ -1833,8 +1879,8 @@ scene.onBeforeRenderObservable.add(()=>{
     if(d.life<=0){d.m.dispose();debris.splice(i,1);}
   }
   for(let i=flashes.length-1;i>=0;i--){
-    const f=flashes[i];f.t+=dt;const k=f.t/.35;f.m.scaling.setAll(1+k*1.5);f.m.visibility=Math.max(0,1-k);
-    if(k>=1){f.m.dispose();flashes.splice(i,1);}
+    const f=flashes[i];f.t+=dt;const k=f.t/f.d;f.m.scaling.setAll(1+Math.sqrt(k)*(f.d>.5?2.4:1.5));f.m.visibility=Math.max(0,1-k*k);
+    if(k>=1){glow.removeIncludedOnlyMesh(f.m);f.m.dispose();flashes.splice(i,1);}
   }
   if(!over&&enemies.length===0){wave++;player.hp=Math.min(player.max,player.hp+1);spawnEnemies(Math.min(2+wave,10));hud();}
   // カメラ追従
@@ -1886,7 +1932,8 @@ function loadMap(id){
   Object.keys(MAPS).forEach(k=>{if(!isBuilt(k))return;const b=mapBuilt(k),on=k===id;b.root.setEnabled(on);(b.fx||[]).forEach(f=>on?f.start():f.stop());});
   ghCur=m.gh||(()=>0);
   genObs();miniBuild(id);
-  scene.fogColor.set(...m.fog);scene.fogDensity=m.fogD;skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('cover',m.cover);
+  if(STYLE.dark){const f=m.fog;scene.fogColor.set(f[0]*.72+.08,f[1]*.6+.05,f[2]*.58+.04);scene.fogDensity=m.fogD*1.35+.0006;skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('cover',Math.max(m.cover,.45));} // 夕暮れの霞と厚い雲で奥行きを出す
+  else{scene.fogColor.set(...m.fog);scene.fogDensity=m.fogD;skyMat.setColor3('fogCol',scene.fogColor);skyMat.setFloat('cover',m.cover);}
   sun.intensity=m.sun*SUNK;hl.intensity=m.hemi*HEMK;
   const fm=farMt.material;fm.emissiveTexture=cur.sky;fm.opacityTexture=cur.sky;
   dust.color1=new BABYLON.Color4(...m.drive,.5);dust.color2=new BABYLON.Color4(m.drive[0]*.9,m.drive[1]*.9,m.drive[2]*.9,.4);dust.colorDead=new BABYLON.Color4(...m.drive,0);
@@ -1895,16 +1942,16 @@ function loadMap(id){
 // ===== 設定メニュー(一時停止)とミニマップ =====
 let paused=false,backArm=0,aoOn=true; // aoOn: SSAO は作った時点でカメラに付いている
 const $=id=>document.getElementById(id),menuEl=$('menu'),mBack=$('mBack');
-const CFG=(()=>{try{return Object.assign({shadow:1,ao:1,mini:1},JSON.parse(localStorage.getItem('tank3d_cfg')||'{}'));}catch(e){return {shadow:1,ao:1,mini:1};}})();
+const CFG=(()=>{const d={shadow:1,ao:1,mini:1,outline:STYLE.outline?1:0};try{return Object.assign(d,JSON.parse(localStorage.getItem('tank3d_cfg')||'{}'));}catch(e){return d;}})();
 function cfgApply(){
   scene.shadowsEnabled=!!CFG.shadow;
   const pm=scene.postProcessRenderPipelineManager;try{if(pm.supportedPipelines.some(p=>p._name==='ssao')&&!!CFG.ao!==aoOn){aoOn=!!CFG.ao;if(aoOn)pm.attachCamerasToRenderPipeline('ssao',cam);else pm.detachCamerasFromRenderPipeline('ssao',cam);}}catch(e){} // 付いている状態と違う時だけ付け外し
-  document.body.classList.toggle('nomini',!CFG.mini);
-  [['mShadow','shadow'],['mAo','ao'],['mMini','mini']].forEach(([b,k])=>{$(b).textContent=CFG[k]?'ON':'OFF';$(b).classList.toggle('off',!CFG[k]);});
+  document.body.classList.toggle('nomini',!CFG.mini);outlineSet(CFG.outline);
+  [['mShadow','shadow'],['mAo','ao'],['mMini','mini'],['mOutline','outline']].forEach(([b,k])=>{$(b).textContent=CFG[k]?'ON':'OFF';$(b).classList.toggle('off',!CFG[k]);});
   try{localStorage.setItem('tank3d_cfg',JSON.stringify(CFG));}catch(e){}
 }
-[['mShadow','shadow'],['mAo','ao'],['mMini','mini']].forEach(([b,k])=>$(b).onclick=()=>{CFG[k]=CFG[k]?0:1;cfgApply();});
-if(MOBILE||engine.webGLVersion<2)$('mAoRow').style.display='none';
+[['mShadow','shadow'],['mAo','ao'],['mMini','mini'],['mOutline','outline']].forEach(([b,k])=>$(b).onclick=()=>{CFG[k]=CFG[k]?0:1;cfgApply();});
+if(MOBILE||engine.webGLVersion<2)$('mAoRow').style.display='none';if(engine.webGLVersion<2)$('mOlRow').style.display='none';
 function setPause(on){paused=on&&mode==='play';menuEl.style.display=paused?'flex':'none';backArm=0;mBack.textContent='戦車選択に戻る';if(paused)SFX.engine(0,0,0,false);}
 $('menuB').onclick=()=>{if(mode==='play')setPause(!paused);};
 $('mResume').onclick=()=>setPause(false);
@@ -1922,8 +1969,14 @@ function miniBuild(id){
     x.save();x.translate(mX(o.x),mY(o.z));if(o.box){x.rotate(Math.atan2(-o.s,o.c));const w=o.hw*2/(2*B)*MW,d=o.hd*2/(2*B)*MW;x.fillRect(-w/2,-d/2,w,d);}else{x.beginPath();x.arc(0,0,Math.max(1,o.r/(2*B)*MW),0,6.283);x.fill();}x.restore();});
   x.strokeStyle='rgba(255,255,255,.35)';x.strokeRect(.5,.5,MW-1,MW-1);
 }
+// コンパス(画面上部): 0°=北(+z)、カメラの向き camYaw に合わせて帯を動かす
+const CPX=2.4; // 1°あたりの画素
+{const st=$('cstrip');let h='';for(let d=-360;d<=720;d+=15){const a=((d%360)+360)%360,L={0:'N',45:'NE',90:'E',135:'SE',180:'S',225:'SW',270:'W',315:'NW'}[a];
+  h+='<i style="left:'+((d+360)*CPX)+'px'+(L?';height:10px;background:#d8a43a':'')+'"></i>'+(L?'<span class="'+(L.length===1?'c':'')+'" style="left:'+((d+360)*CPX)+'px">'+L+'</span>':(a%45?'':'<span style="left:'+((d+360)*CPX)+'px">'+a+'</span>'));}st.innerHTML=h;}
+function compassDraw(){const deg=(((camYaw*180/Math.PI)%360)+360)%360,w=$('compass').clientWidth;$('cstrip').style.transform='translateX('+(w/2-(deg+360)*CPX)+'px)';$('cdeg').textContent=String(Math.round(deg)%360).padStart(3,'0');}
 let miniT=0;
 function miniDraw(){
+  if(player)compassDraw();
   if(!CFG.mini||!player||(miniT=(miniT+1)%3))return; // 3フレームに1回
   const x=miniCx;x.clearRect(0,0,MW,MW);x.drawImage(miniBg,0,0);
   const p=player.root.position,px=mX(p.x),py=mY(p.z);
