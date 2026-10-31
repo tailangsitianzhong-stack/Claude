@@ -18,7 +18,11 @@ for i, line in enumerate(src, 1):
     if len(line) > 3000:  # 埋め込みデータの行は対象外
         continue
     m = re.search(r'(?<![:\'"/\\])//(?!/)', line)
-    if m and code_after.search(line[m.end():]):
+    rest = line[m.end():] if m else ''
+    jp = [k for k, ch in enumerate(rest) if re.match(JP, ch)]
+    tail = rest[jp[-1] + 1:] if jp else ''
+    # 日本語コメントの最後の日本語より後ろに ; { } があれば、後ろのコードを飲み込んでいる
+    if m and (code_after.search(rest) or re.search(r'[;{}]', tail)):
         print(f'{i}: {line[m.start():m.start() + 160]}')
         bad += 1
 print('OK' if not bad else f'{bad} 行でコメントがコードを飲み込んでいる可能性があります')

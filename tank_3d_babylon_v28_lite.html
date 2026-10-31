@@ -66,6 +66,14 @@ button{font-size:20px;padding:10px 28px;border-radius:8px;border:0;background:#4
 #mflash{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 60%,rgba(255,236,190,.9),rgba(255,200,120,.25) 60%,rgba(255,180,90,0))}
 #snd{position:fixed;top:44px;left:8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(0,0,0,.35);color:#fff;font-size:17px;padding:0;z-index:4}
 body.sel #snd{top:auto;bottom:12px}
+/* 命中結果のポップ表示 */
+.tst{position:fixed;z-index:6;pointer-events:none;transform:translate(-50%,-50%);transition:transform 1.3s ease-out,opacity 1.3s ease-in;font:bold 15px sans-serif;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap}
+.tst.pen{color:#ff6a4a}.tst.np{color:#cfd6dc}.tst.ric{color:#ffe27a}.tst.mod{color:#ffb03a;font-size:17px}.tst.boom{color:#ff3a2a;font-size:24px}.tst.ok{color:#8fe08a}
+.tst.me{font-size:20px}.tst.me.boom{font-size:28px}
+#rt.np{color:#c8d0d6}#rt.ric{color:#ffe27a}
+#mods{font:bold 11px sans-serif;color:#ffb03a;text-align:right;margin-top:3px;min-height:13px;text-shadow:0 1px 3px #000}
+.armor{display:flex;gap:10px;align-items:center;margin:2px 0 6px}.armor svg{flex:0 0 auto;width:96px;height:auto}.armor .wk{font-size:11px;line-height:1.45;opacity:.95}
+.armor .lg{display:flex;gap:6px;font-size:10px;opacity:.8;margin-top:3px}.armor .lg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:2px;vertical-align:-1px}
 #dmg{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,0,0,0) 45%,rgba(200,0,0,.55) 100%);transition:opacity .5s}
 </style>
 <style>
@@ -84,7 +92,7 @@ body.sel #snd{top:auto;bottom:12px}
 </style></head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><div>WAVE <span id="wave">1</span> / SCORE <span id="score">0</span></div><div><span id="hpname">レオパルト2A7</span> HP<div id="hp"><div id="hpb"></div></div></div></div>
+<div id="hud"><div>WAVE <span id="wave">1</span> / SCORE <span id="score">0</span></div><div><span id="hpname">レオパルト2A7</span> HP<div id="hp"><div id="hpb"></div></div><div id="mods"></div></div></div>
 <div class="stick" id="sl"><div class="knob"></div></div>
 <div id="reload"><div id="rltx">装填完了</div><div id="rlbar"><i id="rlfill"></i></div></div>
 <div id="fire">FIRE</div>
@@ -98,7 +106,7 @@ body.sel #snd{top:auto;bottom:12px}
 <div id="over"><div id="msg">GAME OVER</div><div class="row"><button id="restart">もう一度</button><button id="toSel">戦車選択</button></div></div>
 <div id="sel"><h2 id="selH">戦車選択</h2><button class="arw" id="selL">◀</button><button class="arw" id="selR">▶</button>
 <div id="selP"><div class="scr"><div class="dots" id="selD"></div><div><span class="nm" id="selN"></span><span class="nt" id="selC"></span></div><div class="sp" id="selS"></div>
-<div class="bars" id="selB"></div><div class="ft" id="selF"></div></div><button id="go">次へ ▶ マップ選択</button></div>
+<div class="bars" id="selB"></div><div class="armor" id="selA"></div><div class="ft" id="selF"></div></div><button id="go">次へ ▶ マップ選択</button></div>
 <div id="mselP"><div class="scr"><div class="mt">マップ選択</div>
  <div class="mcards"><div class="mcard" data-map="desert"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#9bb4cc"/><path d="M0 46 Q40 30 80 44 T160 38 V80 H0Z" fill="#c8a46a"/><path d="M0 60 Q60 48 110 60 T160 56 V80 H0Z" fill="#a67c45"/><rect x="104" y="22" width="14" height="26" fill="#9a5a3a"/><path d="M30 50 q2 -14 4 -18 M34 32 l-8 4 M34 32 l8 4 M34 32 l-6 -3 M34 32 l7 -2" stroke="#3d4a20" stroke-width="2" fill="none"/></svg><b>中東の岩石砂漠</b></div>
  <div class="mcard" data-map="hills"><svg viewBox="0 0 160 80"><rect width="160" height="80" fill="#8fbde6"/><circle cx="134" cy="16" r="7" fill="#fff6c8"/><path d="M0 40 Q30 28 60 36 T120 30 T160 34 V80 H0Z" fill="#7d9bb0"/><path d="M0 52 Q40 34 80 48 T160 44 V80 H0Z" fill="#6f9a48"/><path d="M0 66 Q50 52 100 64 T160 60 V80 H0Z" fill="#5b8a38"/><g fill="#2e5a2a"><path d="M22 52 l5 -14 l5 14Z"/><path d="M30 54 l5 -16 l5 16Z"/><path d="M38 52 l4 -12 l4 12Z"/></g><rect x="104" y="50" width="12" height="8" fill="#f2efe6"/><path d="M102 50 L110 44 L118 50Z" fill="#8e4a32"/><rect x="120" y="48" width="10" height="10" fill="#8c2e22"/></svg><b>緑の丘陵</b></div>
@@ -851,7 +859,7 @@ addEventListener('keyup',e=>{keys[e.code]=0;});
 const view={pitch:.45,drag:false,lx:0,ly:0,moved:0,fireClick:false,fireHeld:false,zoom:false,zoomHold:false};
 const zoomK=()=>(typeof camFov==='number'?camFov:.8)/.8; // ズーム中は視点操作を細かく
 canvas.addEventListener('pointerdown',e=>{if(e.button===2){view.zoomHold=true;return;}if(view.drag)return;view.drag=true;view.pid=e.pointerId;view.mouse=e.pointerType==='mouse';view.lx=e.clientX;view.ly=e.clientY;view.moved=0;});
-addEventListener('pointermove',e=>{if(!view.drag||e.pointerId!==view.pid)return;const dx=e.clientX-view.lx,dy=e.clientY-view.ly;view.lx=e.clientX;view.ly=e.clientY;view.moved+=Math.abs(dx)+Math.abs(dy);const k=(view.mouse?1:1.3)*zoomK();camYaw+=dx*.005*k;aimPitch=Math.max(0,Math.min(.35,aimPitch-dy*.0015*k));});
+addEventListener('pointermove',e=>{if(!view.drag||e.pointerId!==view.pid)return;const dx=e.clientX-view.lx,dy=e.clientY-view.ly;view.lx=e.clientX;view.ly=e.clientY;view.moved+=Math.abs(dx)+Math.abs(dy);const k=(view.mouse?1:1.3)*zoomK();camYaw+=dx*.005*k;aimPitch=Math.max(-.12,Math.min(.35,aimPitch-dy*.0015*k));});
 addEventListener('pointerup',e=>{if(e.button===2)view.zoomHold=false;});
 addEventListener('keydown',e=>{if(e.code==='KeyZ')view.zoom=!view.zoom;});
 const endDrag=e=>{if(!view.drag||e.pointerId!==view.pid)return;if(view.mouse&&view.moved<6)view.fireClick=true;view.drag=false;};
@@ -885,7 +893,7 @@ function spawnEnemies(n){
     let R=60+Math.random()*30,ex=Math.cos(a)*R,ez=Math.sin(a)*R;
     for(let k=0;k<40&&obs.some(o=>obsIn(o,ex,ez,4));k++){const b=Math.random()*Math.PI*2;R=40+Math.random()*80;ex=Math.cos(b)*R;ez=Math.sin(b)*R;} // 建物の中に出ないように
     t.root.position.set(ex,0,ez);
-    enemies.push({...t,...phys(),hp:2+Math.floor(wave/3),heading:0,aim:0,cd:1+Math.random()*2,r:2.2,rc:9,strafe:Math.random()<.5?1:-1});
+    enemies.push({...t,...phys(),hp:3+Math.floor(wave/3),heading:0,aim:0,cd:1+Math.random()*2,r:2.2,rc:9,strafe:Math.random()<.5?1:-1});
   }
 }
 function reset(){
@@ -898,6 +906,10 @@ function reset(){
   spawnEnemies(2);hud();document.getElementById('over').style.display='none';
 }
 function dmgFx(){const d=document.getElementById('dmg');d.style.transition='none';d.style.opacity=1;d.offsetWidth;d.style.transition='opacity .6s';d.style.opacity=0;}
+function modsHud(){ // 自車の故障状態(履帯・砲塔・機関)
+  const m=[];if(player.trk>0)m.push('履帯切断 '+player.trk.toFixed(1)+'s');if(player.jam>0)m.push('砲塔故障 '+player.jam.toFixed(1)+'s');if(player.eng>0)m.push('機関損傷 '+player.eng.toFixed(0)+'s');
+  const t=m.join(' / ');if(t!==modsHud.last){modsHud.last=t;document.getElementById('mods').textContent=t;}
+}
 function hud(){
   document.getElementById('wave').textContent=wave;document.getElementById('score').textContent=score;
   document.getElementById('hpb').style.width=Math.max(0,player.hp/player.max*100)+'%';document.getElementById('hpname').textContent=SPEC.name;
@@ -907,13 +919,13 @@ function hud(){
 // vmax/vrev:前進・後退の最高速 acc:加速 brake:ブレーキ coast:惰性の減速 roll:転がり抵抗 turn:最大旋回(rad/s) yawAcc:旋回の立ち上がり
 // grip:横グリップ trav:砲塔旋回(rad/s) elev:砲の俯仰(rad/s) reload:装填秒 dmg:威力 hp:防護力
 const TANKS=[
- {id:'leo',name:'レオパルト2A7',nat:'ドイツ',flag:'🇩🇪',vmax:14.5,vrev:6,acc:6.5,brake:12,coast:2.2,roll:.35,turn:1.15,yawAcc:2.6,grip:6,trav:1.4,elev:.45,reload:3.0,dmg:2,hp:8,
+ {id:'leo',name:'レオパルト2A7',nat:'ドイツ',flag:'🇩🇪',vmax:14.5,vrev:6,acc:6.5,brake:12,coast:2.2,roll:.35,turn:1.15,yawAcc:2.6,grip:6,trav:1.4,elev:.45,reload:3.0,dmg:2,hp:8,pen:700,weak:'車体正面下部・砲塔後部(弾薬庫。ブローアウトパネルで誘爆しにくい)・側面・後面。砲塔正面と楔形装甲は非常に硬い',
   spec:'62t / 1,500馬力ディーゼル / 最高68km/h / 120mm L55',feat:'長砲身L55で弾道が安定。楔形増加装甲の砲塔と高い機動力を両立した万能型。'},
- {id:'mk4',name:'メルカバ Mk.4',nat:'イスラエル',flag:'🇮🇱',vmax:13.7,vrev:5,acc:5.6,brake:11,coast:2.2,roll:.4,turn:1.0,yawAcc:2.2,grip:6,trav:1.3,elev:.45,reload:3.4,dmg:2,hp:11,aps:.3,
+ {id:'mk4',name:'メルカバ Mk.4',nat:'イスラエル',flag:'🇮🇱',vmax:13.7,vrev:5,acc:5.6,brake:11,coast:2.2,roll:.4,turn:1.0,yawAcc:2.2,grip:6,trav:1.3,elev:.45,reload:3.4,dmg:2,hp:11,aps:.3,pen:660,weak:'車体後部(弾薬庫)・砲塔リング・側面下部。前部エンジンが盾になり正面は非常に硬い。砲塔後部はチェーンで守られる',
   spec:'65t / 1,500馬力ディーゼル / 最高64km/h / 120mm',feat:'前部エンジンで乗員を守る重防護型。アクティブ防護「トロフィー」が敵弾を30%の確率で迎撃。'},
- {id:'t10',name:'10式戦車',nat:'日本',flag:'🇯🇵',vmax:15,vrev:15,acc:8.5,brake:14,coast:2.4,roll:.3,turn:1.4,yawAcc:3.4,grip:7.5,trav:1.7,elev:.55,reload:2.4,dmg:2,hp:6,
+ {id:'t10',name:'10式戦車',nat:'日本',flag:'🇯🇵',vmax:15,vrev:15,acc:8.5,brake:14,coast:2.4,roll:.3,turn:1.4,yawAcc:3.4,grip:7.5,trav:1.7,elev:.55,reload:2.4,dmg:2,hp:6,pen:650,weak:'砲塔後部(自動装填装置の弾薬。誘爆しやすい)・車体正面下部・側面。全体に装甲が薄め',
   spec:'44t / 1,200馬力ディーゼル / 前後とも最高70km/h / 120mm L44 自動装填',feat:'軽量で俊敏。自動装填装置で装填が速く、後退も前進と同じ速さで走れる。防護力は控えめ。'},
- {id:'ab',name:'M1A2 エイブラムス',nat:'アメリカ',flag:'🇺🇸',vmax:14.3,vrev:7,acc:8,brake:12,coast:2,roll:.35,turn:1.1,yawAcc:2.6,grip:6,trav:1.6,elev:.5,reload:2.8,dmg:2,hp:9,turbine:1,
+ {id:'ab',name:'M1A2 エイブラムス',nat:'アメリカ',flag:'🇺🇸',vmax:14.3,vrev:7,acc:8,brake:12,coast:2,roll:.35,turn:1.1,yawAcc:2.6,grip:6,trav:1.6,elev:.5,reload:2.8,dmg:2,hp:9,turbine:1,pen:680,weak:'車体正面下部・砲塔リング・後面(タービン)。弾薬庫はブローアウトパネルで誘爆しにくい',
   spec:'66t / 1,500馬力ガスタービン / 最高67km/h / 120mm L44',feat:'ガスタービンで加速が鋭い。劣化ウラン装甲で防護力も高く、装填手の熟練で発射間隔も短い。'}];
 let SPEC=TANKS[0],selIdx=0; // 選択中の車両
 const ENEMY={vmax:9,vrev:4,acc:4,brake:9,coast:2,roll:.35,turn:.9,yawAcc:2,grip:6};
@@ -932,6 +944,7 @@ function fire(t,owner,spread=0){
   let b;
   if(owner==='p'){const c=Math.cos(p);b={mesh:m,vx:Math.sin(a)*c*SHV,vy:Math.sin(p)*SHV,vz:Math.cos(a)*c*SHV,g:SHG,life:6,owner,dmg:SPEC.dmg};}
   else b={mesh:m,vx:Math.sin(a)*60,vy:0,vz:Math.cos(a)*60,g:0,life:1.3,owner};
+  {const L=Math.hypot(b.vx,b.vy,b.vz);b.dir=[b.vx/L,b.vy/L,b.vz/L];}b.pen=owner==='p'?SPEC.pen:560+wave*12; // 進む向き・貫通力
   aimShell(b);m.computeWorldMatrix(true);
   b.trail=new BABYLON.TrailMesh('trail',m.metadata.tail,scene,{diameter:owner==='p'?.14:.12,length:MOBILE?14:26,segments:MOBILE?14:26,autoStart:true});
   b.trail.material=owner==='p'?trailMatP:trailMatE;b.trail.isPickable=false;glow.addIncludedOnlyMesh(b.trail);
@@ -1045,8 +1058,11 @@ const SFX=(()=>{
     eng.g.gain.setTargetAtTime(q*(.07+Math.abs(thr)*.07+sp*.004),t,.2);eng.ng.gain.setTargetAtTime(q*(.05+sp*.012),t,.2);
     eng.tw.frequency.setTargetAtTime(1300+sp*55+Math.abs(thr)*400,t,.3);eng.tg.gain.setTargetAtTime(q*(turbine?.018+Math.abs(thr)*.02:0),t,.3);
   }
+  function ping(d){ // 跳弾: 高い金属音と、弾がそれていく「ヒュン」という音
+    if(!ok())return;const t=at(d),k=Math.min(1,1/(1+d/25));const n=src(t,.3),bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3200;bp.Q.value=12;const g=ac.createGain();env(g,t,.001,.9*k,.18);n.connect(bp).connect(g).connect(master);
+    const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(2600,t);o.frequency.exponentialRampToValueAtTime(500,t+.35);const g2=ac.createGain();env(g2,t,.01,.25*k,.35);o.connect(g2).connect(master);o.start(t);o.stop(t+.4);}
   function mute(m){muted=m;if(master)master.gain.value=m?0:.85;}
-  return {init,boom,impact,explode,clank,engine,mute,get muted(){return muted;}};
+  return {init,boom,impact,explode,clank,engine,mute,ping,get muted(){return muted;}};
 })();
 // ===== 演出(パーティクル・破片・画面揺れ・反動) =====
 const FXN=MOBILE?.5:1; // スマホは粒子数を半分に
@@ -1153,6 +1169,8 @@ function push(t){ // 障害物・壁との衝突。めり込みを戻し、ぶ�
 }
 // 走行物理(自車・敵共通)。thr=アクセル(-1..1、負は後退) str=旋回入力(-1..1、正で右) S=性能表
 function drive(t,thr,str,dt,S){
+  if(t.trk>0){t.trk-=dt;thr=0;str=0;if(t.trk<=0&&t===player){const p=t.root.position;toast('履帯修理完了',p.x,p.y+3,p.z,'me ok');}} // 履帯切断中は動けない
+  if(t.eng>0){t.eng-=dt;thr*=.45;}                                                                                                 // 機関損傷: 出力低下
   const p=t.root.position,h=t.heading,fx=Math.sin(h),fz=Math.cos(h);
   // 前後方向: エンジン駆動力・ブレーキ・転がり抵抗・坂の重力・旋回時の抵抗
   let a=0;
@@ -1186,6 +1204,100 @@ function drive(t,thr,str,dt,S){
   t.tracks.forEach((m,i)=>{t.to[i]+=vs[i]*dt;const tx=m.albedoTexture||m.diffuseTexture;tx.vOffset=-t.to[i]/1.25;});
 }
 
+// ===== 装甲と弱点 =====
+// 戦車を「車体の箱」と「砲塔の箱(砲塔の向きで回る)」で表し、砲弾が最初に入った箱の面から部位を決める。
+// 実効装甲 = 装甲厚 ÷ cos(入射角)。入射角が浅い(70°超)と跳弾。貫通すると部位ごとの倍率でダメージ+部位破壊。
+// 寸法はモデルに合わせたゲーム単位、装甲厚はゲーム内のmm換算値(傾斜を含んだ値)
+const ARM={
+ leo:{hull:{hw:1.5,zf:3.0,zb:-2.98,top:1.45,lf:.95},tur:{hw:1.25,zf:1.95,zb:-2.6,h:.8,bustle:-1.45,man:.36},ammo:'tur',ammoP:.35,blow:1,eng:'rear',
+  a:{TF:980,M:720,TS:400,TR:130,TT:60,RING:320,UF:820,LF:450,SS:130,SK:180,R:60,TOP:40,BELLY:40}},
+ mk4:{hull:{hw:1.5,zf:3.04,zb:-2.98,top:1.58,lf:1.0},tur:{hw:1.32,zf:2.4,zb:-2.25,h:.68,bustle:-1.1,man:.3},ammo:'hull',ammoP:.45,blow:0,eng:'front',
+  a:{TF:1000,M:700,TS:450,TR:240,TT:70,RING:340,UF:900,LF:500,SS:160,SK:200,R:90,TOP:50,BELLY:50}},
+ t10:{hull:{hw:1.3,zf:2.8,zb:-2.72,top:1.35,lf:.9},tur:{hw:1.15,zf:1.5,zb:-2.45,h:.68,bustle:-.8,man:.3},ammo:'tur',ammoP:.6,blow:0,eng:'rear',
+  a:{TF:880,M:660,TS:350,TR:100,TT:50,RING:300,UF:720,LF:400,SS:110,SK:150,R:50,TOP:35,BELLY:35}},
+ ab:{hull:{hw:1.45,zf:3.1,zb:-3.05,top:1.32,lf:.95},tur:{hw:1.32,zf:1.75,zb:-3.0,h:.6,bustle:-1.9,man:.36},ammo:'tur',ammoP:.25,blow:1,eng:'rear',
+  a:{TF:1000,M:740,TS:430,TR:110,TT:60,RING:340,UF:820,LF:460,SS:140,SK:180,R:60,TOP:40,BELLY:40}}};
+const ZN={TF:'砲塔正面',M:'防盾',TS:'砲塔側面',TR:'砲塔後部',TT:'砲塔上面',RING:'砲塔リング',UF:'車体正面上部',LF:'車体正面下部',SS:'車体側面',SK:'走行装置',R:'車体後面',TOP:'機関室上面',BELLY:'車体底面'};
+const ZMUL={TF:.8,M:.9,TS:1.1,TR:1.3,TT:1.4,RING:1,UF:.9,LF:1,SS:1.2,SK:.6,R:1.5,TOP:1.3,BELLY:1.5}; // 貫通時のダメージ倍率
+// 砲弾の線分(x0..x1)が戦車tのどこに入るか。入らなければnull。dir=弾の進む向き(正規化) pen=貫通力 dry=予測用(乱数なし)
+function armorHit(t,x0,y0,z0,x1,y1,z1,dir,pen,dry){
+  const A=ARM[t.kind],rp=t.root.position,h=t.heading||0,ch=Math.cos(h),sh=Math.sin(h),ta=t.aim||0,ca=Math.cos(ta),sa=Math.sin(ta);
+  const tcx=rp.x+sh*t.tur.z,tcz=rp.z+ch*t.tur.z,HL=A.hull,TL=A.tur;
+  const hL=(x,y,z)=>{const dx=x-rp.x,dz=z-rp.z;return [dx*ch-dz*sh,y-rp.y,dx*sh+dz*ch];};
+  const tL=(x,y,z)=>{const dx=x-tcx,dz=z-tcz;return [dx*ca-dz*sa,y-rp.y-t.tur.y,dx*sa+dz*ca];};
+  const inT=q=>Math.abs(q[0])<TL.hw&&q[1]>=0&&q[1]<=TL.h&&q[2]<=TL.zf&&q[2]>=TL.zb;
+  const inH=q=>Math.abs(q[0])<HL.hw&&q[1]>=.05&&q[1]<=HL.top&&q[2]<=HL.zf&&q[2]>=HL.zb; // 下端は履帯・スカートの下まで
+  const L=Math.hypot(x1-x0,y1-y0,z1-z0),n=Math.max(1,Math.ceil(L/.08));
+  let px=x0,py=y0,pz=z0;
+  for(let i=1;i<=n;i++){
+    const x=x0+(x1-x0)*i/n,y=y0+(y1-y0)*i/n,z=z0+(z1-z0)*i/n;
+    let part=null,q,pq,B_;
+    if(inT(q=tL(x,y,z))){part='T';pq=tL(px,py,pz);B_=TL;}else if(inH(q=hL(x,y,z))){part='H';pq=hL(px,py,pz);B_=HL;}
+    if(part){
+      // 入った面: 直前の点がどの面の外側にいちばん大きくはみ出していたか
+      const lo=part==='T'?0:.05,hi=part==='T'?B_.h:B_.top;
+      const c=[['side',Math.abs(pq[0])-B_.hw],['top',pq[1]-hi],['bottom',lo-pq[1]],['front',pq[2]-B_.zf],['rear',B_.zb-pq[2]]].sort((a,b)=>b[1]-a[1]);
+      const face=c[0][0],yaw=part==='T'?ta:h,fx=Math.sin(yaw),fz=Math.cos(yaw),sx=Math.sign(pq[0])||1;
+      const nrm=face==='front'?[fx,0,fz]:face==='rear'?[-fx,0,-fz]:face==='top'?[0,1,0]:face==='bottom'?[0,-1,0]:[sx*Math.cos(yaw),0,-sx*Math.sin(yaw)];
+      const cos=Math.max(0,-(dir[0]*nrm[0]+dir[1]*nrm[1]+dir[2]*nrm[2]));
+      let zone,lx=q[0],ly=q[1],lz=q[2];
+      if(part==='T'){
+        if(ly<.2&&face!=='top'&&face!=='rear')zone='RING';
+        else if(face==='front')zone=Math.abs(lx)<TL.man?'M':'TF';
+        else if(face==='side')zone=lz<TL.bustle?'TR':'TS';
+        else if(face==='rear')zone='TR';else zone='TT';
+      }else{
+        if(face==='front')zone=ly>HL.lf?'UF':'LF';else if(face==='side')zone=ly<1.0?'SK':'SS';
+        else if(face==='rear')zone='R';else if(face==='top')zone='TOP';else zone='BELLY';
+      }
+      const base=A.a[zone],deg=Math.acos(Math.min(1,cos))*180/Math.PI;
+      // 跳弾: 厚い装甲(100mm以上)に浅い角度で当たった時。70〜78°は確率、78°以上は必ず
+      const ric=base>=100&&(deg>=78||(deg>70&&(dry?deg>74:Math.random()<(deg-70)/8)));
+      const eff=base/Math.max(cos,.17),pv=dry?pen:pen*(.92+Math.random()*.16);
+      const engine=A.eng==='rear'?(part==='H'&&(zone==='R'||zone==='TOP'||((zone==='SS'||zone==='SK')&&lz<HL.zb+2.2))):(part==='H'&&(zone==='UF'||((zone==='SS'||zone==='SK'||zone==='TOP')&&lz>HL.zf-2.4)));
+      const ammo=A.ammo==='tur'?zone==='TR':(part==='H'&&(zone==='R'||((zone==='SS'||zone==='SK')&&lz<HL.zb+1.8)));
+      return {zone,face,part,deg,ric,eff,pen:pv,penOK:!ric&&pv>eff,pt:[x,y,z],nrm,engine,ammo,trackSide:Math.sign(lx)||1};
+    }
+    px=x;py=y;pz=z;
+  }
+  return null;
+}
+// 命中結果を戦車に反映(ダメージ・部位破壊・演出・表示)。戻り値: 撃破されたら 'kill' / 'cook'(弾薬庫誘爆)
+function applyArmor(t,r,dmg,isPlayer){
+  const [x,y,z]=r.pt,d=player?Math.hypot(x-player.root.position.x,z-player.root.position.z):0,A=ARM[t.kind];
+  const say=(txt,cls)=>toast(txt,x,y+1,z,(isPlayer?'me ':'')+(cls||''));
+  if(r.ric){ // 跳弾: 火花が反射方向へ飛ぶ
+    const dn=-(r.dir[0]*r.nrm[0]+r.dir[1]*r.nrm[1]+r.dir[2]*r.nrm[2]),rf=[r.dir[0]+2*dn*r.nrm[0],r.dir[1]+2*dn*r.nrm[1]+.1,r.dir[2]+2*dn*r.nrm[2]];
+    burst(x,y,z,{n:26,add:1,dir:rf,spread:.25,r:.1,c1:[1,.95,.7,1],c2:[1,.6,.2,1],cd:[.5,.2,0,0],s:[.12,.3],l:[.15,.4],p:[20,40],g:-10});flash(x,y,z,.3);
+    SFX.ping(d);say('跳弾!','ric');return null;}
+  if(!r.penOK){ // 非貫通: 装甲で止まる(走行装置なら履帯が切れることも)
+    burst(x,y,z,{n:22,add:1,r:.2,c1:[1,.85,.5,1],cd:[.5,.2,0,0],s:[.12,.32],l:[.2,.45],p:[6,14],g:-14});flash(x,y,z,.5);SFX.impact(d,true);
+    say('非貫通 '+ZN[r.zone],'np');
+    if(r.zone==='SK'&&Math.random()<.3)breakTrack(t,isPlayer);
+    return null;}
+  // 貫通
+  fxTank(x,y,z,false);t.hp-=dmg*ZMUL[r.zone];say('貫通 '+ZN[r.zone],'pen');
+  if(r.zone==='SK'&&Math.random()<.65)breakTrack(t,isPlayer);
+  if(r.zone==='RING'&&Math.random()<.75){t.jam=8;toast('砲塔旋回不能!',x,y+2,z,(isPlayer?'me ':'')+'mod');}
+  if(r.engine&&Math.random()<.6){t.eng=12;toast('機関損傷!',x,y+2,z,(isPlayer?'me ':'')+'mod');burst(x,y+.5,z,{rate:20,dur:3,r:.4,c1:[.15,.14,.13,.6],cd:[.3,.3,.3,0],s:[1,2],grow:2,l:[1,2],p:[1,2],g:2});}
+  if(r.ammo){
+    if(Math.random()<A.ammoP){t.hp=-99;toast('弾薬庫誘爆!',x,y+2,z,(isPlayer?'me ':'')+'boom');return 'cook';}
+    if(A.blow){ // ブローアウトパネル: 爆風を上へ逃がす(撃破は免れるが大損害)
+      const tp=t.turret.getAbsolutePosition();burst(tp.x,tp.y+.8,tp.z,{rate:70,dur:1.6,dir:[0,1,0],spread:.15,r:.4,add:1,c1:[1,.75,.3,1],c2:[1,.4,.1,1],cd:[.3,.1,.05,0],s:[1,2.2],grow:1.6,l:[.4,.8],p:[10,16],g:2});
+      t.hp-=1;toast('弾薬庫被弾 ブローアウト!',x,y+2,z,(isPlayer?'me ':'')+'mod');}
+    else t.hp-=1.5;
+  }
+  return t.hp<=0?'kill':null;
+}
+function breakTrack(t,isPlayer){if(t.trk>0)return;t.trk=7;const p=t.root.position;toast('履帯切断!',p.x,p.y+3,p.z,(isPlayer?'me ':'')+'mod');}
+// 命中・部位破壊の表示(ワールド位置から浮かび上がって消える。自車への被弾は画面上部に大きく)
+function toast(txt,x,y,z,cls){
+  const el=document.createElement('div');el.className='tst '+(cls||'');el.textContent=txt;document.body.appendChild(el);
+  let sx=innerWidth/2,sy=innerHeight*.28;
+  if(!/\bme\b/.test(cls||'')){const sp=screenPos(x,y,z);if(sp){sx=sp.x;sy=sp.y;}}
+  el.style.left=sx+'px';el.style.top=sy+'px';
+  requestAnimationFrame(()=>{el.style.transform='translate(-50%,-160%)';el.style.opacity=0;});setTimeout(()=>el.remove(),1500);
+}
 // ===== 照準 =====
 // 着弾予測: 自弾と同じ放物線・当たり判定でたどり、着弾点・命中対象・弾道の点列を返す
 const TRJ=32; // 弾道予測線の点数
@@ -1193,18 +1305,20 @@ const TRJ=32; // 弾道予測線の点数
 function segDist(x0,z0,x1,z1,px,pz){const dx=x1-x0,dz=z1-z0,l=dx*dx+dz*dz,t=l?Math.max(0,Math.min(1,((px-x0)*dx+(pz-z0)*dz)/l)):0;return Math.hypot(x0+dx*t-px,z0+dz*t-pz);}
 function aimPoint(a,p,pts){
   const c=Math.cos(p),o=muzzle(player,a,p),h=1/60; // 弾が速いので刻みを細かく
-  let x=o.x,y=o.y,z=o.z,vx=Math.sin(a)*c*SHV,vy=Math.sin(p)*SHV,vz=Math.cos(a)*c*SHV,kind='g',tg=null;
+  let x=o.x,y=o.y,z=o.z,vx=Math.sin(a)*c*SHV,vy=Math.sin(p)*SHV,vz=Math.cos(a)*c*SHV,kind='g',tg=null,res=null;
   if(pts)pts.length=0;
   for(let i=0;i<360;i++){
     if(pts&&i%10===0&&pts.length<TRJ)pts.push(new BABYLON.Vector3(x,y,z));
     const px=x,pz=z;vy-=SHG*h;x+=vx*h;y+=vy*h;z+=vz*h;
-    tg=enemies.find(e=>y<e.root.position.y+3.2&&segDist(px,pz,x,z,e.root.position.x,e.root.position.z)<2.4);if(tg){kind='e';break;}
+    const py=y-vy*h,L=Math.hypot(vx,vy,vz),dir=[vx/L,vy/L,vz/L];res=null;
+    tg=enemies.find(e=>y<e.root.position.y+3.5&&segDist(px,pz,x,z,e.root.position.x,e.root.position.z)<3.8&&(res=armorHit(e,px,py,pz,x,y,z,dir,SPEC.pen,true)));
+    if(tg){kind='e';x=res.pt[0];y=res.pt[1];z=res.pt[2];break;}
     if(y<=gh(x,z)){y=gh(x,z);break;}
     if((Math.abs(x)>B||Math.abs(z)>B)&&y<10){kind='o';break;}
     if(obsNear(x,z).some(ob=>y<ob.h&&obsIn(ob,x,z))){kind='o';break;}
   }
   if(pts){pts.push(new BABYLON.Vector3(x,y,z));while(pts.length<TRJ+1)pts.push(pts[pts.length-1]);}
-  return {x,y,z,kind,tg,r:Math.hypot(x-o.x,z-o.z)};
+  return {x,y,z,kind,tg,res,r:Math.hypot(x-o.x,z-o.z)};
 }
 // 着弾マーカー: リング+目盛り(地面に沿わせて回転。敵・障害物に当たる時はこちらを向く)
 const mk=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.strokeStyle='#fff';x.lineCap='round';
@@ -1231,7 +1345,7 @@ function updateAim(dt){
   aimFrame++;
   if(!MOBILE||!apA||aimFrame%2===0)apA=aimPoint(player.aim,player.gp,trjPts);
   if(!MOBILE||!apD||aimFrame%2===1)apD=aimPoint(camYaw,aimPitch,null);
-  const ap=apA,onT=ap.kind==='e';
+  const ap=apA,onT=ap.kind==='e'&&ap.res,canPen=onT&&ap.res.penOK;
   // 狙っている敵を赤い輪郭で強調
   if(ap.tg!==aimTarget){setOutline(aimTarget,false);aimTarget=ap.tg;setOutline(aimTarget,true);}
   // 弾道予測線
@@ -1245,8 +1359,8 @@ function updateAim(dt){
   mk.material.emissiveColor.set(1,onT?.2:.75,onT?.12:.25);trj.material.color=onT?new BABYLON.Color3(1,.3,.2):new BABYLON.Color3(1,.82,.45);
   // 画面の照準器(実際の着弾点)と目標枠(狙っている地点)
   const sp=screenPos(ap.x,ap.y,ap.z);
-  if(sp){rtEl.style.display='block';rtEl.style.transform='translate('+sp.x.toFixed(1)+'px,'+sp.y.toFixed(1)+'px)';rtEl.classList.toggle('on',onT);
-    rtTx.textContent=(onT?'目標捕捉 ':'')+Math.round(ap.r*1.3)+' m';}else rtEl.style.display='none';
+  if(sp){rtEl.style.display='block';rtEl.style.transform='translate('+sp.x.toFixed(1)+'px,'+sp.y.toFixed(1)+'px)';rtEl.classList.toggle('on',!!canPen);rtEl.classList.toggle('np',!!onT&&!canPen&&!ap.res.ric);rtEl.classList.toggle('ric',!!onT&&ap.res.ric);
+    rtTx.textContent=(onT?(ap.res.ric?'跳弾△ ':canPen?'貫通◎ ':'非貫通× ')+ZN[ap.res.zone]+' ':'')+Math.round(ap.r*1.3)+' m';}else rtEl.style.display='none'; // 照準器の文字: 狙っている部位と貫通の可否
   const sd=screenPos(apD.x,apD.y,apD.z);
   if(sd&&sp&&Math.hypot(sd.x-sp.x,sd.y-sp.y)>6){tgtEl.style.display='block';tgtEl.style.transform='translate('+sd.x.toFixed(1)+'px,'+sd.y.toFixed(1)+'px)';}else tgtEl.style.display='none';
 }
@@ -1272,9 +1386,10 @@ scene.onBeforeRenderObservable.add(()=>{
     let vy=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0)+(keys.KeyE?1:0)-(keys.KeyQ?1:0);
     let vp=(keys.ArrowUp?1:0)-(keys.ArrowDown?1:0);
     if(sr.on){vy=sr.x;vp=sr.y;}
-    camYaw+=vy*2.4*dt*zoomK();aimPitch=Math.max(0,Math.min(.35,aimPitch+vp*.25*dt*zoomK()));
+    camYaw+=vy*2.4*dt*zoomK();aimPitch=Math.max(-.12,Math.min(.35,aimPitch+vp*.25*dt*zoomK()));
     // 砲塔は視点の向きを追う(最大旋回速度と加速度に上限。砲は安定化装置で車体の揺れに関係なく狙いを保つ)
-    {const want=Math.max(-SPEC.trav,Math.min(SPEC.trav,nd(camYaw-player.aim)*5)),da=6*dt;player.av+=Math.max(-da,Math.min(da,want-player.av));player.aim+=player.av*dt;}
+    if(player.jam>0){player.jam-=dt;player.av=0;player.aim+=player.w*dt;} // 砲塔リング損傷: 旋回できず車体と一緒に回るだけ
+    else{const want=Math.max(-SPEC.trav,Math.min(SPEC.trav,nd(camYaw-player.aim)*5)),da=6*dt;player.av+=Math.max(-da,Math.min(da,want-player.av));player.aim+=player.av*dt;}
     player.gp+=Math.max(-SPEC.elev*dt,Math.min(SPEC.elev*dt,aimPitch-player.gp));
     player.turret.rotation.y=player.aim-player.heading;
     player.barrel.rotation.x=-player.gp+player.sp*.5;
@@ -1282,7 +1397,7 @@ scene.onBeforeRenderObservable.add(()=>{
     player.cd-=dt;
     if(shooting&&player.cd<=0){fire(player,'p');player.cd=SPEC.reload;}
     recoil(player,dt);
-    reloadHud();
+    reloadHud();modsHud();
     // 敵AI
     enemies.forEach(e=>{
       const p=e.root.position,dx=player.root.position.x-p.x,dz=player.root.position.z-p.z,d=Math.hypot(dx,dz);
@@ -1293,7 +1408,7 @@ scene.onBeforeRenderObservable.add(()=>{
       const spd=d>26?7:(d<14?-4:3),df=nd(want2-e.heading);
       enemies.forEach(o=>{if(o!==e){const ox=p.x-o.root.position.x,oz=p.z-o.root.position.z,od=Math.hypot(ox,oz);if(od<5&&od>0){p.x+=ox/od*.1;p.z+=oz/od*.1;}}});
       drive(e,spd>0?Math.min(1,spd/ENEMY.vmax*1.6)*Math.max(0,Math.cos(df)):-.7,Math.max(-1,Math.min(1,df*2)),dt,ENEMY);
-      const ta=Math.atan2(dx,dz);e.aim+=Math.max(-1,Math.min(1,nd(ta-e.aim)*4))*dt*1.2;
+      const ta=Math.atan2(dx,dz);if(e.jam>0){e.jam-=dt;e.aim+=e.w*dt;}else e.aim+=Math.max(-1,Math.min(1,nd(ta-e.aim)*4))*dt*1.2;
       e.turret.rotation.y=e.aim-e.heading;
       e.cd-=dt;
       if(e.cd<=0&&d<45&&Math.abs(nd(ta-e.aim))<.15){fire(e,'e',(Math.random()-.5)*.12);e.cd=2+Math.random()*1.5;}
@@ -1303,6 +1418,7 @@ scene.onBeforeRenderObservable.add(()=>{
   // 弾
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];b.vy-=b.g*dt;b.mesh.position.x+=b.vx*dt;b.mesh.position.y+=b.vy*dt;b.mesh.position.z+=b.vz*dt;b.life-=dt;aimShell(b);
+    {const L=Math.hypot(b.vx,b.vy,b.vz);b.dir=[b.vx/L,b.vy/L,b.vz/L];}
     // fx: 着弾演出の種類(null=寿命切れで消えるだけ / 'g'=地面 / 'r'=障害物・壁 / 't'=戦車 / 'k'=撃破)
     let hit=b.life<=0,fx=null;const bx=b.mesh.position.x,by=b.mesh.position.y,bz=b.mesh.position.z,px=bx-b.vx*dt,pz=bz-b.vz*dt;
     const under=by<=gh(bx,bz); // 地面判定は戦車の判定の後(照準の予測と同じ順番)
@@ -1310,21 +1426,23 @@ scene.onBeforeRenderObservable.add(()=>{
     if(!hit)for(const o of obsNear(bx,bz)){if(by<o.h&&obsIn(o,bx,bz)){hit=true;fx='r';break;}}
     if(!hit&&b.owner==='p'){
       for(let j=enemies.length-1;j>=0;j--){const e=enemies[j];
-        if(by<e.root.position.y+3.2&&segDist(px,pz,bx,bz,e.root.position.x,e.root.position.z)<2.4){
-          hit=true;fx='t';e.hp-=b.dmg||1;
-          if(e.hp<=0){
-            fx='k';const ep=e.root.position;fxTank(ep.x,ep.y+1.5,ep.z,true);
-            // 砲塔が吹き飛ぶ
+        if(by<e.root.position.y+3.5&&segDist(px,pz,bx,bz,e.root.position.x,e.root.position.z)<3.8){ // 近くまで来たら車体・砲塔の箱で精密に判定
+          const r=armorHit(e,px,by-b.vy*dt,pz,bx,by,bz,b.dir,b.pen);if(!r)continue;
+          r.dir=b.dir;hit=true;fx=null;const res=applyArmor(e,r,b.dmg||1,false);
+          if(res){
+            const ep=e.root.position,cook=res==='cook';fxTank(ep.x,ep.y+1.5,ep.z,true);if(cook)fxTank(ep.x,ep.y+2.5,ep.z,true);
+            // 砲塔が吹き飛ぶ(弾薬庫誘爆なら高く)
             const tu=e.turret;tu.setParent(null);const a=Math.random()*6.28;
-            debris.push({m:tu,vx:Math.cos(a)*3,vy:11+Math.random()*4,vz:Math.sin(a)*3,wx:(Math.random()-.5)*3,wy:(Math.random()-.5)*5,wz:(Math.random()-.5)*3,life:4,big:1});
-            e.root.dispose();enemies.splice(j,1);score+=100;
+            debris.push({m:tu,vx:Math.cos(a)*3,vy:(cook?20:11)+Math.random()*4,vz:Math.sin(a)*3,wx:(Math.random()-.5)*3,wy:(Math.random()-.5)*5,wz:(Math.random()-.5)*3,life:cook?5:4,big:1});
+            e.root.dispose();enemies.splice(j,1);score+=cook?150:100;
           }
           break;}}
     }else if(!hit&&!over){
       if(SPEC.aps&&!b.apsChk&&segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<7){ // トロフィー: 接近した敵弾を迎撃
         b.apsChk=1;if(Math.random()<SPEC.aps){hit=true;fx=null;fxTank(bx,by,bz,false);flash(bx,by,bz,1);}}
-      if(!hit&&segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<2.4){
-        hit=true;fx='t';player.hp--;addShake(.7);dmgFx();
+      const pr=!hit&&segDist(px,pz,bx,bz,player.root.position.x,player.root.position.z)<3.8?armorHit(player,px,by-b.vy*dt,pz,bx,by,bz,b.dir,b.pen):null;
+      if(pr){
+        pr.dir=b.dir;hit=true;fx=null;const res=applyArmor(player,pr,b.dmg||1,true);addShake(pr.penOK?.8:.4);if(pr.penOK)dmgFx();if(res==='cook')player.hp=-99;
         if(player.hp<=0){over=true;SFX.engine(0,0,0,false);fx=null;fxTank(player.root.position.x,player.root.position.y+1.5,player.root.position.z,true);addShake(1);
           document.getElementById('msg').textContent='GAME OVER  SCORE '+score;document.getElementById('over').style.display='flex';}
       }
@@ -1406,10 +1524,28 @@ function clearBattle(){
   enemies.forEach(e=>e.root.dispose());bullets.forEach(killShell);debris.forEach(d=>d.m.dispose());debris.length=0;
   if(player){player.root.dispose();player=null;}enemies=[];bullets=[];shake=0;
 }
+// 上から見た装甲図: 面ごとの装甲厚を色で(緑=厚い 黄 橙 赤=薄い)。弾=弾薬庫 機=機関
+function armorSVG(id){
+  const A=ARM[id],H=A.hull,Tu=A.tur,tz=TANKS.find(t=>t.id===id),tur=TKD[id].tur[2],S=14,col=v=>v>=600?'#5fbf5a':v>=300?'#e0c040':v>=120?'#e08a30':'#e04a3a';
+  const X=v=>50+v*S,Y=v=>58-v*S; // 前(+z)が上
+  const ln=(x1,y1,x2,y2,c,w)=>'<line x1="'+X(x1).toFixed(1)+'" y1="'+Y(y1).toFixed(1)+'" x2="'+X(x2).toFixed(1)+'" y2="'+Y(y2).toFixed(1)+'" stroke="'+c+'" stroke-width="'+(w||3)+'" stroke-linecap="round"/>';
+  let g='<rect x="'+X(-H.hw)+'" y="'+Y(H.zf)+'" width="'+(H.hw*2*S)+'" height="'+((H.zf-H.zb)*S)+'" fill="rgba(255,255,255,.08)" rx="3"/>';
+  g+=ln(-H.hw,H.zf,H.hw,H.zf,col(A.a.LF),4)+ln(-H.hw*.6,H.zf-.25,H.hw*.6,H.zf-.25,col(A.a.UF),3);              // 車体正面(下部・上部)
+  g+=ln(-H.hw,H.zf,-H.hw,H.zb,col(A.a.SK),4)+ln(H.hw,H.zf,H.hw,H.zb,col(A.a.SK),4)+ln(-H.hw,H.zb,H.hw,H.zb,col(A.a.R),4); // 側面・後面
+  const tz0=tur+Tu.zb,tz1=tur+Tu.zf,tb=tur+Tu.bustle;
+  g+='<rect x="'+X(-Tu.hw)+'" y="'+Y(tz1)+'" width="'+(Tu.hw*2*S)+'" height="'+((tz1-tz0)*S)+'" fill="rgba(255,255,255,.12)" rx="2"/>';
+  g+=ln(-Tu.hw,tz1,Tu.hw,tz1,col(A.a.TF),4)+ln(-Tu.hw,tz1,-Tu.hw,tb,col(A.a.TS),3)+ln(Tu.hw,tz1,Tu.hw,tb,col(A.a.TS),3)+ln(-Tu.hw,tb,-Tu.hw,tz0,col(A.a.TR),3)+ln(Tu.hw,tb,Tu.hw,tz0,col(A.a.TR),3)+ln(-Tu.hw,tz0,Tu.hw,tz0,col(A.a.TR),3);
+  g+=ln(0,tz1,0,tz1+(TKD[id].len||4)*.6,'#9aa',2);                                                                // 主砲
+  const lab=(x,y,t,c)=>'<text x="'+X(x)+'" y="'+(Y(y)+3)+'" font-size="8" text-anchor="middle" fill="'+(c||'#fff')+'" font-weight="bold">'+t+'</text>';
+  g+=A.ammo==='tur'?lab(0,(tz0+tb)/2,'弾','#ff8a7a'):lab(0,H.zb+.9,'弾','#ff8a7a');
+  g+=A.eng==='rear'?lab(0,H.zb+1.9,'機','#9fd0ff'):lab(0,H.zf-1.1,'機','#9fd0ff');
+  return '<svg viewBox="0 0 100 '+(Y(H.zb)+8)+'">'+g+'</svg><div><div class="wk">貫通力 '+tz.pen+'mm<br>'+tz.weak+'</div>'+
+    '<div class="lg"><span><i style="background:#5fbf5a"></i>厚</span><span><i style="background:#e0c040"></i>中</span><span><i style="background:#e08a30"></i>薄</span><span><i style="background:#e04a3a"></i>弱点</span></div></div>';
+}
 function showSel(){
   const t=TANKS[selIdx],B_=(l,v,txt)=>'<span>'+l+'</span><div class="bar"><i style="width:'+Math.round(Math.min(1,v)*100)+'%"></i></div><span>'+txt+'</span>';
   document.getElementById('selN').textContent=t.flag+' '+t.name;document.getElementById('selC').textContent=t.nat;
-  document.getElementById('selS').textContent=t.spec;document.getElementById('selF').textContent=t.feat;
+  document.getElementById('selS').textContent=t.spec;document.getElementById('selF').textContent=t.feat;document.getElementById('selA').innerHTML=armorSVG(t.id);
   document.getElementById('selD').textContent=TANKS.map((_,i)=>i===selIdx?'●':'○').join('');
   document.getElementById('selB').innerHTML=B_('速度',t.vmax/15.5,Math.round(t.vmax*4.68)+'km/h')+B_('加速',t.acc/9,'')+B_('旋回',t.turn/1.5,'')+B_('防護',t.hp/12,'HP '+t.hp)+B_('装填',2.2/t.reload,t.reload.toFixed(1)+'秒');
   if(preview)preview.root.dispose();
