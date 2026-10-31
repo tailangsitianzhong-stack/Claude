@@ -583,6 +583,9 @@ def build(tid):
         for b in list(c): c.remove(b)
     fn, rd, scheme = TANKS[tid]
     k = Kit(); wheel_protos(k, rd); info = fn(k)
+    # 砲塔リング: 砲塔の底から車体の中へ差し込む円筒。砲塔と車体のあいだにすき間が見えないようにする(大きさは砲塔の幅から)
+    xs = [(o.matrix_world @ Vector(c)).x for o, part, mat in k.objs if part == 'turret' for c in o.bound_box]
+    if xs: k.cyl('turret', 'paint', (max(xs) - min(xs)) * .78, .5, 0, -.2, 0, 'y', 28, .02)
     # 砲塔・砲の部品はそれぞれの基準点からの座標で作ってあるので、組み上がった位置へ移す(AOの焼き込みを正しくするため)
     tv = Vector(info['tur']); gv = tv + Vector(info['gun'])
     for o, part, mat in k.objs:

@@ -314,7 +314,7 @@ def _(k):
                 pts.append((sx * 4.5, y, z))
             k.tube('main', 'tbblue', pts, .4)
             for i in range(1, 8): z = pts[i][2]; k.cyl('main', 'tbblue', .12, pts[i][1], sx * 4.5, pts[i][1] / 2, z, 'y', 4, 0)
-    return dict(boxes=[[sx * 5.3, zc, 3.6, 10.4, 34] for sx in (-1, 1) for zc in (-18, 18)])
+    return dict(boxes=[[sx * 5.3, zc, 3.6, 10.4, 34] for sx in (-1, 1) for zc in (-18, 18)] + [[sx * 4.15, 0, .45, 60, 1.1] for sx in (-1, 1)])   # 主塔の脚と路面の両側の欄干
 
 @prop('white_tower')
 def _(k):
@@ -790,6 +790,95 @@ def _(k): return hilux(k, 'beige2', gun=True)
 def _(k): return carry(k, 'white')
 @prop('v_ape')
 def _(k): return ape(k, 'ltblue')
+
+# ================================================================ ゴラン高原・アルデンヌ高地
+PAL.update({'basalt': ((.17, .16, .16), 'paint'), 'basaltL': ((.3, .29, .28), 'paint'), 'snow': ((.92, .94, .97), 'paint'), 'slate': ((.22, .23, .26), 'paint'),
+            'shale': ((.42, .4, .38), 'paint'), 'spruce': ((.08, .16, .1), 'leaf'), 'turbW': ((.9, .91, .92), 'paint'), 'signY': ((.95, .8, .1), 'paint')})
+
+@prop('wind_turbine')
+def _(k):
+    """ゴラン高原の風力発電機(資料: 台地の上の風力発電所。白い円筒の塔と3枚羽根)。縮尺を詰めて高さ約40。rotor が回る"""
+    k.cyl('main', 'turbW', 2.4, 36, 0, 18, 0, 'y', 16, .02, d2=1.4)
+    k.box('main', 'turbW', 2, 2, 5, 0, 37, .6, bev=.4)
+    k.blob('rotor', 'turbW', 1.0, 0, 37, 3.4, sy=1, sub=2, rough=0)
+    for i in range(3):
+        a = i * 2 * math.pi / 3
+        k.box('rotor', 'turbW', .9, 17, .25, math.sin(a) * 8.6, 37 + math.cos(a) * 8.6, 3.6, roll=-a, bev=.08)
+    return dict(circ=1.3, pivots={'rotor': [0, 37, 3.6, 'z']})
+
+@prop('minesign')
+def _(k):
+    """地雷原の柵と警告標識(資料: ゴラン高原には未処理の地雷原が残り、道の脇は立入禁止)。杭・有刺鉄線・黄色地に赤い三角の板"""
+    for x in (-2, 2): k.cyl('main', 'rust', .1, 1.4, x, .7, 0, 'y', 5, 0)
+    for y in (.4, .8, 1.2): k.tube('main', 'iron', [(-2, y, 0), (0, y - .05, 0), (2, y, 0)], .015)
+    k.box('main', 'signY', .7, .5, .03, 0, 1.0, .06, bev=0)
+    for i in range(4): k.box('main', 'red', .34 - i * .08, .06, .02, 0, .86 + i * .06, .08, bev=0)          # 赤い三角(段で描く)
+    return dict(box=[4.2, .4, 1.4])
+
+@prop('basalt_rocks')
+def _(k):
+    rnd = random.Random(61)
+    for i in range(5): k.blob('main', 'basalt' if i % 2 else 'basaltL', .5 + rnd.random() * .7, rnd.uniform(-1.5, 1.5), .2, rnd.uniform(-1.2, 1.2), sy=.6, sub=2, rough=.35, seed=i + 120)
+    return dict(circ=1.8)
+
+@prop('ruin_block')
+def _(k):
+    """クネイトラの廃墟(資料: 1967〜73年の戦いで破壊され放棄された町)。崩れた鉄筋コンクリートの床版・残った柱と壁の一部"""
+    k.box('main', 'conc', 9, 3.2, .3, 0, 1.6, -3.8, bev=.05); k.box('main', 'conc', .3, 2.4, 7, -4.4, 1.2, 0, bev=.05)
+    for x, z in ((-4, -3.6), (0, -3.6), (4, -3.6), (-4, 3), (4, 3)): k.box('main', 'conc', .4, 3 if x < 2 else 1.6, .4, x, 1.5 if x < 2 else .8, z, bev=.03)
+    k.box('main', 'conc', 9, .3, 4, -.3, 2.2, -1.6, roll=.12, bev=.04)                 # 傾いて落ちた上の階の床
+    k.box('main', 'conc', 6, .3, 5, 1.3, .5, 1.8, pitch=.25, roll=-.1, bev=.04)
+    rnd = random.Random(62)
+    for i in range(10): k.blob('main', 'conc', .3 + rnd.random() * .4, rnd.uniform(-4, 4), .2, rnd.uniform(-3, 4), sy=.6, sub=1, rough=.3, seed=i + 130)
+    for i in range(4): k.tube('main', 'rust', [(rnd.uniform(-4, 4), 2.2, -3.6), (rnd.uniform(-4, 4), 3.4, -3.4)], .03)  # 鉄筋
+    return dict(box=[9.4, 8, 3.4])
+
+@prop('spruce_snow')
+def _(k):
+    """アルデンヌのトウヒ(資料: 森の台地。冬のバルジの戦いの戦場)。濃い緑の円錐の層に雪が積もる"""
+    k.cyl('main', 'bark', .35, 2, 0, 1, 0, 'y', 8, 0, d2=.2)
+    for i in range(6):
+        r = 1.9 - i * .28; y = 1.4 + i * 1.0
+        k.lathe('main', 'spruce', [(0, y + 1.7), (r * .3, y + 1.25), (r, y + .05), (r * .85, y), (0, y)], 0, 0, 0, 10)
+        k.lathe('main', 'snow', [(0, y + 1.72), (r * .28, y + 1.3), (r * .82, y + .42), (r * .7, y + .36), (0, y + 1.2)], 0, 0, 0, 10, cap=False)
+    return dict(circ=.45)
+
+@prop('church_ard')
+def _(k):
+    """アルデンヌの村の教会(資料: 灰色の頁岩の石積み、厚いスレート屋根)。身廊・西の塔と尖ったスレートの尖塔・雪"""
+    k.box('main', 'shale', 7, 6.5, 14, 0, 3.25, 0, bev=.05)
+    for sz in (-1, 1): k.box('main', 'slate', 4.6, .25, 15, sz * 1.9, 7.6, 0, roll=sz * .62, bev=.03); k.box('main', 'snow', 4.5, .08, 14.8, sz * 1.92, 7.78, 0, roll=sz * .62, bev=0)
+    k.box('main', 'shale', 4.2, 12, 4.2, 0, 6, -8.6, bev=.05)
+    k.cyl('main', 'slate', 5.4, 9, 0, 16.5, -8.6, 'y', 8, .02, d2=0); k.cyl('main', 'gold', .1, 1.6, 0, 21.6, -8.6, 'y', 4, 0); k.box('main', 'gold', .8, .1, .1, 0, 21.8, -8.6, bev=0)
+    for i in range(4): k.box('main', 'glass', .1, 2.2, .9, 3.52, 3.5, -4.5 + i * 3, bev=0); k.box('main', 'glass', .1, 2.2, .9, -3.52, 3.5, -4.5 + i * 3, bev=0)
+    k.box('main', 'woodD', 1.4, 2.6, .1, 0, 1.3, -10.72, bev=0)
+    return dict(boxes=[[0, 0, 7, 14, 7], [0, -8.6, 4.2, 4.2, 12]])
+
+@prop('foxhole')
+def _(k):
+    """バルジの戦いの塹壕(たこつぼ)(資料: 森には当時の塹壕のくぼみが今も残る)。掘り上げた土の縁・丸太の屋根・土嚢"""
+    for a in range(10): ang = a / 10 * 6.283; k.blob('main', 'snow' if a % 3 else 'woodD', .55, math.cos(ang) * 1.6, .15, math.sin(ang) * 1.3, sy=.5, sub=1, rough=.3, seed=a + 140)
+    for i in range(4): k.cyl('main', 'bark', .22, 3.2, -.6 + i * .4, .45, 0, 'x', 8, 0)
+    for i in range(3): k.box('main', 'khaki', .9, .32, .5, -1 + i * .95, .3, -1.4, bev=.08)
+    return dict(circ=1.8)
+
+@prop('log_pile')
+def _(k):
+    for r in range(3):
+        for i in range(4 - r): k.cyl('main', 'bark', .5, 4, -.75 + i * .5 + r * .25, .25 + r * .43, 0, 'z', 10, .02)
+    k.box('main', 'snow', 1.6, .12, 4, 0, 1.35, 0, bev=.05)
+    return dict(box=[2.2, 4.2, 1.4])
+
+@prop('undof_post')
+def _(k):
+    """国連兵力引き離し監視軍(UNDOF)の監視所(資料: 1974年の兵力引き離し協定で設置)。白いプレハブ・見張り台・フェンス・旗竿"""
+    k.box('main', 'white', 6, 2.6, 2.6, 0, 1.3, 0, bev=.05); k.box('main', 'white', 6, 2.6, 2.6, 0, 1.3, 3.2, bev=.05)
+    k.box('main', 'black', 2.4, .9, .05, 0, 2.1, -1.32, bev=0)
+    for sx in (-1, 1):
+        for sz in (-1, 1): k.cyl('main', 'white', .2, 5, 5 + sx * .9, 2.5, 1.6 + sz * .9, 'y', 6, 0)
+    k.box('main', 'white', 2.4, 1.6, 2.4, 5, 5.6, 1.6, bev=.04); k.box('main', 'glass', 2.42, .5, 2.42, 5, 5.9, 1.6, bev=0)
+    k.cyl('main', 'grey', .1, 7, -4, 3.5, 0, 'y', 6, 0); k.box('main', 'ltblue', 1.6, 1, .03, -3.15, 6.4, 0, bev=0)
+    return dict(boxes=[[0, 1.6, 6.2, 6, 2.8], [5, 1.6, 2.4, 2.4, 7]])
 
 LANDMARKS = [n for n in P if n not in BEFORE]
 

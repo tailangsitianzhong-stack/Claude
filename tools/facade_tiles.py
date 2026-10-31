@@ -365,6 +365,23 @@ def _(t, W, H, rnd):  # イラク/クウェートの平屋根の家・役所: �
     t.box(mat('conc', '#c8b690'), x0 - .3, y1 + .05, x1 + .3, y1 + .15, 0, .45, bev=.01)
     t.box(mat('plaster', '#c4b28e'), -W, 0, 2 * W, .25, 0, .03)
 
+@tile('ar_stone', 3.2, 3.0)
+def _(t, W, H, rnd):  # アルデンヌの古い家: 灰色の頁岩の乱積み・小さな窓・木のよろい戸・石のまぐさ(資料: 頁岩の石積みと厚いスレート屋根の1〜2階建て)
+    t.wall(mat('ashlar', '#6e6a64'), W, H)
+    x0, x1, y0, y1 = 1.15, 2.05, .9, 2.2
+    t.box(mat('ashlar', '#8a8478'), x0 - .15, y1, x1 + .15, y1 + .22, 0, .05)
+    window(t, x0, y0, x1, y1, mat('wood', '#e8e2d4'), mat('glass', '#2a3236'), cross=True, depth=.22, fw=.05, hbar=.6)
+    shutters(t, mat('wood', '#5a3a2a'), x0, y0, x1, y1)
+    t.box(mat('ashlar', '#8a8478'), x0 - .12, y0 - .12, x1 + .12, y0, -.02, .08)
+
+@tile('go_basalt', 3.2, 3.0)
+def _(t, W, H, rnd):  # ゴラン高原の玄武岩の家: 黒い玄武岩の切石・鉄格子の窓・コンクリートの庇
+    t.wall(mat('ashlar', '#3a3836'), W, H)
+    x0, x1, y0, y1 = .95, 2.25, .9, 2.2
+    window(t, x0, y0, x1, y1, mat('metal', '#4a4a48'), mat('glass', '#2c3234'), cross=False, depth=.18, fw=.05)
+    for kk in range(6): x = x0 + .12 + kk * (x1 - x0 - .24) / 5; t.box(mat('metal', '#2a2a28'), x - .015, y0, x + .015, y1, .02, .05, bev=0)
+    t.box(mat('conc', '#9a968e'), x0 - .3, y1 + .05, x1 + .3, y1 + .15, 0, .4, bev=.01)
+
 # ---------------------------------------------------------------- 描画
 def render(name, out):
     W, H, f = TILES[name]
