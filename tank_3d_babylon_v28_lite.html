@@ -479,11 +479,12 @@ function mapKit(name,seed){
   K.cutSpans=(a0,a1,cuts)=>{const out=[];let a=a0;cuts.filter(c=>c[1]>a0&&c[0]<a1).sort((p,q)=>p[0]-q[0]).forEach(([c0,c1])=>{if(c0>a)out.push([a,c0]);a=Math.max(a,c1);});if(a<a1)out.push([a,a1]);return out;};
   K.roads=(RX,RZ)=>{
     RX.forEach(([x,z0,z1,hw,sw])=>{K.plane('asph',hw*2,z1-z0,x,(z0+z1)/2,.02,10);if(hw>=4)K.plane('lineY',.15,z1-z0,x,(z0+z1)/2,.05,1);
+      for(let t=z0+14;t<z1-8;t+=27)K.cyl('manhole',.9,.9,.02,x+(K.R()<.5?-1:1)*hw*.5,.045,t,12); // マンホールの蓋
       for(let t=z0+2;t<z1-2;t+=6)if(hw>5)for(const o of [-hw/2,hw/2])K.plane('lineW',.15,3,x+o,t,.05,1);
       if(sw)for(const sd of [-1,1])K.cutSpans(z0,z1,RZ.filter(([rz,x0,x1])=>x>x0&&x<x1).map(([rz,,,h2,s2])=>[rz-h2-s2,rz+h2+s2])).forEach(([a,b])=>{if(b-a<1)return;
         K.plane('walk',sw,b-a,x+sd*(hw+sw/2),(a+b)/2,.12,4);K.box('curb',.2,.18,b-a,x+sd*hw,.09,(a+b)/2,0,4,4);});});
     RZ.forEach(([z,x0,x1,hw,sw])=>{const on=RX.filter(([rx,z0,z1])=>z>z0-1&&z<z1+1);
-      K.cutSpans(x0,x1,on.map(([rx,,,h2])=>[rx-h2,rx+h2])).forEach(([a,b])=>{K.plane('asph',b-a,hw*2,(a+b)/2,z,.025,10);if(hw>=4&&b-a>3)K.plane('lineY',b-a-2,.15,(a+b)/2,z,.05,1);
+      K.cutSpans(x0,x1,on.map(([rx,,,h2])=>[rx-h2,rx+h2])).forEach(([a,b])=>{K.plane('asph',b-a,hw*2,(a+b)/2,z,.025,10);for(let t=a+14;t<b-8;t+=27)K.cyl('manhole',.9,.9,.02,t,.05,z+(K.R()<.5?-1:1)*hw*.5,12);if(hw>=4&&b-a>3)K.plane('lineY',b-a-2,.15,(a+b)/2,z,.05,1);
         for(let t=a+2;t<b-2;t+=6)if(hw>5)for(const o of [-hw/2,hw/2])K.plane('lineW',3,.15,t,z+o,.05,1);});
       if(sw)for(const sd of [-1,1])K.cutSpans(x0,x1,on.map(([rx,,,h2,s2])=>[rx-h2-s2,rx+h2+s2])).forEach(([a,b])=>{if(b-a<1)return;
         K.plane('walk',b-a,sw,(a+b)/2,z+sd*(hw+sw/2),.121,4);K.box('curb',b-a,.18,.2,(a+b)/2,.09,z+sd*hw,0,4,4);});});
@@ -508,7 +509,7 @@ function mapKit(name,seed){
     if(![[0,0],[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2],[0,d/2],[0,-d/2]].every(([a,b])=>K.free(x+a*c+b*sn,z-a*sn+b*c,pad)))return false;
     return !K.ob.some(o=>{const dx=o.x-x,dz=o.z-z,r=(o.box?Math.min(o.hw,o.hd):o.r)+pad;return Math.abs(dx*c-dz*sn)<w/2+r&&Math.abs(dx*sn+dz*c)<d/2+r;});}; // 箱の点だけでなく、小さな物(車・信号)が箱の中に入っていないかも調べる
   K.mat=(name,tex,col,opt)=>{const m=new BABYLON.StandardMaterial('k_'+name,scene);if(tex)m.diffuseTexture=tex;m.diffuseColor=col||BABYLON.Color3.White();m.specularColor=new BABYLON.Color3(.05,.05,.05);if(opt)Object.assign(m,opt);return m;};
-  K.finish=(mats,flat)=>{const ground=[];for(const k in K.parts){const g=BABYLON.Mesh.MergeMeshes(K.parts[k],true,true);if(!g)continue;g.material=mats[k]||mats._default;g.parent=K.root;g.isPickable=false;g.metadata={occ:1};
+  K.finish=(mats,flat)=>{mats=Object.assign({manhole:K.mat('manhole',null,new BABYLON.Color3(.15,.15,.15),{zOffset:-4})},mats);const ground=[];for(const k in K.parts){const g=BABYLON.Mesh.MergeMeshes(K.parts[k],true,true);if(!g)continue;g.material=mats[k]||mats._default;g.parent=K.root;g.isPickable=false;g.metadata={occ:1};
     g.receiveShadows=true;if(flat&&flat.test(k))ground.push(g);else sg.addShadowCaster(g);g.freezeWorldMatrix();}K.pr.build(K.root,K.upd);K.root.setEnabled(false);return ground;};
   return K;
 }
@@ -670,6 +671,9 @@ function buildOldTown(){
   // ---- 街路: プラタナス・街灯・赤いバス・タクシー・郵便ポスト・電話ボックス ----
   for(let x=-E+8;x<E-8;x+=14){if(Math.abs(x-LD.bx)<10)continue;for(const sd of [-1,1]){const z=-20+sd*5.2;if(K.free(x,z,1.5)&&!onRoad(x,z,-1.5))K.prop(R()<.5?'plane_tree':'lamp_eu',x,0,z,R()*6.3,{s:.95});}}
   for(let z=-E+10;z<LD.r0-6;z+=13)for(const sd of [-1,1]){const x=LD.bx+sd*5.2;if(Math.abs(z+20)>8&&K.free(x,z,1))K.prop('lamp_eu',x,0,z,0,{s:1.15});}
+  for(const cx of [-30,70]){for(let i=0;i<7;i++)K.plane('lineW',.7,8,cx-4.2+i*1.4,-20,.06,1);                                                   // ゼブラ・クロッシング
+    for(const sd of [-1,1]){const z=-20+sd*5;for(let k=0;k<6;k++)K.cyl(k%2?'bwhite':'iron',.18,.18,.45,cx-5,.225+k*.45,z,8);const b=BABYLON.MeshBuilder.CreateSphere('bb',{diameter:.6,segments:8},scene);b.position.set(cx-5,2.9,z);K.add('beacon',b);K.circ(cx-5,z,.3,3);}}
+  for(let x=-E+6;x<E-6;x+=3.5){if(Math.abs(x-LD.bx)<8||Math.abs(x+30)<7||Math.abs(x-70)<7)continue;for(const sd of [-1,1]){const z=-20+sd*4.6;if(K.free(x,z,.5))K.cyl('iron',.24,.3,1,x,.5,z,8);}}   // 鋳鉄のボラード
   K.prop('dbus',LD.bx-2,0,-50,0);K.prop('dbus',LD.bx+2,0,-100,Math.PI);K.prop('dbus',80,0,-22,Math.PI/2);K.prop('dbus',-90,0,-18,-Math.PI/2);
   for(let i=0;i<8;i++){const x=-E+20+R()*(E*2-40),z=-20+(R()<.5?-2:2);if(Math.abs(x-LD.bx)>12&&K.free(x,z,3))K.prop('cab',x,0,z,z<-20?-Math.PI/2:Math.PI/2,{s:1.05});}
   [[-60,-24.6],[96,-24.6],[-120,-66],[140,-66]].forEach(([x,z],i)=>{K.prop('phone_booth',x+5,0,z,0);K.prop('pillar_box',x+7,0,z,0);});
@@ -684,7 +688,7 @@ function buildOldTown(){
     grass:MM('grass',grass,null,{zOffset:-1}),lineW:MM('lineW',null,new BABYLON.Color3(.92,.92,.9),{zOffset:-3}),lineY:MM('lineY',null,new BABYLON.Color3(.95,.8,.2),{zOffset:-3}),curb:MM('curb',CT.stone,new BABYLON.Color3(.85,.85,.83)),
     water:MM('water',null,new BABYLON.Color3(.25,.3,.28),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.92}),quay:MM('quay',ashlar,new BABYLON.Color3(.85,.82,.76)),
     stone:MM('stone',CT.stone),slate:MM('slate',slate),chim:MM('chim',null,new BABYLON.Color3(.55,.32,.24)),pot:MM('pot',null,new BABYLON.Color3(.7,.4,.28)),tol:MM('tol',ashlar,new BABYLON.Color3(.9,.88,.8)),
-    cannon:MM('cannon',null,new BABYLON.Color3(.1,.1,.1)),iron:MM('iron',null,new BABYLON.Color3(.1,.1,.1)),sandbag:MM('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75)),
+    cannon:MM('cannon',null,new BABYLON.Color3(.1,.1,.1)),bwhite:MM('bwhite',null,new BABYLON.Color3(.95,.95,.92)),beacon:MM('beacon',null,new BABYLON.Color3(1,.6,.1),{emissiveColor:new BABYLON.Color3(.9,.45,.05)}),iron:MM('iron',null,new BABYLON.Color3(.1,.1,.1)),sandbag:MM('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75)),
     ldwh:fcBump(MM('ldwh',whT.a),whT.n),ldshop:fcBump(MM('ldshop',shT.a),shT.n)};
   brT.forEach((t,i)=>mats['ldbr'+i]=fcBump(MM('ldbr'+i,t.a),t.n));
   const ground=K.finish(mats,/^(pave|asph|walk|stoneP|grass|lineW|lineY|water)$/);
@@ -746,6 +750,7 @@ function buildJapan(){
     if(hw>=4)K.plane('lineY',.15,z1-z0,x,(z0+z1)/2,.05,1);
     if(sw)for(const sd of [-1,1]){const cuts=RZ.filter(([rz,x0,x1])=>x>x0&&x<x1).map(([rz,,,h2,s2])=>[rz-h2-s2,rz+h2+s2]);
       cutSpans(z0,z1,cuts).forEach(([a,b])=>{if(b-a<1)return;K.plane('walk',sw,b-a,x+sd*(hw+sw/2),(a+b)/2,.12,4);K.box('curb',.2,.18,b-a,x+sd*hw,.09,(a+b)/2,0,4,4);});}});
+  RX.forEach(([x,z0,z1,hw])=>{for(let t=z0+14;t<z1-8;t+=27)K.cyl('manhole',.9,.9,.02,x+(R()<.5?-1:1)*hw*.5,.045,t,12);}); // マンホールの蓋
   RZ.forEach(([z,x0,x1,hw,sw])=>{const cuts=RX.filter(([rx,z0,z1])=>z>z0-1&&z<z1+1).map(([rx,,,h2,s2])=>[rx-h2-s2,rx+h2+s2]);
     cutSpans(x0,x1,RX.filter(([rx,z0,z1])=>z>z0-1&&z<z1+1).map(([rx,,,h2])=>[rx-h2,rx+h2])).forEach(([a,b])=>{K.plane('asph',b-a,hw*2,(a+b)/2,z,.025,10);if(hw>=4)K.plane('lineY',b-a-2,.15,(a+b)/2,z,.05,1);});
     if(sw)for(const sd of [-1,1])cutSpans(x0,x1,cuts).forEach(([a,b])=>{if(b-a<1)return;K.plane('walk',b-a,sw,(a+b)/2,z+sd*(hw+sw/2),.121,4);K.box('curb',b-a,.18,.2,(a+b)/2,.09,z+sd*hw,0,4,4);});});
@@ -793,9 +798,12 @@ function buildJapan(){
     if(R()<.6){const s=R()<.5?1:-1,c=Math.cos(ry),sn=Math.sin(ry),lx=s*(w/2-.4),lz=d/2+.5;K.sign('vs'+(R()*kanji.length|0),1,3.6,x+lx*c+lz*sn,4.6,z-lx*sn+lz*c,ry+Math.PI/2);}
     K.solid(x,z,w,d,H+1.8,ry);};
   const houseJ=(x,z,w,d,ry)=>{const v=R()*4|0;K.box('house'+v,w,5.6,d,x,2.8,z,ry,3.2,2.8);K.hip('kawara',w+1.2,d+1.2,2.2,x,5.6,z,ry);
+    {const [ax,az]=K.l2w(x,z,ry,w/2+.35,0);K.box('ac',.9,.65,.4,ax,.5,az,ry+Math.PI/2,4,4);const [tx,tz]=K.l2w(x,z,ry,-w*.2,0);K.cyl('pole2',.05,.05,1.6,tx,8.5,tz,4);K.box('pole2',1.2,.04,.04,tx,9,tz,ry,4,4);K.box('pole2',.8,.04,.04,tx,8.7,tz,ry,4,4);} // 室外機とテレビのアンテナ
     const lw=w+3,ld=d+3,c=Math.cos(ry),sn=Math.sin(ry);for(const [a,b,ww,dd] of [[0,-ld/2,lw,.15],[-lw/2,0,.15,ld],[lw/2,0,.15,ld]])K.box('block',ww,1.2,dd,x+a*c+b*sn,.6,z-a*sn+b*c,ry,4,4);
     K.solid(x,z,w+.4,d+.4,7.8,ry);};
-  const mansion=(x,z,w,d,F,ry)=>{const H=F*3,v=R()*3|0;K.box('man'+v,w,H,d,x,H/2,z,ry,3.2,3);K.box('conc',w+.3,.4,d+.3,x,H+.2,z,ry,4,4);K.solid(x,z,w,d,H+.6,ry);};
+  const mansion=(x,z,w,d,F,ry)=>{const H=F*3,v=R()*3|0;K.box('man'+v,w,H,d,x,H/2,z,ry,3.2,3);K.box('conc',w+.3,.4,d+.3,x,H+.2,z,ry,4,4);
+    {const [tx,tz]=K.l2w(x,z,ry,w*.25,0);K.box('conc',2.6,1.2,2.6,tx,H+1,tz,ry,4,4);K.cyl('tankW',2.2,2.2,1.8,tx,H+2.5,tz,12);}                               // 屋上の貯水タンク
+    for(let k=0;k<Math.min(6,w/3|0);k++){const [ax,az]=K.l2w(x,z,ry,-w/2+1.6+k*3,-d/2+.9);K.box('ac',1.1,.8,.6,ax,H+.8,az,ry,4,4);}K.solid(x,z,w,d,H+.6,ry);};      // 室外機
   const hotel=(x,z,len,dep,F)=>{mansion(x,z,len,dep,F,Math.PI/2);K.sign('lbl_hotel',8,1.8,x+dep/2+.08,F*3-1.5,z,-Math.PI/2);};   // 海に面したホテル(南北に長い)
   const L2W=(x,z,ry,a,b)=>[x+a*Math.cos(ry)+b*Math.sin(ry),z-a*Math.sin(ry)+b*Math.cos(ry)];   // 建物のローカル座標→世界
   const konbiniB=(x,z,ry)=>{const [fx,fz]=fac(x,z,ry);K.box('white',16,4.6,11,x,2.3,z,ry,4,4);K.sign('kon',15,5.6,x+fx*5.56,2.8,z+fz*5.56,ry+Math.PI);K.sign('konS',16.2,1.4,x+fx*5.6,4.2,z+fz*5.6,ry+Math.PI);
@@ -833,7 +841,7 @@ function buildJapan(){
     block:MM('block',lot,new BABYLON.Color3(.95,.95,.92)),white:MM('white',null,new BABYLON.Color3(.94,.94,.92)),kon:MM('kon',konbini,null,{emissiveColor:new BABYLON.Color3(.25,.25,.25)}),konS:MM('konS',konSign,null,{emissiveColor:new BABYLON.Color3(.35,.35,.35)}),
     glassJ:MM('glassJ',null,new BABYLON.Color3(.12,.16,.2)),stoneS:MM('stoneS',lot,new BABYLON.Color3(.9,.88,.84)),shrineB:MM('shrineB',T.bark,new BABYLON.Color3(.8,.62,.45)),
     hut:MM('hut',T.bark,new BABYLON.Color3(.85,.72,.55)),roofB:MM('roofB',null,new BABYLON.Color3(.25,.42,.62)),market:MM('market',lot,new BABYLON.Color3(1.1,1.1,1.08)),roofBlue:MM('roofBlue',null,new BABYLON.Color3(.2,.38,.62)),
-    mall:MM('mall',null,new BABYLON.Color3(.92,.9,.85)),wood:MM('wood',T.bark,new BABYLON.Color3(.75,.6,.45)),oashop:fcBump(MM('oashop',shopT.a),shopT.n),oaold:fcBump(MM('oaold',oldT.a),oldT.n),
+    mall:MM('mall',null,new BABYLON.Color3(.92,.9,.85)),tankW:MM('tankW',null,new BABYLON.Color3(.88,.88,.85)),pole2:MM('pole2',null,new BABYLON.Color3(.55,.55,.56)),wood:MM('wood',T.bark,new BABYLON.Color3(.75,.6,.45)),oashop:fcBump(MM('oashop',shopT.a),shopT.n),oaold:fcBump(MM('oaold',oldT.a),oldT.n),
     lbl_market:MM('lbl_market',label('大洗 海鮮市場','#1a3a8a','#ffffff',384),null,{emissiveColor:new BABYLON.Color3(.3,.3,.3)}),lbl_station:MM('lbl_station',label('大洗駅','#ffffff','#1a3a6a'),null,{emissiveColor:new BABYLON.Color3(.3,.3,.3)}),
     lbl_hotel:MM('lbl_hotel',label('HOTEL','#f4f0e6','#1a3a6a'),null,{emissiveColor:new BABYLON.Color3(.25,.25,.25)}),lbl_town:MM('lbl_town',label('大洗町役場','#f4f4f0','#2a2a2a'),null,{})};
   offT.forEach((t,i)=>mats['off'+i]=fcBump(MM('off'+i,t.a),t.n));manT.forEach((t,i)=>mats['man'+i]=fcBump(MM('man'+i,t.a),t.n));houseT.forEach((t,i)=>mats['house'+i]=fcBump(MM('house'+i,t.a),t.n));
@@ -922,7 +930,7 @@ function buildCity(){
   // ---- 街区(軒の高さのそろった中庭型): 外周に建物、通りに正面 ----
   const bld=(x,z,w,d,ry,kind)=>{const v=R()*3|0;let H;
     if(kind==='mod'){H=4+5*3.4;K.box('blshop',w,4,d,x,2,z,ry,3.2,4);K.box('blmod',w,5*3.4,d,x,4+2.5*3.4,z,ry,3.2,3.4);K.box('stone',w+.2,.5,d+.2,x,H+.25,z,ry,4,4);K.box('stone',w-3,3,d-3,x,H+1.5,z,ry,4,4);H+=3;}
-    else{const F=4;H=4+F*3.2;K.box('blshop',w,4,d,x,2,z,ry,3.2,4);K.box('bla'+v,w,F*3.2,d,x,4+F*1.6,z,ry,3.2,3.2);K.box('stone',w+.5,.55,d+.5,x,H+.27,z,ry,4,4);K.hip('slate',w+.2,d+.2,3.4,x,H+.5,z,ry);H+=3.9;
+    else{const F=4;H=4+F*3.2;K.box('blshop',w,4,d,x,2,z,ry,3.2,4);K.box('bla'+v,w,F*3.2,d,x,4+F*1.6,z,ry,3.2,3.2);K.box('stone',w+.5,.55,d+.5,x,H+.27,z,ry,4,4);K.hip('slate',w+.2,d+.2,3.4,x,H+.5,z,ry);for(let k=0;k<Math.floor(w/4.5);k++){const [dx,dz]=K.l2w(x,z,ry,-w/2+2.6+k*4.5,d/2-1.4);K.box('stone',1.4,1.6,1.4,dx,H+1.3,dz,ry,4,4);K.box('glassB',1,1,.1,...K.l2w(x,z,ry,-w/2+2.6+k*4.5,d/2-.68).slice(0,1),H+1.3,K.l2w(x,z,ry,-w/2+2.6+k*4.5,d/2-.68)[1],ry,4,4);K.gable('slate',1.6,1.6,.7,dx,H+2.1,dz,ry,.1,.1);}H+=3.9; // ドーマー窓
       if(R()<.5){const [cx,cz]=K.l2w(x,z,ry,(R()-.5)*w*.6,(R()-.5)*d*.4);K.box('stone',.8,1.6,.8,cx,H-.8,cz,ry,4,4);}}
     K.solid(x,z,w,d,H,ry);};
   const row=(a0,a1,fixed,alongX,ry,dep,kind)=>{let p=a0;while(p<a1-6){let w=Math.min(a1-p,10+R()*8);if(a1-p-w<7)w=a1-p;const c=p+w/2;
@@ -959,7 +967,7 @@ function buildCity(){
     curb:MM('curb',CT.stone,new BABYLON.Color3(.9,.9,.88)),stone:MM('stone',CT.stone),water:MM('water',null,new BABYLON.Color3(.2,.3,.32),{specularColor:new BABYLON.Color3(.9,.9,.9),specularPower:96,alpha:.92}),
     quay:MM('quay',CT.stone,new BABYLON.Color3(.8,.78,.74)),slate:MM('slate',slate,null,{backFaceCulling:false}),blshop:fcBump(MM('blshop',blS.a),blS.n),blmod:fcBump(MM('blmod',blM.a),blM.n),ldbr:fcBump(MM('ldbr',brk.a),brk.n),
     off0:fcBump(MM('off0',fcTex('jp_o0').a),fcTex('jp_o0').n),off1:fcBump(MM('off1',fcTex('jp_o2').a),fcTex('jp_o2').n),conc:MM('conc',CT.stone,new BABYLON.Color3(.85,.85,.84)),
-    iron:MM('iron',null,new BABYLON.Color3(.12,.12,.12)),concrete:MM('concrete',CT.stone,new BABYLON.Color3(.85,.85,.82)),sandbag:MM('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75))};
+    glassB:MM('glassB',null,new BABYLON.Color3(.18,.22,.26)),iron:MM('iron',null,new BABYLON.Color3(.12,.12,.12)),concrete:MM('concrete',CT.stone,new BABYLON.Color3(.85,.85,.82)),sandbag:MM('sandbag',CT.flat,new BABYLON.Color3(1.2,1.05,.75))};
   blA.forEach((t,i)=>mats['bla'+i]=fcBump(MM('bla'+i,t.a),t.n));
   const ground=K.finish(mats,/^(pave|asph|walk|cobble|gravel|grass|lineW|lineY|water)$/);
   outerRing(K,new BABYLON.Color3(.45,.46,.47),CT.pave,60);
