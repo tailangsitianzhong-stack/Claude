@@ -14,13 +14,15 @@
 import os, sys, math, json, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import prop_models as pm
+import bpy, bmesh
+from tank_models import G
 from prop_models import P, PAL, prop, car_body, build
 BEFORE = set(P)
 
 PAL.update({
   'sandst': ((.8, .74, .6), 'paint'), 'sandstD': ((.66, .6, .48), 'paint'), 'copper': ((.37, .6, .5), 'metal'), 'portland': ((.84, .81, .74), 'paint'),
   'tbblue': ((.5, .7, .82), 'paint'), 'lead': ((.42, .44, .46), 'metal'), 'gold': ((.85, .68, .3), 'metal'), 'busred': ((.78, .1, .1), 'paint'),
-  'khaki': ((.6, .55, .4), 'paint'), 'tanD': ((.55, .5, .36), 'paint'), 'cypress': ((.13, .22, .12), 'leaf'), 'olive': ((.47, .53, .38), 'leaf'),
+  'khakiD': ((.42, .4, .28), 'paint'), 'mud': ((.3, .24, .18), 'paint'), 'khaki': ((.6, .55, .4), 'paint'), 'tanD': ((.55, .5, .36), 'paint'), 'cypress': ((.13, .22, .12), 'leaf'), 'olive': ((.47, .53, .38), 'leaf'),
   'pineU': ((.2, .32, .16), 'leaf'), 'terra': ((.7, .38, .24), 'paint'), 'tuffo': ((.78, .68, .52), 'paint'), 'trav': ((.86, .82, .72), 'paint'),
   'navy': ((.1, .22, .5), 'paint'), 'rockD': ((.26, .25, .24), 'paint'), 'stoneG': ((.6, .6, .58), 'paint'), 'pineJ': ((.15, .3, .16), 'leaf'),
   'camel': ((.72, .56, .36), 'paint'), 'tvsil': ((.72, .74, .76), 'metal'), 'trabiB': ((.55, .7, .78), 'paint'), 'trabiC': ((.88, .84, .7), 'paint'),
@@ -51,7 +53,7 @@ def _(k):
         a = i * 2 * math.pi / 3 + math.pi / 2; k.box('main', 'grey', .3, 36, .3, math.cos(a) * 3.7, 23, math.sin(a) * 3.7, bev=0)
     k.cyl('main', 'white', 10.5, 2.0, 0, 41.5, 0, 'y', 3, .1)
     k.cyl('main', 'glass', 10.9, 4.2, 0, 44.6, 0, 'y', 3, .02)                       # 展望室のガラス
-    for i in range(12): a = i * 2 * math.pi / 12; k.box('main', 'white', .2, 4.2, .2, math.cos(a) * 3.2, 44.6, math.sin(a) * 3.2, bev=0)
+    for i in range(12): a = i * 2 * math.pi / 12; k.box('main', 'white', .2, 4.3, .2, math.cos(a) * 2.4, 44.6, math.sin(a) * 2.4, bev=0)
     k.cyl('main', 'white', 10.6, 1.0, 0, 47.2, 0, 'y', 3, .08)
     k.prism('main', 'white', [(-4.5, 47.6), (4.5, 47.6), (4.5, 49.0), (-4.5, 52.5)], -2.8, 2.8, 'x', .05, 1)   # 斜めの頂部
     k.cyl('main', 'grey', .25, 5, 0, 54, -2, 'y', 6, 0)
@@ -100,6 +102,7 @@ def _(k):
     k.box('main', 'shrineW', 12, 3.8, 7.6, 0, 3.1, 0, bev=.02); k.box('main', 'white', 11.6, .8, 7.8, 0, 4.6, 0, bev=0)
     for x in (-4.5, -1.5, 1.5, 4.5): k.box('main', 'black', 2.4, 2.6, .1, x, 2.6, 3.86, bev=0)   # 格子戸
     k.box('main', 'shrineW', 13, .4, 9, 0, 5.85, 0, bev=.02)
+    k.box('main', 'shrineW', W - .2, 1.6, D - .2, 0, 6.8, 0, bev=.03)                                      # 組物(屋根を受ける)
     irimoya(k, 'lead', W + .5, D + .5, 6.0, 4.0, 1.2)
     k.box('main', 'shrineW', 5, .3, 3, 0, 5.4, 5.6, bev=.02)                              # 向拝
     for x in (-2.2, 2.2): k.cyl('main', 'shrineW', .35, 4.2, x, 3.3, 6.8, 'y', 8, 0)
@@ -115,6 +118,7 @@ def _(k):
         for z in (-1.2, 1.2): k.cyl('main', 'shrineW', .4, 4.2, x, 2.1, z, 'y', 8, 0)
     for x in (-3, 3): k.box('main', 'shrineW', 1.6, 3.6, 2.2, x * .72, 1.9, 0, bev=.02)
     k.box('main', 'shrineW', 7.4, .4, 3.2, 0, 4.4, 0, bev=.02)
+    k.box('main', 'shrineW', 6.8, 1.0, 2.8, 0, 5.05, 0, bev=.03)                              # 組物(屋根を受ける)
     irimoya(k, 'lead', 7, 3, 4.6, 2.8, .9)
     return dict(boxes=[[-2.2, 0, 2, 2.6, 6], [2.2, 0, 2, 2.6, 6]])
 
@@ -131,7 +135,7 @@ def _(k):
         k.box('main', 'white', B - 1 - d * .6, 3, l, 0, y + 1.5, -6 + d * 3, bev=.15)
         for sx in (-1, 1):
             k.box('main', 'glass', .1, 1.1, l - 4, sx * ((B - 1 - d * .6) / 2 + .02), y + 1.7, -6 + d * 3, bev=0)
-    k.box('main', 'glass', B - 3.2, 1.3, .1, 0, 16.8, 25.5, bev=0)
+    k.box('main', 'glass', B - 3.2, 1.3, .1, 0, 16.8, 27.02, bev=0)
     k.box('main', 'white', B + 2, .8, 4, 0, 17, 22, bev=.1)                              # ブリッジの張り出し
     k.prism('main', 'white', [(-20, 18), (-12, 18), (-13, 25), (-19, 25)], -2, 2, 'x', .2, 2)  # 煙突
     k.box('main', 'navy', 4.1, 1.8, 6.4, 0, 23, -16, bev=0)
@@ -145,7 +149,7 @@ def _(k):
     k.prism('main', 'white', [(-L / 2, -.8), (L / 2 - 2, -.8), (L / 2, .4), (L / 2 + .6, 1.6), (-L / 2, 1.4)], -B / 2, B / 2, 'x', .12, 2)
     k.box('main', 'blue', B + .05, .3, L - 1, 0, .6, 0, bev=.05)
     k.box('main', 'white', 2.4, 2, 2.6, 0, 2.4, -1.5, bev=.08); k.box('main', 'glass', 2.42, .6, 2.4, 0, 2.9, -1.5, bev=0)
-    k.cyl('main', 'white', .14, 4.5, 0, 4, .8, 'y', 6, 0); k.box('main', 'white', 2.4, .08, .08, 0, 5.4, .8, bev=0)
+    k.cyl('main', 'white', .14, 5.1, 0, 3.7, .8, 'y', 6, 0); k.box('main', 'white', 2.4, .08, .08, 0, 5.4, .8, bev=0)
     for i in range(5): k.cyl('main', 'lampOff', .3, .4, 0, 4.2, -3.6 + i * 1.7, 'y', 8, 0)
     k.tube('main', 'iron', [(0, 4.2, -4.0), (0, 4.2, 3.2)], .02)
     return dict(box=[B, L, 3], ground=-.6)
@@ -154,7 +158,7 @@ def _(k):
 def _(k):
     rnd = random.Random(5)
     for i in range(7):
-        x, z = (i % 4) * 2.2 - 3.3 + rnd.uniform(-.3, .3), (i // 4) * 2.2 - 1 + rnd.uniform(-.3, .3); y = .7 + (i // 4) * .2
+        x, z = (i % 4) * 2.2 - 3.3 + rnd.uniform(-.3, .3), (i // 4) * 1.5 - 1 + rnd.uniform(-.2, .2); y = .7 + (i // 4) * .75   # 2段目は1段目の脚にかみ合わせて載せる
         for (dx, dy, dz) in ((0, 1, 0), (.94, -.33, 0), (-.47, -.33, .82), (-.47, -.33, -.82)):
             a = rnd.random() * 6.28
             k.cyl('main', 'conc', .9, 1.4, x + dx * .6, y + dy * .6, z + dz * .6, (dx * math.cos(a) - dz * math.sin(a), dy, dx * math.sin(a) + dz * math.cos(a)), 8, .02, d2=.5)
@@ -192,15 +196,17 @@ def _(k):
     k.box('main', 'sandst', W + 2, .5, D + 1.4, 0, 15.15, 0, bev=.05)                   # コーニス
     k.box('main', 'sandst', W * .62, 3.4, D * .9, 0, 17.1, 0, bev=.05)                  # アッティカ
     k.box('main', 'sandstD', W * .5, 2.0, .2, 0, 17.0, D * .45 + .1, bev=0); k.box('main', 'sandstD', W * .5, 2.0, .2, 0, 17.0, -D * .45 - .1, bev=0)
-    for st in range(3): k.box('main', 'sandst', W * .28 - st * 1.2, .6, D * .7 - st * .5, 0, 19.1 + st * .6, 0, bev=.04)   # 階段状の台座
+    for st in range(3): k.box('main', 'sandst', W * .28 - st * 1.2, .6, D * .98 - st * .4, 0, 19.1 + st * .6, 0, bev=.04)   # 階段状の台座
     # クアドリガ: 4頭の馬と戦車と女神(勝利の女神ヴィクトリア)
     y = 20.6
     for i, x in enumerate((-2.4, -.8, .8, 2.4)):
         k.blob('main', 'copper', .75, x, y + 1.3, -.4, sy=.7, sub=2, rough=.08, seed=i)   # 胴
-        k.box('main', 'copper', .35, 1.3, .5, x, y + 2.3, .6, pitch=.5, bev=.1)        # 首
-        k.box('main', 'copper', .3, .4, .7, x, y + 2.9, 1.0, bev=.1)                    # 頭
-        for (lx, lz, p) in ((-.2, .4, -.4), (.2, .4, .3), (-.2, -1.0, .2), (.2, -1.0, -.2)): k.box('main', 'copper', .16, 1.3, .16, x + lx, y + .55, lz, pitch=p, bev=0)
+        k.box('main', 'copper', .35, 1.3, .5, x, y + 1.95, .18, pitch=.5, bev=.1)      # 首(胴の前に付ける)
+        k.box('main', 'copper', .3, .4, .7, x, y + 2.5, .55, bev=.1)                     # 頭(首の先)
+        for (lx, lz, p) in ((-.2, .4, -.4), (.2, .4, .3), (-.2, -1.0, .2), (.2, -1.0, -.2)): k.box('main', 'copper', .16, 1.5, .16, x + lx, y + .62, lz, pitch=p * .6, bev=0)
     k.box('main', 'copper', 2.2, 1.2, 1.2, 0, y + 1.2, -2.3, bev=.2)                    # 戦車
+    for sx in (-1, 1): k.cyl('main', 'copper', 1.4, .14, sx * 1.15, y + .7, -2.3, 'x', 14, .02)   # 戦車の車輪(台座に接地)
+    k.box('main', 'copper', .2, .2, 2.2, 0, y + .8, -1.0, bev=.02)                     # 馬と戦車をつなぐ轅
     k.cyl('main', 'copper', .5, 3, 0, y + 3.2, -2.5, 'y', 8, 0)                          # 女神
     k.blob('main', 'copper', .3, 0, y + 4.9, -2.5, sub=1, rough=0)
     k.tube('main', 'copper', [(.3, y + 3.6, -2.5), (.6, y + 6.2, -2.1)], .08); k.box('main', 'copper', .9, .9, .15, .6, y + 6.4, -2.1, bev=.05)  # 杖と鷲の飾り
@@ -282,7 +288,7 @@ def _(k):
             for sz in (-1, 1):
                 k.box('main', 'portland', 2.6, 34, 2.6, sx * 5.7, 17, zc + sz * 4.4, bev=.05)  # 四隅の小塔
                 k.cyl('main', 'lead', 3.4, 6, sx * 5.7, 37, zc + sz * 4.4, 'y', 8, .02, d2=0)  # 尖塔
-                k.cyl('main', 'gold', .2, 1.5, sx * 5.7, 40.6, zc + sz * 4.4, 'y', 4, 0)
+                k.cyl('main', 'gold', .2, 1.6, sx * 5.7, 40.55, zc + sz * 4.4, 'y', 4, 0)
         k.box('main', 'portland', 10, 25, 7, 0, 21.5, zc, bev=.05)                       # 塔の本体(道路の上)
         k.cyl('main', 'lead', 9, 7, 0, 37.5, zc, 'y', 4, .02, d2=0)                       # 中央の尖った屋根
         for fl in range(4):
@@ -360,7 +366,7 @@ def _(k):
 @prop('cab')
 def _(k):
     car_body(k, 3.4, 1.35, 1.38, 'black', kei=False)
-    k.box('main', 'lampY', .5, .12, .3, 0, 1.42, .3, bev=.03)                             # TAXI の灯り
+    k.box('main', 'lampY', .5, .24, .3, 0, 1.38, .3, bev=.03)                             # TAXI の灯り
     return dict(box=[1.4, 3.5, 1.45])
 
 @prop('pillar_box')
@@ -390,7 +396,7 @@ def _(k):
         for z in (-5, 5): k.cyl('main', 'white', .9, 7.6, x, 3.8, z, 'y', 12, .02)
     for x in (-10, 0, 10):
         k.box('main', 'cream', 2.2, 2.8, 4.5, x, 1.6, 0, bev=.08); k.box('main', 'glass', 2.25, 1.0, 4.0, x, 2.1, 0, bev=0); k.box('main', 'conc', 2.6, .2, 9, x, .1, 0, bev=.02)
-        for sz in (-1, 1): k.box('main', 'white', 4.2, .14, .14, x + 3.2, 1.1, sz * 3.6, bev=0)
+        for sz in (-1, 1): k.box('main', 'white', 4.2, .14, .14, x + 3.2, 1.1, sz * 3.6, bev=0); k.box('main', 'red', .4, 1.2, .4, x + 1.05, .6, sz * 3.6, bev=.03)   # 遮断機の棒と支柱
     for x in (-15, 15):
         for i in range(4): k.box('main', 'lampW', 3, .1, .8, x * .5 + (i - 1.5) * 6, 7.45, 0, bev=0)
     return dict(boxes=[[x, z, 1, 1, 8] for x in (-15, -5, 5, 15) for z in (-5, 5)] + [[x, 0, 2.6, 9, 3] for x in (-10, 0, 10)])
@@ -407,16 +413,48 @@ def _(k):
 
 @prop('t72_wreck')
 def _(k):
-    """T-72 の残骸(焼けて錆びた車体・吹き飛んだ砲塔が横に落ちている・外れた履帯)"""
-    k.prism('main', 'rust', [(-3.4, .45), (2.8, .45), (3.4, 1.0), (2.6, 1.5), (-3.4, 1.6)], -1.45, 1.45, 'x', .06, 1)
+    """T-72 の残骸(資料: 車体長6.95m・泥よけ込み幅3.46m・車体は溶接、砲塔は鋳造。片側に大型転輪6個・上部転輪3個・
+    起動輪は後ろ・誘導輪は前。側面にゴムのスカート。後部に予備燃料ドラム)。1unit=1.3mで 長さ5.35・幅2.66。
+    砲塔は弾薬の誘爆で吹き飛び、車体の横に落ちている(湾岸戦争などの写真に多い姿)"""
+    L2 = 2.67
+    k.prism('main', 'rust', [(-L2, .36), (2.2, .36), (L2, .78), (1.5, 1.08), (-2.55, 1.08), (-L2, .95)], -1.0, 1.0, 'x', .04, 1)   # 車体(下部の前面・長い上部前面)
+    k.box('main', 'burnt', 1.95, .03, 2.2, 0, 1.09, -1.3, bev=0)                                     # 機関室の上面(焼け跡)
+    for i in range(5): k.box('main', 'iron', 1.5, .05, .1, 0, 1.11, -.6 - i * .32, bev=0)            # 機関室のグリル
+    k.cyl('main', 'iron', 1.62, .06, 0, 1.1, .35, 'y', 24, 0)                                        # 砲塔リングの穴(焼けて黒い)
+    k.lathe('main', 'rust', [(.81, 1.08), (.86, 1.08), (.86, 1.18), (.81, 1.18)], 0, 0, .35, 24)     # 砲塔リングの縁
     for sx in (-1, 1):
-        k.box('main', 'burnt', .55, .8, 6.6, sx * 1.65, .55, 0, bev=.1)
-        for i in range(6): k.cyl('main', 'iron', .78, .45, sx * 1.65, .42, -2.6 + i * 1.04, 'x', 12, .02)
-    k.box('main', 'burnt', 1.2, .4, 1.2, 0, 1.75, -.4, bev=.1)                              # 砲塔の跡のリング
-    k.lathe('main', 'rust', [(0, 0), (1.5, 0), (1.45, .4), (1.1, .8), (0, .9)], 3.2, .0, -3.0, 14)   # 落ちた砲塔
-    k.cyl('main', 'rust', .2, 5, 3.0, .35, -.2, (-.4, .05, 1), 8, 0)
-    k.box('main', 'burnt', .5, .12, 3.5, -2.6, .06, 2.6, yaw=.6, bev=0)                     # 外れた履帯
-    return dict(boxes=[[0, 0, 3.6, 6.8, 2], [3.2, -3.0, 3, 3, 1]])
+        k.box('main', 'rust', .34, .04, 5.2, sx * 1.17, 1.06, -.05, bev=.01)                         # 泥よけ
+        k.box('main', 'rust', .34, .25, .04, sx * 1.17, .95, 2.56, bev=0)                            # 前の泥はね板
+        for i in range(6):                                                                            # 大型転輪(二重)
+            z = 1.9 - i * .76
+            for dx in (-.11, .11): k.cyl('main', 'iron', .58, .08, sx * (1.0 + dx), .31, z, 'x', 16, .01)
+            k.cyl('main', 'rust', .14, .32, sx * 1.0, .31, z, 'x', 8, 0)                             # 転輪のハブ
+            k.box('main', 'burnt', .1, .4, .1, sx * .92, .48, z, pitch=.3, bev=0)                     # サスペンションアーム
+        for z in (1.15, .0, -1.15): k.cyl('main', 'iron', .18, .1, sx * 1.0, .82, z, 'x', 10, 0)    # 上部転輪
+        k.cyl('main', 'iron', .5, .3, sx * 1.0, .44, -2.42, 'x', 12, .01)                             # 起動輪(後)
+        for j in range(12): a = j * math.pi / 6; k.box('main', 'iron', .3, .08, .08, sx * 1.0, .44 + math.sin(a) * .27, -2.42 + math.cos(a) * .27, bev=0)   # 起動輪の歯
+        k.cyl('main', 'iron', .46, .26, sx * 1.0, .42, 2.33, 'x', 12, .01)                            # 誘導輪(前)
+        if sx < 0:                                                                                      # 左の履帯は残っている(下と上の走行部)
+            for i in range(32): k.box('main', 'iron', .46, .05, .13, sx * 1.0, .03, -2.3 + i * .148, bev=0)
+            for i in range(30): k.box('main', 'iron', .46, .05, .13, sx * 1.0, .9, -2.2 + i * .148, bev=0)
+        for i, z in enumerate((1.6, .5, -.6)):                                                         # 残ったゴムのスカート(一部は外れている)
+            if sx > 0 and i == 1: continue
+            k.box('main', 'black', .03, .5, 1.0, sx * 1.34, .82, z, roll=sx * .08, bev=0)
+    for i in range(36): k.box('main', 'iron', .46, .05, .13, 1.85 + i * .012, .03, 1.3 - i * .14, yaw=.25, bev=0)   # 外れて地面に伸びた右の履帯
+    for sx in (-1, 1): k.cyl('main', 'burnt', .5, 1.0, sx * .55, .9, -2.85, 'x', 12, .01)            # 後部の予備燃料ドラム
+    k.box('main', 'rust', 1.9, .1, .2, 0, .78, -2.7, bev=0)                                           # ドラムの架台
+    k.cyl('main', 'woodD', .26, 2.3, 0, 1.2, -2.6, 'x', 8, 0)                                         # 自己脱出用の丸太
+    for i in range(3): k.box('main', 'rust', .3, .32, .5, 1.17, 1.24, -.3 - i * .6, bev=.02)          # 右の泥よけの外部燃料タンク
+    k.box('main', 'burnt', .9, .03, .3, 0, .975, 1.95, pitch=-.25, bev=0)                              # 上部前面の泥よけ板(波よけ)
+    # 吹き飛んで車体の横に落ちた砲塔(鋳造の丸い砲塔・125mm砲・車長キューポラ)
+    tx, tz = 2.85, -2.1
+    k.lathe('main', 'rust', [(0, .0), (1.12, .0), (1.08, .22), (.9, .52), (.5, .68), (0, .7)], tx, .0, tz, 20)
+    k.cyl('main', 'rust', .26, 4.6, tx + .2, .2, tz + 2.6, (.12, .02, 1), 10, 0, d2=.2)                # 砲身(先が地面につく)
+    k.cyl('main', 'rust', .34, .9, tx + .11, .21, tz + 1.4, (.12, .02, 1), 10, 0)                       # 排煙器
+    k.cyl('main', 'rust', .5, .25, tx - .45, .05, tz - .3, 'y', 12, 0)                                  # 車長キューポラ
+    for i in range(4): a = 2.2 + i * .2; k.cyl('main', 'iron', .09, .34, tx + math.cos(a) * 1.04, .3, tz + math.sin(a) * 1.04, (math.cos(a), .35, math.sin(a)), 6, 0)   # 発煙弾発射機(砲塔の側面)
+    k.box('main', 'iron', .25, .2, .3, tx + .55, .12, tz + .5, bev=.02)                                # 赤外線投光器
+    return dict(boxes=[[0, 0, 2.8, 5.8, 1.9], [tx, tz, 2.4, 2.4, 1.0], [tx + .5, tz + 2.6, .6, 4.4, .6]])
 
 @prop('truck_mil')
 def _(k):
@@ -426,7 +464,9 @@ def _(k):
     k.box('main', 'burnt', 2.4, .3, 5.2, 0, 1.25, -1.2, bev=.03)
     for sx in (-1, 1): k.box('main', 'khaki', .08, .7, 5.2, sx * 1.18, 1.75, -1.2, bev=0)
     for i in range(4): k.tube('main', 'iron', [(-1.15, 2.1, -3.4 + i * 1.5), (-1.0, 3.3, -3.4 + i * 1.5), (1.0, 3.3, -3.4 + i * 1.5), (1.15, 2.1, -3.4 + i * 1.5)], .04)
+    for sx in (-1, 1): k.box('main', 'burnt', .22, .4, 7.4, sx * .5, .95, .3, bev=.02)        # 車台
     for z in (3.0, -1.0, -2.6):
+        k.cyl('main', 'iron', .18, 2.0, 0, .5, z, 'x', 8, 0)                               # 車軸
         for sx in (-1, 1): k.wheel('main', sx * 1.0, .5, z, 1.0, .35, 'rust')
     return dict(box=[2.5, 8, 3])
 
@@ -435,7 +475,7 @@ def _(k):
     """油井の坑口装置(クリスマスツリー): 弁と配管・コンクリートの台・柵"""
     k.box('main', 'conc', 4, .3, 4, 0, .15, 0, bev=.03)
     k.cyl('main', 'yellow', .6, 2.4, 0, 1.5, 0, 'y', 10, .02)
-    for y in (1.0, 1.8, 2.5): k.cyl('main', 'red', .9, .25, 0, y, 0, 'y', 12, .02); k.torus('main', 'red', .35, .05, .5, y, 0, 'x', 10, 4)
+    for y in (1.0, 1.8, 2.5): k.cyl('main', 'red', .9, .25, 0, y, 0, 'y', 12, .02); k.torus('main', 'red', .35, .05, .5, y, 0, 'x', 10, 4); k.cyl('main', 'steel', .08, .5, .3, y, 0, 'x', 6, 0); k.box('main', 'red', .05, .7, .06, .5, y, 0, bev=0); k.box('main', 'red', .05, .06, .7, .5, y, 0, bev=0)   # 軸とハンドルの十字
     k.cyl('main', 'yellow', .4, 2.4, 1.2, 1.8, 0, 'x', 8, 0); k.cyl('main', 'steel', .4, 4, 3.2, 1.8, 0, 'x', 8, 0)
     for (x, z) in ((-2, -2), (2, -2), (-2, 2), (2, 2)): k.cyl('main', 'steel', .08, 1.2, x * 1.1, .6, z * 1.1, 'y', 4, 0)
     for (a, b) in (((-2.2, -2.2), (2.2, -2.2)), ((2.2, -2.2), (2.2, 2.2)), ((2.2, 2.2), (-2.2, 2.2)), ((-2.2, 2.2), (-2.2, -2.2))):
@@ -472,9 +512,9 @@ def _(k):
     for sx in (-1, 1): k.cyl('main', 'steel', .5, 7.5, sx * 14, 3.75, 0, 'y', 8, 0)
     for y in (6.8, 7.6): k.box('main', 'steel', 28.4, .25, .25, 0, y, 0, bev=0)
     for x in (-8, 6):
-        k.box('main', 'signG', 9, 2.6, .1, x, 7.2, .2, bev=0)
-        for i in range(3): k.box('main', 'white', 6 - i * 1.2, .18, .02, x - .6, 7.9 - i * .55, .26, bev=0)
-        k.box('main', 'white', .9, .9, .02, x + 3.4, 7.2, .26, bev=0)
+        k.box('main', 'signG', 9, 2.6, .1, x, 7.2, .17, bev=0)
+        for i in range(3): k.box('main', 'white', 6 - i * 1.2, .18, .02, x - .6, 7.9 - i * .55, .23, bev=0)
+        k.box('main', 'white', .9, .9, .02, x + 3.4, 7.2, .23, bev=0)
     return dict(circles=[[-14, 0, .4, 7.5], [14, 0, .4, 7.5]])
 
 # ================================================================ オルチャ渓谷(トスカーナ)
@@ -562,9 +602,10 @@ def _(k):
     k.box('main', 'grey', 6, 3, 30, 0, 4.2, 0, bev=.1)
     k.box('main', 'grey', 5, 4, 7, 0, 7.6, 10, bev=.08); k.box('main', 'grey', 6, 1.4, 4, 0, 10.2, 11, bev=.06); k.box('main', 'glass', 6.05, .6, 3.4, 0, 10.4, 11, bev=0)
     for z in (2, -6): k.cyl('main', 'grey', 2.6, 6, 0, 8.6, z, 'y', 14, .05, d2=2.3); k.cyl('main', 'black', 2.4, .4, 0, 11.6, z, 'y', 14, 0)
-    k.tube('main', 'grey', [(0, 9, 12), (0, 20, 11.5)], .25); k.tube('main', 'grey', [(0, 8, -9), (0, 17, -9.5)], .2)
+    k.tube('main', 'grey', [(0, 9, 12), (0, 20, 11.5)], .25); k.tube('main', 'grey', [(0, 5.5, -9), (0, 17, -9.5)], .2)
     k.box('main', 'grey', 4, .2, .2, 0, 17, 11.6, bev=0)
-    for (z, y, r) in ((24, 3.8, 0), (18, 5.2, 0), (-16, 5.2, math.pi), (-23, 3.8, math.pi)):
+    for (z, y, r) in ((24, 3.0, 0), (18, 5.2, 0), (-16, 5.2, math.pi), (-23, 2.65, math.pi)):
+        if y > 4: k.cyl('main', 'grey', 3.8, y - 2.6, 0, (y + 2.6) / 2, z, 'y', 14, .03)   # 一段高い砲塔を載せる円筒の台(バーベット)
         k.lathe('main', 'grey', [(0, y), (2.2, y), (2.0, y + 1.6), (0, y + 1.7)], 0, 0, z, 12)
         for dx in (-.6, 0, .6): k.cyl('main', 'grey', .35, 6, dx, y + .8, z + (3 if r == 0 else -3), 'z', 6, 0)
     return dict(box=[B, L + 2, 6], ground=-1.0)
@@ -596,6 +637,7 @@ def _(k):
     for sx in (-1, 1):
         k.tube('main', 'grey', [(0, 5.4, 0), (sx * .6, 5.8, 0), (sx * .9, 5.4, 0)], .04)
         k.lathe('main', 'lampW', [(0, 4.6), (.26, 4.8), (.3, 5.05), (.12, 5.2), (0, 5.25)], sx * .9, 0, 0, 10)
+        k.cyl('main', 'grey', .06, .25, sx * .9, 5.3, 0, 'y', 6, 0)                       # 吊り棒
     k.box('main', 'white', .04, 1.4, .6, 0, 3.6, .35, bev=0); k.box('main', 'red', .05, .3, .62, 0, 4.2, .35, bev=0)
     return dict(circ=.25)
 
@@ -667,8 +709,8 @@ def _(k):
     k.lathe('main', 'sandst', [(0, 14), (4.2, 14), (3.6, 54), (0, 54)], 0, 0, 0, 16)
     for y in (26, 34, 42): k.torus('main', 'gold', 4.0 - (y - 14) * .012, .5, 0, y, 0, 'y', 16, 4)
     k.lathe('main', 'sandst', [(0, 54), (5, 54), (5, 56), (0, 56)], 0, 0, 0, 16)
-    k.cyl('main', 'gold', 2.4, 7, 0, 60, 0, 'y', 10, .05, d2=1.4); k.blob('main', 'gold', 1.0, 0, 64.5, 0, sub=1, rough=0)
-    for sx in (-1, 1): k.box('main', 'gold', 4, 1.6, .3, sx * 2.2, 63, -.6, roll=sx * .5, bev=.1)
+    k.cyl('main', 'gold', 2.4, 7.1, 0, 59.5, 0, 'y', 10, .05, d2=1.4); k.blob('main', 'gold', 1.0, 0, 63.8, 0, sub=1, rough=0)
+    for sx in (-1, 1): k.box('main', 'gold', 4, 1.6, .3, sx * 1.5, 63, -.45, roll=sx * .5, bev=.1)
     return dict()
 
 @prop('shard')
@@ -706,7 +748,7 @@ def _(k):
     k.box('main', 'portland', 90, 26, 30, 0, 13, 0, bev=.2); k.box('main', 'portland', 30, 26, 70, 0, 13, 0, bev=.2)
     k.lathe('main', 'portland', [(0, 26), (16, 26), (16, 40), (14, 40), (14, 48), (0, 48)], 0, 0, 0, 24)
     k.lathe('main', 'lead', [(0, 48), (15, 48), (14.5, 54), (12, 62), (7, 68), (2, 71), (0, 71)], 0, 0, 0, 24)
-    k.lathe('main', 'portland', [(0, 71), (3, 71), (2.5, 80), (0, 80)], 0, 0, 0, 12); k.cyl('main', 'gold', 1.2, 5, 0, 83, 0, 'y', 8, 0)
+    k.lathe('main', 'portland', [(0, 71), (3, 71), (2.5, 80), (0, 80)], 0, 0, 0, 12); k.cyl('main', 'gold', 1.2, 5.2, 0, 82.5, 0, 'y', 8, 0)
     for sz in (-1, 1): k.box('main', 'portland', 9, 46, 9, -40, 23, sz * 10, bev=.1); k.cyl('main', 'lead', 7, 8, -40, 50, sz * 10, 'y', 12, .1, d2=0)
     return dict()
 
@@ -728,9 +770,9 @@ def veh(k, col, W, body, cab, axles, wd=.55, roof=None, lights=None, bev=.08):
         k.seg('main', 'glass', W - .34, .02, p0[0] + dz * .1 + oz, p0[1] + dy * .1 + oy, p1[0] - dz * .1 + oz, p1[1] - dy * .1 + oy, 0, bev=0)
     zf = max(p[0] for p in body); zr = min(p[0] for p in body); (fy, ry_) = lights or (.55, .6)
     for sx in (-1, 1):
-        k.box('main', 'lampW', .26, .12, .05, sx * (W / 2 - .2), fy, zf + .01, bev=.01)
-        k.box('main', 'lampR', .22, .14, .05, sx * (W / 2 - .18), ry_, zr - .01, bev=.01)
-        k.box('main', col, .07, .08, .14, sx * (W / 2 + .03), cab[0][1] + .1, cab[0][0] - .12, bev=.02)
+        k.box('main', 'lampW', .26, .12, .08, sx * (W / 2 - .2), fy, zf - .02, bev=.01)
+        k.box('main', 'lampR', .22, .14, .08, sx * (W / 2 - .18), ry_, zr + .02, bev=.01)
+        k.box('main', col, .2, .08, .14, sx * (W / 2 - .03), cab[0][1] + .1, cab[0][0] - .12, bev=.02)
         for z in axles: k.wheel('main', sx * (W / 2 - .12), wd / 2, z, wd, .22, 'alu')
     k.box('main', 'dgrey', W - .5, .12, .05, 0, fy - .12, zf + .02, bev=.01); k.box('main', 'white', .42, .12, .02, 0, fy - .25, zf + .04, bev=0)
     k.box('main', 'black', W + .02, .1, (axles[0] - axles[-1]) - wd, 0, wd / 2, (axles[0] + axles[-1]) / 2, bev=.02)
@@ -793,26 +835,69 @@ def _(k): return ape(k, 'ltblue')
 
 # ================================================================ ゴラン高原・アルデンヌ高地
 PAL.update({'basalt': ((.17, .16, .16), 'paint'), 'basaltL': ((.3, .29, .28), 'paint'), 'snow': ((.92, .94, .97), 'paint'), 'slate': ((.22, .23, .26), 'paint'),
-            'shale': ((.42, .4, .38), 'paint'), 'spruce': ((.08, .16, .1), 'leaf'), 'turbW': ((.9, .91, .92), 'paint'), 'signY': ((.95, .8, .1), 'paint')})
+            'shale': ((.42, .4, .38), 'paint'), 'spruce': ((.08, .16, .1), 'leaf'), 'turbW': ((.9, .91, .92), 'paint'), 'turbG': ((.72, .74, .76), 'paint'), 'signY': ((.95, .8, .1), 'paint')})
+
+def _blade(k, part, col, hub, ang, R0, R1, zf):
+    """風車の羽根1枚: 翼断面(前縁が丸く後縁が薄い)を根元から先端へ並べて面を張る。弦長は根元近くで最大、先端で細い。ねじれ(ピッチ)付き"""
+    bm = bmesh.new(); u = (math.sin(ang), math.cos(ang)); v = (math.cos(ang), -math.sin(ang)); secs = []
+    N = 12
+    for i in range(N + 1):
+        t = i / N; r = R0 + (R1 - R0) * t
+        c = (1.0 + t / .22 * 1.4) if t < .22 else 2.4 * (1 - (t - .22) / .78 * .82)      # 弦長: 根元は円筒→最大→先端へ細く
+        th = (.9 if t < .08 else .34 - .2 * t)                                              # 厚さの比
+        tw = math.radians(14 * (1 - t))                                                    # ねじれ
+        ring = []
+        for j in range(10):
+            q = 2 * math.pi * j / 10; X = c * (.5 * math.cos(q) + .15); Y = c * th * .5 * math.sin(q) * (1 - .35 * math.cos(q))
+            cx, cz = X * math.cos(tw) - Y * math.sin(tw), X * math.sin(tw) + Y * math.cos(tw)   # 回転面(v)と回転軸(z)の方向へ
+            ring.append(bm.verts.new(G(hub[0] + u[0] * r + v[0] * cx, hub[1] + u[1] * r + v[1] * cx, zf + cz)))
+        secs.append(ring)
+    for i in range(N):
+        for j in range(10):
+            jj = (j + 1) % 10; bm.faces.new((secs[i][j], secs[i][jj], secs[i + 1][jj], secs[i + 1][j]))
+    bm.faces.new(secs[-1]); bm.faces.new(list(reversed(secs[0])))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    me = bpy.data.meshes.new('bl'); bm.to_mesh(me); bm.free(); k._add(me, part, col, 0)
 
 @prop('wind_turbine')
 def _(k):
-    """ゴラン高原の風力発電機(資料: 台地の上の風力発電所。白い円筒の塔と3枚羽根)。縮尺を詰めて高さ約40。rotor が回る"""
-    k.cyl('main', 'turbW', 2.4, 36, 0, 18, 0, 'y', 16, .02, d2=1.4)
-    k.box('main', 'turbW', 2, 2, 5, 0, 37, .6, bev=.4)
-    k.blob('rotor', 'turbW', 1.0, 0, 37, 3.4, sy=1, sub=2, rough=0)
-    for i in range(3):
-        a = i * 2 * math.pi / 3
-        k.box('rotor', 'turbW', .9, 17, .25, math.sin(a) * 8.6, 37 + math.cos(a) * 8.6, 3.6, roll=-a, bev=.08)
-    return dict(circ=1.3, pivots={'rotor': [0, 37, 3.6, 'z']})
+    """ゴラン高原の風力発電機(資料: エメク・ハバハ風力発電所。3MW級34基、高さ約80m・羽根約40m=ハブ高さの約半分)。
+    部品: コンクリート基礎・下が太い円筒の塔(扉・継ぎ目の帯)・ナセル(発電機の箱、風速計と航空障害灯)・
+    先のとがったスピナー・ねじれた3枚の羽根(根元が太く先端が細い)。ハブ高さ44(≒57m)・羽根22。rotor が回る(回転軸z)"""
+    H, zf = 44.0, 3.2
+    k.cyl('main', 'conc', 7, .7, 0, .35, 0, 'y', 20, .04)                           # 基礎
+    k.cyl('main', 'turbW', 3.4, H - 1, 0, (H - 1) / 2 + .5, 0, 'y', 24, .02, d2=2.1)   # 塔
+    for y in (14, 28): k.cyl('main', 'turbG', 3.4 - 1.3 * y / H + .06, .12, 0, y, 0, 'y', 24, 0)   # 塔の継ぎ目
+    k.box('main', 'iron', 1.1, 2.1, .3, 0, 1.75, 1.66, bev=.05)                     # 扉
+    k.box('main', 'turbW', 3.0, 3.0, 9.0, 0, H, -1.6, bev=.7)                       # ナセル
+    k.box('main', 'turbG', 2.6, .5, 1.4, 0, H - 1.6, 1.2, bev=.1)                   # ヨー(首振り)台
+    k.cyl('main', 'iron', .08, 1.6, -.8, H + 2.3, -5.2, 'y', 6, 0)                 # 風速計の柱
+    k.cyl('main', 'iron', .7, .06, -.8, H + 3.1, -5.2, 'y', 8, 0)
+    k.cyl('main', 'red', .3, .3, .8, H + 1.65, -5.4, 'y', 8, 0)                    # 航空障害灯
+    k.cyl('rotor', 'turbW', 2.8, 2.4, 0, H, zf, 'z', 24, .05, d2=1.0)              # スピナー
+    k.blob('rotor', 'turbW', .55, 0, H, zf + 1.3, sub=2, rough=0)
+    for i in range(3): _blade(k, 'rotor', 'turbW', (0, H), i * 2 * math.pi / 3, .9, 22.0, zf - .1)
+    return dict(circ=1.8, pivots={'rotor': [0, H, zf, 'z']})
 
 @prop('minesign')
 def _(k):
-    """地雷原の柵と警告標識(資料: ゴラン高原には未処理の地雷原が残り、道の脇は立入禁止)。杭・有刺鉄線・黄色地に赤い三角の板"""
-    for x in (-2, 2): k.cyl('main', 'rust', .1, 1.4, x, .7, 0, 'y', 5, 0)
-    for y in (.4, .8, 1.2): k.tube('main', 'iron', [(-2, y, 0), (0, y - .05, 0), (2, y, 0)], .015)
-    k.box('main', 'signY', .7, .5, .03, 0, 1.0, .06, bev=0)
-    for i in range(4): k.box('main', 'red', .34 - i * .08, .06, .02, 0, .86 + i * .06, .08, bev=0)          # 赤い三角(段で描く)
+    """地雷原の柵と警告標識(資料: ゴラン高原の地雷原は有刺鉄線で囲まれ、黄色い長方形の標識に「Danger Mines」と
+    ヘブライ語・英語・アラビア語の3か国語の赤い文字。嵐の後でも見えるよう高い位置にも付ける)。
+    部品: 錆びた鉄の杭(山形鋼)2本・有刺鉄線4段(とげ付き)・黄色い標識(赤い縁と3行の文字)・杭の根元の土"""
+    for x in (-2, 2):
+        k.box('main', 'rust', .07, 1.5, .015, x, .75, 0, bev=0); k.box('main', 'rust', .015, 1.5, .07, x + .03, .75, .03, bev=0)   # 山形鋼の杭
+        k.blob('main', 'mud', .14, x, .02, 0, sy=.4, sub=1, rough=.3, seed=int(x) + 170)
+    for i, y in enumerate((.3, .6, .9, 1.2)):
+        sag = .04 + .02 * i
+        k.tube('main', 'iron', [(-2, y, .04), (0, y - sag, .04), (2, y, .04)], .012)
+        for j in range(9):                                                                                   # とげ
+            t = (j + .5) / 9; x = -2 + 4 * t; yy = y - sag * (1 - (2 * t - 1) ** 2)
+            k.box('main', 'iron', .012, .08, .012, x, yy, .04, roll=.8, bev=0); k.box('main', 'iron', .012, .08, .012, x, yy, .04, roll=-.8, bev=0)
+    k.box('main', 'signY', .8, .55, .025, 0, 1.0, .07, bev=.005)                                            # 標識
+    for (w, h, y) in ((.8, .04, 1.255), (.8, .04, .745)): k.box('main', 'red', w, h, .03, 0, y, .075, bev=0)   # 赤い縁
+    for x in (-.38, .38): k.box('main', 'red', .04, .55, .03, x, 1.0, .075, bev=0)
+    for i, w in enumerate((.55, .62, .5)): k.box('main', 'red', w, .06, .03, 0, 1.13 - i * .12, .08, bev=0)   # 3か国語の文字
+    for x in (-.3, .3): k.tube('main', 'iron', [(x, 1.2, .06), (x, 1.21, .04)], .01)                        # 標識を留める針金
     return dict(box=[4.2, .4, 1.4])
 
 @prop('basalt_rocks')
@@ -825,42 +910,113 @@ def _(k):
 def _(k):
     """クネイトラの廃墟(資料: 1967〜73年の戦いで破壊され放棄された町)。崩れた鉄筋コンクリートの床版・残った柱と壁の一部"""
     k.box('main', 'conc', 9, 3.2, .3, 0, 1.6, -3.8, bev=.05); k.box('main', 'conc', .3, 2.4, 7, -4.4, 1.2, 0, bev=.05)
-    for x, z in ((-4, -3.6), (0, -3.6), (4, -3.6), (-4, 3), (4, 3)): k.box('main', 'conc', .4, 3 if x < 2 else 1.6, .4, x, 1.5 if x < 2 else .8, z, bev=.03)
+    for x, z in ((-4, -3.6), (0, -3.6), (4, -3.6), (-4, 3), (4, 3)): k.box('main', 'conc', .5, 3 if x < 2 else 1.6, .5, x, 1.5 if x < 2 else .8, z, bev=.03)
     k.box('main', 'conc', 9, .3, 4, -.3, 2.2, -1.6, roll=.12, bev=.04)                 # 傾いて落ちた上の階の床
     k.box('main', 'conc', 6, .3, 5, 1.3, .5, 1.8, pitch=.25, roll=-.1, bev=.04)
     rnd = random.Random(62)
-    for i in range(10): k.blob('main', 'conc', .3 + rnd.random() * .4, rnd.uniform(-4, 4), .2, rnd.uniform(-3, 4), sy=.6, sub=1, rough=.3, seed=i + 130)
+    for i in range(10): k.blob('main', 'conc', .45 + rnd.random() * .4, rnd.uniform(-4, 4), .18, rnd.uniform(-3, 4), sy=.6, sub=1, rough=.3, seed=i + 130)
     for i in range(4): k.tube('main', 'rust', [(rnd.uniform(-4, 4), 2.2, -3.6), (rnd.uniform(-4, 4), 3.4, -3.4)], .03)  # 鉄筋
     return dict(box=[9.4, 8, 3.4])
 
 @prop('spruce_snow')
 def _(k):
-    """アルデンヌのトウヒ(資料: 森の台地。冬のバルジの戦いの戦場)。濃い緑の円錐の層に雪が積もる"""
-    k.cyl('main', 'bark', .35, 2, 0, 1, 0, 'y', 8, 0, d2=.2)
-    for i in range(6):
-        r = 1.9 - i * .28; y = 1.4 + i * 1.0
-        k.lathe('main', 'spruce', [(0, y + 1.7), (r * .3, y + 1.25), (r, y + .05), (r * .85, y), (0, y)], 0, 0, 0, 10)
-        k.lathe('main', 'snow', [(0, y + 1.72), (r * .28, y + 1.3), (r * .82, y + .42), (r * .7, y + .36), (0, y + 1.2)], 0, 0, 0, 10, cap=False)
+    """アルデンヌのトウヒ(資料: ドイツトウヒ。まっすぐな幹に、下ほど長く垂れ下がる枝の層が重なる細長い円錐。冬は枝に雪)。
+    部品: 根元の張った幹・枝の層12段(先が垂れ、少しずつ向きと長さを変える)・各層の上の雪・とがった梢"""
+    rnd = random.Random(23)
+    k.lathe('main', 'bark', [(0, 0), (.32, 0), (.22, .4), (.17, 2.5), (.08, 9.5), (0, 10.2)], 0, 0, 0, 8)
+    for i in range(12):
+        t = i / 11; r = 2.2 * (1 - t) ** .9 + .25; y = 1.3 + t * 8.2; a0 = rnd.random() * 6.28
+        prof = [(0, y + 1.05), (r * .35, y + .82), (r * .8, y + .25), (r, y - .1), (r * .92, y - .2), (r * .55, y), (0, y + .1)]
+        k.lathe('main', 'spruce', prof, rnd.uniform(-.06, .06), 0, rnd.uniform(-.06, .06), 11)
+        k.lathe('main', 'snow', [(0, y + 1.08), (r * .33, y + .86), (r * .72, y + .37), (r * .6, y + .3), (0, y + .92)], 0, 0, 0, 11, cap=False)
+    k.lathe('main', 'spruce', [(0, 10.6), (.2, 9.6), (.05, 9.5), (0, 9.5)], 0, 0, 0, 6)
     return dict(circ=.45)
 
 @prop('church_ard')
 def _(k):
-    """アルデンヌの村の教会(資料: 灰色の頁岩の石積み、厚いスレート屋根)。身廊・西の塔と尖ったスレートの尖塔・雪"""
-    k.box('main', 'shale', 7, 6.5, 14, 0, 3.25, 0, bev=.05)
-    for sz in (-1, 1): k.box('main', 'slate', 4.6, .25, 15, sz * 1.9, 7.6, 0, roll=sz * .62, bev=.03); k.box('main', 'snow', 4.5, .08, 14.8, sz * 1.92, 7.78, 0, roll=sz * .62, bev=0)
-    k.box('main', 'shale', 4.2, 12, 4.2, 0, 6, -8.6, bev=.05)
-    k.cyl('main', 'slate', 5.4, 9, 0, 16.5, -8.6, 'y', 8, .02, d2=0); k.cyl('main', 'gold', .1, 1.6, 0, 21.6, -8.6, 'y', 4, 0); k.box('main', 'gold', .8, .1, .1, 0, 21.8, -8.6, bev=0)
-    for i in range(4): k.box('main', 'glass', .1, 2.2, .9, 3.52, 3.5, -4.5 + i * 3, bev=0); k.box('main', 'glass', .1, 2.2, .9, -3.52, 3.5, -4.5 + i * 3, bev=0)
-    k.box('main', 'woodD', 1.4, 2.6, .1, 0, 1.3, -10.72, bev=0)
-    return dict(boxes=[[0, 0, 7, 14, 7], [0, -8.6, 4.2, 4.2, 12]])
+    """アルデンヌの村の教会(資料: 頁岩と砂岩の石積み・スレート屋根。四角い西の塔に八角のスレートの尖塔。
+    19世紀末から村ごとに建てられた)。部品: 身廊(腰石・角の砂岩・控え壁・アーチ窓)・切妻の大屋根(雪・棟)・
+    東の多角形の後陣(円錐屋根)・聖具室・西の塔(入口のアーチ・鐘楼の鎧戸・時計・軒)・八角の尖塔と十字架と風見鶏"""
+    W, Ln, Hw = 7.0, 14.0, 6.5
+    k.box('main', 'shale', W, Hw, Ln, 0, Hw / 2, 0, bev=.05)                                             # 身廊の壁
+    k.box('main', 'sandst', W + .2, .7, Ln + .2, 0, .35, 0, bev=.04)                                    # 腰石
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            for i in range(6): k.box('main', 'sandst', .5 if i % 2 else .35, .5, .35 if i % 2 else .5, sx * (W / 2 - .1), .9 + i * .95, sz * (Ln / 2 - .1), bev=.02)   # 角の砂岩
+        for z in (-3.5, 0, 3.5):                                                                         # 控え壁(下が厚い)
+            k.prism('main', 'shale', [(z - .35, 0), (z + .35, 0), (z + .35, 4.6), (z - .35, 4.6)], sx * W / 2, sx * (W / 2 + .5), 'x', .02, 1)
+            k.prism('main', 'sandst', [(z - .38, 4.6), (z + .38, 4.6), (z + .38, 4.75), (z - .38, 4.75)], sx * W / 2, sx * (W / 2 + .55), 'x', 0, 1)
+        for z in (-5.25, -1.75, 1.75, 5.25):                                                             # アーチ窓(砂岩の枠と色ガラス)
+            arch = [(z - .5, 2.2), (z + .5, 2.2), (z + .5, 4.2)] + [(z + .5 * math.cos(a), 4.2 + .5 * math.sin(a)) for a in [i * math.pi / 8 for i in range(1, 8)]] + [(z - .5, 4.2)]
+            k.prism('main', 'glass', arch, sx * (W / 2 - .02), sx * (W / 2 + .04), 'x', 0, 1)
+            fr = [(z - .66, 2.05), (z + .66, 2.05), (z + .66, 4.2)] + [(z + .66 * math.cos(a), 4.2 + .66 * math.sin(a)) for a in [i * math.pi / 8 for i in range(1, 8)]] + [(z - .66, 4.2)]
+            k.prism('main', 'sandst', fr, sx * (W / 2 - .04), sx * (W / 2 - .01), 'x', 0, 1)
+            k.box('main', 'sandst', .3, .12, 1.5, sx * (W / 2 + .1), 2.0, z, bev=.02)                   # 窓台
+    # 切妻の大屋根(閉じた三角柱)・雪・棟
+    roof = [(-W / 2 - .45, Hw - .05), (W / 2 + .45, Hw - .05), (W / 2 + .45, Hw + .12), (0, Hw + 3.75), (-W / 2 - .45, Hw + .12)]
+    _prism_z(k, 'main', 'slate', roof, -Ln / 2 - .4, Ln / 2 + .4)
+    for sx in (-1, 1):
+        sl = math.atan2(3.6, W / 2 + .45)
+        k.box('main', 'snow', (W / 2 + .3) / math.cos(sl), .1, Ln + .7, sx * (W / 4 + .1), Hw + 1.95, 0, roll=sx * sl, bev=0)
+    k.box('main', 'slate', .3, .3, Ln + .8, 0, Hw + 3.72, 0, bev=.05)                                   # 棟
+    # 東の後陣(五角形)と円錐屋根
+    k.lathe('main', 'shale', [(0, 0), (3.2, 0), (3.2, 5.2), (0, 5.2)], 0, 0, Ln / 2, 10)
+    k.lathe('main', 'slate', [(0, 5.1), (3.6, 5.1), (0, 8.6)], 0, 0, Ln / 2, 10)
+    for a in (-.63, 0, .63): k.box('main', 'glass', .9, 1.8, .12, math.sin(a) * 3.03, 3.0, Ln / 2 + math.cos(a) * 3.03, yaw=a, bev=0)
+    k.box('main', 'shale', 2.6, 3.4, 3.0, W / 2 + 1.3, 1.7, 4.0, bev=.04)                               # 聖具室
+    _prism_z(k, 'main', 'slate', [(W / 2 - .1, 3.3), (W / 2 + 2.8, 3.3), (W / 2 + 2.8, 3.5), (W / 2 + .2, 4.6)], 2.4, 5.6)
+    # 西の塔
+    T, Ht, tz = 4.4, 13.0, -Ln / 2 - 2.0
+    k.box('main', 'shale', T, Ht, T, 0, Ht / 2, tz, bev=.05)
+    k.box('main', 'sandst', T + .25, .8, T + .25, 0, .4, tz, bev=.04)
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            for i in range(12): k.box('main', 'sandst', .45 if i % 2 else .3, .55, .3 if i % 2 else .45, sx * (T / 2 - .08), .95 + i * 1.0, tz + sz * (T / 2 - .08), bev=.02)
+    k.box('main', 'sandst', T + .4, .3, T + .4, 0, Ht - .15, tz, bev=.04)                               # 塔の軒
+    for (nx, nz) in ((1, 0), (-1, 0), (0, 1), (0, -1)):                                               # 鐘楼の鎧戸(4面)と時計
+        cx, cz = nx * (T / 2 + .02), tz + nz * (T / 2 + .02); yaw = math.pi / 2 if nx else 0
+        k.box('main', 'black', 1.2, 2.0, .06, cx, Ht - 2.0, cz, yaw=yaw, bev=0)
+        for i in range(5): k.box('main', 'woodD', 1.15, .06, .14, cx * 1.01, Ht - 2.8 + i * .4, tz + (cz - tz) * 1.01, yaw=yaw, pitch=-.5, bev=0)
+        k.cyl('main', 'white', 1.1, .06, cx * 1.005, Ht - 4.6, tz + (cz - tz) * 1.005, (nx, 0, nz) if nx or nz else 'z', 20, 0)
+        k.box('main', 'black', .05, .45, .03, cx * 1.02, Ht - 4.45, tz + (cz - tz) * 1.02, yaw=yaw, bev=0)
+    door = [(-.8, 0), (.8, 0), (.8, 2.4)] + [(.8 * math.cos(a), 2.4 + .8 * math.sin(a)) for a in [i * math.pi / 8 for i in range(1, 8)]] + [(-.8, 2.4)]
+    _prism_y0(k, 'woodD', door, tz - T / 2 - .06, tz - T / 2 + .02)
+    door2 = [(-1.05, 0), (1.05, 0), (1.05, 2.4)] + [(1.05 * math.cos(a), 2.4 + 1.05 * math.sin(a)) for a in [i * math.pi / 8 for i in range(1, 8)]] + [(-1.05, 2.4)]
+    _prism_y0(k, 'sandst', door2, tz - T / 2 - .02, tz - T / 2 + .03)
+    for i in range(3): k.box('main', 'sandst', 2.6 - i * .3, .18, .5, 0, .09 + i * .18, tz - T / 2 - .55 + i * .2, bev=.02)   # 入口の石段
+    # 八角の尖塔・十字架・風見鶏
+    k.lathe('main', 'slate', [(0, Ht), (T / 2 + .35, Ht), (T / 2 + .25, Ht + .5), (0, Ht + 9.5)], 0, 0, tz, 8)
+    k.cyl('main', 'gold', .12, 1.9, 0, Ht + 10.2, tz, 'y', 6, 0); k.box('main', 'gold', 1.0, .12, .12, 0, Ht + 10.5, tz, bev=0)
+    k.blob('main', 'gold', .16, 0, Ht + 9.6, tz, sub=1, rough=0)
+    k.box('main', 'gold', .1, .3, .5, 0, Ht + 11.3, tz, bev=.02)
+    return dict(boxes=[[0, 0, W + 1, Ln, 8], [0, tz, T, T, 13], [0, Ln / 2 + 1.6, 6.4, 3.2, 6], [W / 2 + 1.3, 4.0, 2.6, 3.0, 4]])
+
+def _prism_z(k, part, col, pts, z0, z1):
+    """(x,y)の形を z 方向に押し出す(屋根など)"""
+    bm = bmesh.new(); A = [bm.verts.new(G(x, y, z0)) for x, y in pts]; Bv = [bm.verts.new(G(x, y, z1)) for x, y in pts]
+    n = len(pts); bm.faces.new(A); bm.faces.new(list(reversed(Bv)))
+    for i in range(n): j = (i + 1) % n; bm.faces.new((A[i], A[j], Bv[j], Bv[i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces); me = bpy.data.meshes.new('pz'); bm.to_mesh(me); bm.free(); k._add(me, part, col, 0)
+
+def _prism_y0(k, col, pts, z0, z1):
+    """(x,y)の形(扉・アーチ)を z0..z1 の厚さで"""
+    _prism_z(k, 'main', col, pts, z0, z1)
 
 @prop('foxhole')
 def _(k):
-    """バルジの戦いの塹壕(たこつぼ)(資料: 森には当時の塹壕のくぼみが今も残る)。掘り上げた土の縁・丸太の屋根・土嚢"""
-    for a in range(10): ang = a / 10 * 6.283; k.blob('main', 'snow' if a % 3 else 'woodD', .55, math.cos(ang) * 1.6, .15, math.sin(ang) * 1.3, sy=.5, sub=1, rough=.3, seed=a + 140)
-    for i in range(4): k.cyl('main', 'bark', .22, 3.2, -.6 + i * .4, .45, 0, 'x', 8, 0)
-    for i in range(3): k.box('main', 'khaki', .9, .32, .5, -1 + i * .95, .3, -1.4, bev=.08)
-    return dict(circ=1.8)
+    """バルジの戦いの塹壕(二人用のたこつぼ)(資料: ボワ・ジャック(バストーニュ)の記録。長さ約1.8m・幅約0.6mのL字形で深さ1〜1.2m。
+    多くは丸太を渡して土と雪をかぶせた。森には今もくぼみが残る)。
+    部品: L字の穴(暗い開口)・掘り上げた土の盛り(雪)・丸太の屋根(土と雪)・土嚢・置かれた弾薬箱とスコップ"""
+    k.box('main', 'black', 1.5, .04, .5, 0, .02, 0, bev=0); k.box('main', 'black', .5, .04, 1.0, .5, .02, .7, bev=0)   # L字の開口
+    for a in range(12):                                                                                # 掘り上げた土(雪をかぶる)
+        ang = a / 12 * 6.283; x, z = math.cos(ang) * 1.25 + .15, math.sin(ang) * .95 + .25
+        k.blob('main', 'snow' if a % 4 else 'mud', .42, x, .1, z, sy=.45, sub=1, rough=.3, seed=a + 140)
+    for i in range(5): k.cyl('main', 'bark', .16, 1.3, -.55 + i * .2, .24, -.05, 'z', 8, 0)            # 丸太の屋根
+    k.blob('main', 'snow', .55, -.15, .32, -.05, sy=.3, sub=1, rough=.2, seed=150)                      # 丸太にかぶせた雪
+    for i in range(3): k.box('main', 'khaki', .45, .2, .26, -.9 + i * .48, .1, -.85, yaw=.1 * i, bev=.06)   # 土嚢
+    k.box('main', 'khakiD', .3, .2, .16, 1.15, .1, -.6, bev=.02)                                          # 弾薬箱
+    k.tube('main', 'woodD', [(-1.2, .05, .7), (-.75, .16, .9)], .025); k.box('main', 'iron', .14, .02, .18, -1.27, .03, .66, bev=0)   # スコップ
+    return dict(circ=1.5)
 
 @prop('log_pile')
 def _(k):

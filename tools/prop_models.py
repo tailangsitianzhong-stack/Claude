@@ -24,10 +24,11 @@ PAL = {
   'white': ((.92, .92, .9), 'paint'), 'silver': ((.68, .7, .72), 'paint'), 'black': ((.08, .08, .09), 'paint'), 'red': ((.62, .08, .07), 'paint'),
   'blue': ((.12, .24, .52), 'paint'), 'ltblue': ((.55, .72, .82), 'paint'), 'yellow': ((.92, .76, .2), 'paint'), 'cream': ((.9, .86, .74), 'paint'),
   'green': ((.16, .38, .22), 'paint'), 'grey': ((.55, .56, .57), 'paint'), 'dgrey': ((.25, .26, .27), 'paint'), 'conc': ((.66, .65, .62), 'paint'),
+  'shaleS': ((.47, .45, .43), 'paint'), 'shaleD': ((.35, .33, .32), 'paint'), 'road': ((.3, .29, .28), 'paint'),
   'stone': ((.7, .66, .58), 'paint'), 'stoneD': ((.5, .47, .42), 'paint'), 'wood': ((.48, .33, .2), 'paint'), 'woodL': ((.68, .52, .34), 'paint'),
   'woodD': ((.3, .2, .12), 'paint'), 'rust': ((.42, .22, .12), 'paint'), 'rustL': ((.6, .36, .2), 'paint'), 'burnt': ((.14, .12, .11), 'paint'),
   'vermil': ((.82, .22, .12), 'paint'), 'canvasR': ((.72, .14, .12), 'paint'), 'canvasG': ((.14, .45, .25), 'paint'), 'canvasW': ((.94, .92, .86), 'paint'),
-  'tentB': ((.12, .1, .09), 'paint'), 'tentS': ((.5, .38, .26), 'paint'), 'straw': ((.82, .68, .38), 'paint'), 'wool': ((.9, .88, .82), 'paint'),
+  'tentB': ((.12, .1, .09), 'paint'), 'tentS': ((.5, .38, .26), 'paint'), 'strawD': ((.62, .5, .26), 'paint'), 'mud': ((.3, .24, .18), 'paint'), 'straw': ((.82, .68, .38), 'paint'), 'wool': ((.9, .88, .82), 'paint'),
   'skin': ((.12, .1, .09), 'paint'), 'fruitR': ((.8, .15, .1), 'paint'), 'fruitO': ((.95, .55, .1), 'paint'), 'fruitG': ((.4, .7, .2), 'paint'),
   'steel': ((.42, .43, .45), 'metal'), 'chrome': ((.75, .76, .78), 'metal'), 'iron': ((.12, .12, .12), 'metal'), 'alu': ((.8, .8, .82), 'metal'),
   'glass': ((.07, .1, .13), 'glass'), 'glassL': ((.35, .45, .5), 'glass'), 'water': ((.18, .32, .36), 'glass'),
@@ -129,7 +130,7 @@ def car_body(k, L, W, H, col, kei=False, lamps=True):
     for sx in (-1, 1):  # ミラー・灯火
         k.box('main', 'lampW' if lamps else 'dgrey', .28, .1, .04, sx * (W/2 - .22), .52, L/2 + .02, bev=.01)
         k.box('main', 'lampR' if lamps else 'black', .24, .12, .04, sx * (W/2 - .2), .55, -L/2 - .01, bev=.01)
-        k.box('main', col, .08, .08, .14, sx * (W/2 + .03), cab[0][1] + .08, cab[0][0] - .12, bev=.02)
+        k.box('main', col, .2, .08, .14, sx * (W/2 - .03), cab[0][1] + .08, cab[0][0] - .12, bev=.02)
     k.box('main', 'dgrey', W - .5, .12, .04, 0, .4, L/2 + .02, bev=.01)          # グリル
     k.box('main', 'white', .42, .12, .02, 0, .32, L/2 + .03, bev=0); k.box('main', 'white', .42, .12, .02, 0, .36, -L/2 - .02, bev=0)  # ナンバー
     for sz in (L/2 - .62, -L/2 + .62):
@@ -264,11 +265,20 @@ def _(k):
 
 @prop('bench')
 def _(k):
-    for i in range(4): k.box('main', 'wood', 1.8, .05, .12, 0, .5, -.22 + i * .14, bev=.01)
-    for i in range(3): k.box('main', 'wood', 1.8, .12, .04, 0, .72 + i * .14, -.32, pitch=.15, bev=.01)
-    for x in (-.8, .8):
-        k.box('main', 'iron', .06, .5, .5, x, .25, 0, bev=.01); k.box('main', 'iron', .06, .55, .06, x, .78, -.32, bev=.01)
-    return dict(box=[1.9, .7, 1])
+    """公園のベンチ(資料: 鋳鉄の両脇の脚(ひじ掛け付き)に木の板を渡す。長さ約1.8m・座面の高さ約45cm・背もたれ付き)。
+    長さ1.4・座面.35(1unit=1.3m)。部品: 鋳鉄の脚(前脚・後脚・ひじ掛け・座の受け)・座板5枚・背板3枚・中央の補強・ボルト"""
+    L = 1.4
+    for i in range(5): k.box('main', 'wood', L, .035, .07, 0, .35, -.16 + i * .08, bev=.008)           # 座板
+    for i in range(3): k.box('main', 'wood', L, .07, .03, 0, .48 + i * .1, -.25 - i * .018, pitch=.18, bev=.008)   # 背板
+    for x in (-L / 2 + .06, L / 2 - .06):
+        k.tube('main', 'iron', [(x, 0, .2), (x, .2, .17), (x, .33, .15)], .03)                            # 前脚
+        k.tube('main', 'iron', [(x, 0, -.24), (x, .33, -.2), (x, .55, -.27), (x, .72, -.31)], .03)        # 後脚と背の支え
+        k.tube('main', 'iron', [(x, .33, .17), (x, .33, -.2)], .025)                                      # 座の受け
+        k.tube('main', 'iron', [(x, .52, -.24), (x, .54, .05), (x, .5, .18), (x, .34, .18)], .025)        # ひじ掛け
+        k.box('main', 'iron', .06, .03, .1, x, 0.015, .2, bev=.005); k.box('main', 'iron', .06, .03, .1, x, .015, -.24, bev=.005)   # 足
+    k.tube('main', 'iron', [(0, .33, .14), (0, .2, 0), (0, .33, -.18)], .02)                              # 中央の補強
+    k.cyl('main', 'iron', .05, .3, 0, .1, 0, 'y', 6, 0)
+    return dict(box=[1.45, .55, .8])
 
 @prop('bin')
 def _(k):
@@ -340,11 +350,13 @@ def _(k):
     for i in range(6): k.box('main', 'wood', 1.3, .06, .3, 0, .82, -1 + i * .32, bev=.01)
     for sx in (-1, 1):
         for i in range(3): k.box('main', 'woodL', .05, .1, 2.0, sx * .66, .95 + i * .14, -.2, bev=.01)
+        for z in (-1.1, -.45, .2, .75): k.box('main', 'woodD', .07, .55, .07, sx * .7, 1.05, z, bev=.01)   # 側板の柱
+        k.box('main', 'woodD', .14, .3, .34, sx * .62, .68, -.2, bev=.02)                                # 車軸受け
         k.torus('main', 'woodD', .5, .04, sx * .76, .55, -.2, 'x', 18, 5); k.cyl('main', 'woodD', .16, .2, sx * .76, .55, -.2, 'x', 10, .01)
         k.spokes('main', 'woodD', .48, sx * .76, .55, -.2, 10, .02)
         k.tube('main', 'woodL', [(sx * .5, .8, .7), (sx * .45, .2, 2.4)], .04)
     k.cyl('main', 'iron', .05, 1.6, 0, .55, -.2, 'x', 6, 0)
-    k.lathe('main', 'woodL', [(0, 0), (.24, 0), (.29, .3), (.24, .6), (0, .6)], -.25, .85, -.6, 12); k.blob('main', 'straw', .3, .3, 1.05, -.1, sy=.7, sub=2, rough=.15)
+    k.lathe('main', 'woodL', [(0, 0), (.24, 0), (.29, .3), (.24, .6), (0, .6)], -.25, .85, -.6, 12); k.blob('main', 'straw', .32, .3, 1.0, -.1, sy=.7, sub=2, rough=.15)
     return dict(box=[1.7, 3.4, 1.5])
 
 @prop('barrels')
@@ -405,30 +417,41 @@ def _(k):
     """噴水: 八角の水盤(回転体)・水面・柱・上段の水盤・頂部の飾り"""
     k.lathe('main', 'stone', [(0, 0), (3.6, 0), (3.6, .55), (3.75, .62), (3.75, .7), (3.3, .7), (3.3, .2), (0, .2)], 0, 0, 0, 8)
     k.cyl('main', 'water', 6.5, .04, 0, .5, 0, 'y', 8, 0)
-    k.lathe('main', 'stone', [(0, .2), (.7, .2), (.55, .5), (.4, 1.6), (.5, 1.8), (1.4, 2.0), (1.5, 2.25), (1.2, 2.3), (.3, 2.3), (.25, 2.9), (.35, 3.1), (.15, 3.4), (0, 3.5)], 0, 0, 0, 16)
-    k.cyl('main', 'water', 2.4, .03, 0, 2.24, 0, 'y', 16, 0)
+    k.lathe('main', 'stone', [(0, .2), (.7, .2), (.55, .5), (.4, 1.6), (.5, 1.8), (1.4, 2.0), (1.5, 2.25), (1.36, 2.3), (1.2, 2.12), (.3, 2.12), (.25, 2.9), (.35, 3.1), (.15, 3.4), (0, 3.5)], 0, 0, 0, 16)
+    k.cyl('main', 'water', 2.56, .04, 0, 2.22, 0, 'y', 16, 0)
     return dict(circ=3.7)
 
 @prop('stone_bridge')
 def _(k):
-    """石のアーチ橋(幅16・長さ22、路面 y=0): ブーリアンで2連の欠円アーチをくり抜いた本体・欄干・笠石・親柱・橋脚の水切り"""
-    k.box('main', 'stone', 16, 4.0, 22, 0, -2.0, 0, bev=.05)
-    body = k.objs[-1][0]
-    for z in (-5.4, 5.4):
-        cut = bpy.data.objects.new('cut', bpy.data.meshes.new('cm')); bm = bmesh.new()
-        bmesh.ops.create_cone(bm, cap_ends=True, segments=32, radius1=3.6, radius2=3.6, depth=18)
-        bmesh.ops.scale(bm, vec=Vector((.32, 1, 1)), verts=bm.verts)                       # 平たいアーチ(回転後に上下になる方向を縮める)
-        bmesh.ops.transform(bm, matrix=Vector((0, 0, 1)).rotation_difference(Vector((1, 0, 0))).to_matrix().to_4x4(), verts=bm.verts)
-        bmesh.ops.translate(bm, vec=G(0, -1.45, z), verts=bm.verts); bm.to_mesh(cut.data); bm.free(); bpy.context.scene.collection.objects.link(cut)
-        b = body.modifiers.new('arch', 'BOOLEAN'); b.object = cut; b.operation = 'DIFFERENCE'; b.solver = 'EXACT'
-        body.modifiers.move(len(body.modifiers) - 1, 0); cut.hide_render = True; s_cut.append(cut)
+    """アルデンヌの村の石のアーチ橋(資料: ウール村の橋は頁岩質砂岩の野面積みで3連アーチ。ロシュフォールの石橋など)。
+    幅12・長さ24.2、路面 y=0、橋脚は川底(y=-10)まで届く。
+    部品: 3連の半円アーチを抜いた側面形の本体・アーチの輪石(両面)・橋脚の上流/下流の水切り・帯石・欄干と笠石・路面"""
+    r, yc, yb, L = 3.2, -4.6, -10.0, 12.1
+    prof = [(-L, 0), (L, 0), (L, yb)]
+    for zc in (8.1, 0.0, -8.1):                               # 底から3つのアーチを切り欠いた側面形(z, y)
+        prof += [(zc + r, yb), (zc + r, yc)]
+        prof += [(zc + r * math.cos(a), yc + r * math.sin(a)) for a in [i * math.pi / 14 for i in range(1, 14)]]
+        prof += [(zc - r, yc), (zc - r, yb)]
+    prof += [(-L, yb)]
+    k.prism('main', 'shaleS', prof, -6.0, 6.0, 'x', bev=0)
+    for zc in (8.1, 0.0, -8.1):                               # 輪石: アーチのまわりに放射状に並ぶ石(両面に少し出す)
+        n = 13
+        for i in range(n):
+            a0, a1 = i * math.pi / n, (i + 1) * math.pi / n
+            q = [(zc + rr * math.cos(a), yc + rr * math.sin(a)) for rr, a in ((r, a0), (r + .75, a0 + .01), (r + .75, a1 - .01), (r, a1))]
+            for x0 in (-6.12, 6.0): k.prism('main', 'shaleD' if i % 2 else 'shaleS', q, x0, x0 + .12, 'x', bev=0)
+    for zp in (4.05, -4.05):                                  # 橋脚の水切り(上流と下流の両側、三角柱+笠)
+        for sx in (-1, 1):
+            tri = [(sx * 6.0, zp - .85), (sx * 7.5, zp), (sx * 6.0, zp + .85)]
+            k.prism('main', 'shaleS', tri, yb, yc + .4, 'y', bev=0)
+            k.prism('main', 'shaleD', [(sx * 6.0, zp - .85), (sx * 7.5, zp), (sx * 6.0, zp + .85)], yc + .4, yc + .6, 'y', bev=0)
     for sx in (-1, 1):
-        k.box('main', 'stone', .6, 1.0, 22, sx * 7.7, .5, 0, bev=.03); k.box('main', 'stoneD', .8, .14, 22.2, sx * 7.7, 1.06, 0, bev=.03)
-        for z in (-10.6, 0, 10.6): k.box('main', 'stone', .9, 1.5, .9, sx * 7.7, .75, z, bev=.03); k.box('main', 'stoneD', 1.05, .16, 1.05, sx * 7.7, 1.55, z, bev=.03)
-        k.box('main', 'stone', 1.7, 2.6, 1.7, sx * 8, -1.9, 0, yaw=math.pi / 4, bev=.04)       # 橋脚の水切り
-        for z in (-5.4, 5.4): k.box('main', 'stoneD', .3, .3, 7.4, sx * 8.02, -.45, z, bev=.02)  # 輪石の帯
-    k.box('main', 'stoneD', 14.8, .04, 21.6, 0, .02, 0, bev=0)
-    return dict(ground=-1.15)
+        k.box('main', 'shaleD', .2, .28, 24.2, sx * 6.08, -.3, 0, bev=.02)                         # 帯石
+        k.box('main', 'shaleS', .6, 1.0, 24.2, sx * 5.7, .5, 0, bev=.03)                           # 欄干
+        k.box('main', 'shaleD', .8, .16, 24.4, sx * 5.7, 1.08, 0, bev=.03)                         # 笠石
+        for z in (-12.0, 12.0): k.box('main', 'shaleD', .9, 1.4, .9, sx * 5.7, .7, z, bev=.04)     # 親柱
+    k.box('main', 'road', 10.8, .05, 24.2, 0, .01, 0, bev=0)                                       # 路面(砂利と轍)
+    return dict(boxes=[[sx * 5.7, 0, .6, 24.2, 1.2] for sx in (-1, 1)])
 s_cut = []
 
 # ---- 木 ----
@@ -471,7 +494,7 @@ def _(k):
             for sd in (-1, 1):
                 nx, nz = -math.sin(a) * sd, math.cos(a) * sd
                 k.tube('main', ['palm', 'leaf1'][j % 2], [p, (p[0] + nx * w, p[1] - .25, p[2] + nz * w)], .045)
-    for i in range(4): k.blob('main', 'woodD', .14, top[0] + math.cos(i * 1.6) * .25, top[1] - .25, top[2] + math.sin(i * 1.6) * .25, sub=1, rough=.05)
+    for i in range(4): k.blob('main', 'woodD', .14, top[0] + math.cos(i * 1.6) * .17, top[1] - .2, top[2] + math.sin(i * 1.6) * .17, sub=1, rough=.05)
     return dict(circ=.4)
 
 @prop('bush')
@@ -516,11 +539,13 @@ def _(k):
     k.box('main', 'chrome', 2.2, .22, .18, 0, .65, 2.75, bev=.05); k.box('main', 'dgrey', 1.1, .5, .05, 0, 1.0, 2.71, bev=0)
     k.box('main', 'woodD', 2.4, .18, 4.2, 0, 1.05, -2.6, bev=.03)
     for sx in (-1, 1):
-        for i in range(3): k.box('main', 'wood', .07, .22, 4.2, sx * 1.18, 1.35 + i * .28, -2.6, bev=.01)
-    for i in range(3): k.box('main', 'wood', 2.4, .22, .07, 0, 1.35 + i * .28, -4.68, bev=.01)
+        for i in range(3): k.box('main', 'wood', .07, .22, 4.2, sx * 1.18, 1.25 + i * .26, -2.6, bev=.01)
+    for i in range(3): k.box('main', 'wood', 2.4, .22, .07, 0, 1.25 + i * .26, -4.68, bev=.01)
+    for sx in (-1, 1):
+        for z in (-4.62, -3.3, -1.9, -.55): k.box('main', 'woodD', .09, .9, .09, sx * 1.15, 1.5, z, bev=.01)   # 側板の柱(板を荷台につなぐ)
     for sx in (-1, 1):
         k.wheel('main', sx * .98, .48, 1.85, .96, .32, 'rust'); k.wheel('main', sx * .92, .48, -3.3, .96, .32, 'rust'); k.wheel('main', sx * .6, .48, -3.3, .96, .3, 'rust')
-    k.box('main', 'iron', .3, .3, 5.5, 0, .55, -1, bev=.02)
+    k.box('main', 'iron', .3, .44, 5.5, 0, .76, -1, bev=.02)                                   # 車台(荷台とキャブを載せる)
     return dict(box=[2.5, 7.6, 3])
 
 @prop('pumpjack')
@@ -566,11 +591,21 @@ def _(k):
 
 @prop('tel_pole')
 def _(k):
-    k.cyl('main', 'barkP', .3, 8.4, 0, 4.2, 0, 'y', 10, .02, d2=.22)
-    k.box('main', 'woodD', 2.2, .16, .16, 0, 7.8, 0, bev=.02)
-    for x in (-.9, -.35, .35, .9): k.cyl('main', 'glassL', .12, .2, x, 8.0, 0, 'y', 8, .02)
-    for sx in (-1, 1): k.tube('main', 'iron', [(0, 7.2, 0), (sx * .7, 7.8, 0)], .02)
-    return dict(circ=.35, wires=[[-.9, 8.05, 0], [-.35, 8.05, 0], [.35, 8.05, 0], [.9, 8.05, 0]])
+    """木の電柱(電信柱)(資料: 腕木を通しボルトで留め、斜めの支え(方杖)で補強。腕木のピンにねじ込んだがいし。昇柱用の足場ボルト)。
+    部品: 先細りの柱・頂部の笠・腕木2段・方杖・ピンとがいし8個・足場ボルト・根元の黒い防腐処理"""
+    k.cyl('main', 'barkP', .3, 8.4, 0, 4.2, 0, 'y', 12, .02, d2=.22)
+    k.cyl('main', 'black', .31, .9, 0, .45, 0, 'y', 12, 0)                                              # 根元の防腐処理
+    k.lathe('main', 'iron', [(0, 8.38), (.14, 8.38), (.1, 8.5), (0, 8.52)], 0, 0, 0, 8)                  # 頂部の笠
+    for y, Lw in ((7.8, 2.2), (7.1, 1.7)):
+        k.box('main', 'woodD', Lw, .14, .12, 0, y, .17, bev=.02)                                        # 腕木
+        k.cyl('main', 'iron', .05, .4, 0, y, .05, 'z', 6, 0)                                            # 通しボルト
+        for sx in (-1, 1): k.tube('main', 'iron', [(sx * .1, y - .55, .14), (sx * Lw * .3, y - .06, .17)], .018)   # 方杖
+        xs = (-.95, -.4, .4, .95) if Lw > 2 else (-.72, -.3, .3, .72)
+        for x in xs:
+            k.cyl('main', 'iron', .03, .16, x, y + .14, .17, 'y', 5, 0)                                  # ピン
+            k.lathe('main', 'glassL', [(0, y + .2), (.07, y + .2), (.06, y + .28), (.045, y + .33), (0, y + .35)], x, 0, .17, 10)   # がいし
+    for i in range(9): k.cyl('main', 'iron', .03, .32, (-.13 if i % 2 else .13), 2.4 + i * .5, 0, 'x', 5, 0)   # 足場ボルト
+    return dict(circ=.35, wires=[[-.95, 8.15, .17], [-.4, 8.15, .17], [.4, 8.15, .17], [.95, 8.15, .17]])
 
 # ---- 丘陵 ----
 @prop('windmill')
@@ -610,27 +645,49 @@ def _(k):
         for sx in (-1, 1):
             k.tube('main', 'steel', [(sx * half(y), y, 0), (sx * w, y, 0)], .06); k.tube('main', 'steel', [(sx * half(y), y - 1.2, 0), (sx * w, y, 0)], .04)
             k.cyl('main', 'white', .2, 1.2, sx * (w - .2), y - .7, 0, 'y', 8, .01)
-    k.lathe('main', 'steel', [(0, H), (.3, H), (0, H + 1.2)], 0, 0, 0, 4)
+    k.lathe('main', 'steel', [(0, H - .1), (.95, H - .1), (0, H + 1.2)], 0, 0, 0, 4)
     return dict(circ=1.9, wires=[[-6.3, 13.6, 0], [6.3, 13.6, 0], [-4.8, 16.1, 0], [4.8, 16.1, 0]])
 
 @prop('sheep')
 def _(k):
-    k.blob('main', 'wool', .55, 0, .85, 0, sy=.8, sub=2, rough=.18, seed=3); k.blob('main', 'wool', .4, 0, .9, .35, sy=.8, sub=2, rough=.2, seed=5)
-    k.box('main', 'skin', .26, .3, .4, 0, 1.0, .82, pitch=-.3, bev=.05)
-    for sx in (-1, 1): k.box('main', 'skin', .2, .06, .1, sx * .16, 1.12, .72, bev=0)
-    for x, z in ((-.2, .35), (.2, .35), (-.2, -.3), (.2, -.3)): k.cyl('main', 'skin', .08, .6, x, .3, z, 'y', 6, 0)
-    return dict(circ=.6)
+    """羊(資料: 成羊の体高(き甲)は約60〜80cm)。体高.55(1unit=1.3m)。
+    部品: 毛のかたまりの胴・首・顔(鼻先)・耳・4本の脚(ひざと蹄)・短い尾"""
+    k.blob('main', 'wool', .42, 0, .62, -.05, sy=.82, sub=2, rough=.16, seed=3)                        # 胴
+    k.blob('main', 'wool', .36, 0, .64, .25, sy=.85, sub=2, rough=.18, seed=5)
+    k.blob('main', 'wool', .2, 0, .78, .5, sy=1.0, sub=2, rough=.15, seed=8)                             # 首
+    k.box('main', 'skin', .18, .2, .3, 0, .82, .7, pitch=-.45, bev=.06)                                  # 顔
+    k.box('main', 'black', .08, .05, .04, 0, .74, .86, pitch=-.45, bev=0)                                 # 鼻
+    for sx in (-1, 1):
+        k.box('main', 'skin', .16, .05, .07, sx * .14, .92, .66, roll=sx * .4, bev=.02)                    # 耳
+        k.box('main', 'black', .03, .03, .02, sx * .08, .88, .78, bev=0)                                   # 目
+    for x, z in ((-.13, .28), (.13, .28), (-.13, -.32), (.13, -.32)):
+        k.cyl('main', 'skin', .07, .5, x, .31, z, 'y', 6, 0, d2=.06)                                      # 脚(蹄まで)
+        k.cyl('main', 'black', .075, .06, x, .03, z, 'y', 6, 0)                                            # 蹄
+    k.blob('main', 'wool', .09, 0, .6, -.48, sy=1.4, sub=1, rough=.1, seed=9)                             # 尾
+    return dict(circ=.5)
 
 @prop('haybale')
 def _(k):
-    k.lathe('main', 'straw', [(0, -.65), (.7, -.65), (.78, -.55), (.82, 0), (.78, .55), (.7, .65), (0, .65)], 0, 0, 0, 18)
-    o = k.objs[-1][0]; o.rotation_euler = (0, math.pi / 2, 0); o.location = G(0, .8, 0)
-    return dict(circ=.85)
+    """ロール状の干し草(資料: 直径1.2〜1.5m、幅1.2m前後。ネットで巻いてある)。直径1.15・幅.95(1unit=1.3m)。
+    部品: 少しふくらんだ円筒・巻きの段(ネットの帯)・端面の渦巻き・地面に接する平らな所"""
+    k.cyl('main', 'straw', 1.12, .96, 0, .56, 0, 'x', 24, .04)                                        # 本体
+    k.cyl('main', 'straw', 1.16, .7, 0, .56, 0, 'x', 24, .03)                                          # 中ほどのふくらみ
+    for x in (-.3, 0, .3):                                                                                 # ネットの帯
+        k.cyl('main', 'strawD', 1.17, .05, x, .56, 0, 'x', 22, 0)
+    for sx in (-1, 1):                                                                                    # 端面の渦巻き(同心の段)
+        for r in (.42, .3, .18): k.cyl('main', 'strawD', r * 2, .02, sx * .485, .56, 0, 'x', 18, 0)
+    return dict(circ=.62)
 
 @prop('fence_wood')
 def _(k):
-    for x in (-1.25, 1.25): k.box('main', 'wood', .14, 1.2, .14, x, .6, 0, bev=.02)
-    for y in (.45, .95): k.box('main', 'woodL', 2.6, .1, .06, 0, y, .08, bev=.01)
+    """牧場の木の柵(アルデンヌ・トスカーナの農村): 先をとがらせた杭・横木3本(釘で留める)・杭の根元の土"""
+    for x in (-1.25, 1.25):
+        k.box('main', 'wood', .14, 1.2, .14, x, .6, 0, bev=.02)
+        k.prism('main', 'wood', [(-.07, 1.2), (.07, 1.2), (0, 1.32)], x - .07, x + .07, 'x', 0, 1)          # とがった杭の頭
+        k.blob('main', 'mud', .13, x, .02, 0, sy=.35, sub=1, rough=.3, seed=int(x * 10) + 180)
+    for y in (.35, .7, 1.02):
+        k.box('main', 'woodL', 2.7, .1, .05, 0, y, .095, bev=.01)
+        for x in (-1.25, 1.25): k.cyl('main', 'iron', .025, .02, x, y, .125, 'z', 5, 0)                     # 釘の頭
     return dict(box=[2.6, .3, 1.2])
 
 # ---------------------------------------------------------------- 焼き込みと書き出し
