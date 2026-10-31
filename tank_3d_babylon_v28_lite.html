@@ -85,13 +85,14 @@ body.sel #snd{top:auto;bottom:12px;left:8px}
 #menuB{position:fixed;top:40px;left:8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(0,0,0,.35);color:#fff;font-size:20px;padding:0;z-index:4;line-height:36px}
 #mini{position:fixed;top:86px;left:8px;width:150px;height:150px;border-radius:8px;border:1px solid rgba(255,255,255,.45);z-index:3;pointer-events:none}
 @media (max-height:620px){#mini{width:100px;height:100px;top:84px}}
-body.sel #menuB,body.sel #mini,body.nomini #mini{display:none}
+body.sel #mini,body.nomini #mini{display:none}body.sel #menuB{top:auto;bottom:12px;left:52px;z-index:55}body.sel #mBack{display:none}
 #menu{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:60;touch-action:auto}
 #menu .box{background:rgba(20,26,32,.94);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:16px 20px;min-width:250px;display:flex;flex-direction:column;gap:9px;color:#fff;font-family:sans-serif}
 #menu .box>b{font-size:19px;text-align:center}
 #menu button{font-size:16px;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:#3a4a5a;color:#fff}
 #menu button.warn{background:#7a3a2a}#menu button.off{background:#2a2e32;color:#aaa}
 #menu .row{display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:15px}#menu .row button{min-width:64px;padding:6px 10px}
+#menu .gq{display:flex;gap:4px}#menu .gq button{min-width:0;padding:6px 9px;font-size:14px}#menu .gq button.on{background:#d8a43a;color:#111}
 #menu .hint{font-size:12px;opacity:.7;text-align:center}
 /* 命中結果のポップ表示 */
 .tst{position:fixed;z-index:6;pointer-events:none;transform:translate(-50%,-50%);transition:transform 1.3s ease-out,opacity 1.3s ease-in;font:bold 15px sans-serif;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap}
@@ -134,6 +135,7 @@ body.sel #menuB,body.sel #mini,body.nomini #mini{display:none}
 <div id="compass"><div id="cstrip"></div></div><div id="cmark"></div><div id="cdeg">000</div>
 <button id="menuB" title="設定(Esc)">⚙</button><canvas id="mini" width="300" height="300"></canvas>
 <div id="menu"><div class="box"><b>設定</b><button id="mResume">▶ 再開</button>
+ <div class="row">グラフィック<span class="gq"><button data-q="light">ライト</button><button data-q="normal">ノーマル</button><button data-q="high">ハイ</button></span></div>
  <div class="row">影<button id="mShadow">ON</button></div><div class="row" id="mAoRow">陰影の強調(SSAO)<button id="mAo">ON</button></div><div class="row">ミニマップ<button id="mMini">ON</button></div><div class="row" id="mOlRow">輪郭線(アニメ調)<button id="mOutline">ON</button></div>
  <button id="mBack" class="warn">戦車選択に戻る</button><div class="hint">「戦車選択に戻る」は2回押すと戻ります</div></div></div>
 <div id="over"><div id="msg">GAME OVER</div><div class="row"><button id="restart">もう一度</button><button id="toSel">戦車選択</button></div></div>
@@ -195,7 +197,7 @@ async function bootGame(){
 await tick(.02,'エンジンを準備中');
 const canvas=document.getElementById('c');
 const engine=new BABYLON.Engine(canvas,true,{powerPreference:'high-performance'}); // アンチエイリアス有効(輪郭をなめらかに)
-const RES=2; // 描画解像度 = CSSピクセル1つあたりの描画ピクセル数(端末のdevicePixelRatioが上限)。3=最高画質・重い / 2=高画質 / 1.5=標準 / 1=軽い
+let RES=2; // 描画解像度 = CSSピクセル1つあたりの描画ピクセル数(端末のdevicePixelRatioが上限)。3=最高画質・重い / 2=高画質 / 1.5=標準 / 1=軽い
 const MAXPX=MOBILE?2.6e6:4e6; // 総ピクセル数の上限(大画面で重くなりすぎないように)
 const applyRes=()=>{
   const dpr=window.devicePixelRatio||1,w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;
@@ -663,11 +665,11 @@ function buildOldTown(){
   // ---- テムズ川: 水面・護岸と手すり・街灯 ----
   K.plane('water',E*2,LD.r1-LD.r0+2,0,(LD.r0+LD.r1)/2,-1.15,8);
   for(const [a,b] of [[-E,LD.bx-LD.bw],[LD.bx+LD.bw,E]]){const c=(a+b)/2,len=b-a;K.solid(c,(LD.r0+LD.r1)/2,len,LD.r1-LD.r0,-.3);
-    for(const z of [LD.r0,LD.r1]){K.box('quay',len,3.4,1,c,-1.5,z,0,4,4);const n=Math.floor(len/4);for(let i=0;i<n;i++)K.prop('quay_rail',a+(len-n*4)/2+i*4+2,.15,z+(z===LD.r0?-.5:.5),z===LD.r0?0:Math.PI,{solid:false});
+    for(const z of [LD.r0,LD.r1]){K.box('quay',len,3.4,1,c,-1.5,z,0,4,4);const n=Math.floor(len/4);for(let i=0;i<n;i++)K.prop('quay_rail',a+(len-n*4)/2+i*4+2,.15,z+(z===LD.r0?-.5:.5),z===LD.r0?0:Math.PI);
       for(let x=a+6;x<b-4;x+=16)K.prop('lamp_eu',x,0,z+(z===LD.r0?-1.4:1.4),0,{s:1.2});}}
   K.prop('tower_bridge',LD.bx,0,(LD.r0+LD.r1)/2,0);
-  K.prop('hms_belfast',-88,-1.15,(LD.r0+LD.r1)/2+4,Math.PI/2,{solid:false});
-  for(let i=0;i<3;i++)K.prop('boat',100+i*16,-1.12,LD.r0+3,Math.PI/2+(R()-.5)*.3,{solid:false});
+  K.prop('hms_belfast',-88,-1.15,(LD.r0+LD.r1)/2+4,Math.PI/2);
+  for(let i=0;i<3;i++)K.prop('boat',100+i*16,-1.12,LD.r0+3,Math.PI/2+(R()-.5)*.3);
   // ---- 南岸: 旧市庁舎とモア・ロンドンの広場(原点) ----
   K.plane('stoneP',70,40,-8,6,.03,4);K.prop('city_hall',-26,0,10,0);
   for(let i=0;i<6;i++)K.prop('plane_tree',-38+i*12,0,-12,R()*6.3,{s:.9});
@@ -704,7 +706,7 @@ function buildOldTown(){
   // セント・キャサリン・ドック: ドックの水面・岸壁・ボート・クレーン・倉庫
   {const x0=78,x1=140,z0=LD.r1+30,z1=E-4;K.plane('water',x1-x0,z1-z0,(x0+x1)/2,(z0+z1)/2,-.8,8);K.solid((x0+x1)/2,(z0+z1)/2,x1-x0,z1-z0,-.3);
    for(const [a,b,c,d] of [[x0,z0,x1,z0],[x0,z1,x1,z1],[x0,z0,x0,z1],[x1,z0,x1,z1]]){const L=Math.hypot(c-a,d-b);K.box('quay',a===c?1:L,1.6,a===c?L:1,(a+c)/2,-.4,(b+d)/2,0,4,4);}
-   for(let i=0;i<5;i++)K.prop('boat',x0+8+i*11,-.78,z0+10+(i%2)*8,R()*.4,{solid:false});K.prop('dock_crane',x0+3,0,z0-3,Math.PI/2);K.prop('dock_crane',x1-3,0,z1-6,-Math.PI/2);
+   for(let i=0;i<5;i++)K.prop('boat',x0+8+i*11,-.78,z0+10+(i%2)*8,R()*.4);K.prop('dock_crane',x0+3,0,z0-3,Math.PI/2);K.prop('dock_crane',x1-3,0,z1-6,-Math.PI/2);
    row(x0,x1,z0-5,true,Math.PI,10,(x,z,w,d,ry)=>ware(x,z,w,d,ry,4));}
   // 北岸・ロンドン塔の東: タワーブリッジ・アプローチ沿いの建物
   row(LD.r1+17,E-2,LD.bx+12,false,-Math.PI/2,12,(x,z,w,d,ry)=>terr(x,z,w,d,ry,true));row(LD.r1+17,E-2,LD.bx-12,false,Math.PI/2,12,(x,z,w,d,ry)=>terr(x,z,w,d,ry,true));
@@ -804,8 +806,8 @@ function buildJapan(){
    K.plane('stoneP',22,5,hx+2,hz,G(hx,hz)+.04,4);                                                                 // 境内の石畳
    for(let x=hx+16;x<OA.coast-16;x+=.8){const y=G(x,hz);K.box('stoneS',.9,.5,5,x,y-.15,hz,0,4,4);}                    // 参道の石段
    K.prop('torii_big',OA.coast-22,G(OA.coast-22,hz),hz,Math.PI/2);                                                  // 一の鳥居(大鳥居)
-   K.prop('torii_sea',OA.beach+9,OA.sea,hz,Math.PI/2,{solid:false});                                                 // 神磯の鳥居
-   for(let i=0;i<6;i++){const z=hz-14+i*5.5;K.prop('tetrapods',OA.beach+2.5,-1.4,z,R()*6.3,{solid:false});}
+   K.prop('torii_sea',OA.beach+9,OA.sea,hz,Math.PI/2);                                                 // 神磯の鳥居
+   for(let i=0;i<6;i++){const z=hz-14+i*5.5;K.prop('tetrapods',OA.beach+2.5,-1.4,z,R()*6.3);}
    K.box('shrineB',8,4,6,hx-4,G(hx-4,hz-14)+2,hz-14,0,4,4);K.hip('kawara',9,7,2,hx-4,G(hx-4,hz-14)+4,hz-14);K.solid(hx-4,hz-14,8,6,G(hx,hz)+6); // 社務所
    for(let i=0,n=0;i<300&&n<(MOBILE?45:80);i++){const x=hx+(R()*2-1)*34,z=hz+(R()*2-1)*32,d=Math.hypot(x-hx,(z-hz)*1.1);              // 高台のクロマツ林
      if(d>OA.hill[2]||Math.abs(z-hz)<7&&x>hx-14||x>OA.coast-10||onRoad(x,z,2)||!K.free(x,z,2.5))continue;K.prop('pine_jp',x,G(x,z)-.1,z,R()*6.3,{s:.9+R()*.4});n++;}}
@@ -816,8 +818,8 @@ function buildJapan(){
   // ---- 大洗港: 岸壁・係船柱・フェリー・漁船・大洗マリンタワー・海鮮市場・アウトレット ----
   {const [px0,pz0,,pz1]=OA.port;K.box('quay',2,3.4,pz1-pz0,px0-1,-1.5,(pz0+pz1)/2,0,4,4);K.box('quay',OA.beach-px0+2,3.4,2,(px0+OA.beach)/2+1,-1.5,pz1+1,0,4,4);
    for(let x=px0+4;x<OA.beach;x+=8)K.cyl('bollard',.5,.4,.6,x,.3,pz1+.4,8);for(let z=pz1-6;z>-E;z-=8)K.cyl('bollard',.5,.4,.6,px0-.4,.3,z,8);
-   K.prop('ferry',118,OA.sea,pz1-12,Math.PI/2,{solid:false});
-   for(let i=0;i<4;i++)K.prop('fishing_boat',px0+4.5,OA.sea,pz1-20-i*12,0,{solid:false});
+   K.prop('ferry',118,OA.sea,pz1-12,Math.PI/2);
+   for(let i=0;i<4;i++)K.prop('fishing_boat',px0+4.5,OA.sea,pz1-20-i*12,0);
    for(let i=0;i<3;i++)if(K.free(px0-6,pz1-14-i*9,2))K.prop('v_carry_white',px0-6,0,pz1-14-i*9,R()<.5?0:Math.PI);
    K.prop('marine_tower',40,0,-64,Math.PI/2);K.plane('stoneP',26,18,40,-64,.03,4);
    K.box('market',34,5,12,10,2.5,-104,0,4,4);K.box('roofBlue',35,.6,13,10,5.3,-104,0,4,4);K.sign('lbl_market',10,1.6,10,4.2,-97.95,Math.PI);K.solid(10,-104,34,12,6);   // 海鮮市場
@@ -861,7 +863,7 @@ function buildJapan(){
   for(let z=-E+8;z<E-6;z+=10)for(let x=-E+8;x<OA.coast-4;x+=11){const ry=R()<.5?0:Math.PI;if(!blocked(x,z,7,7,ry)&&R()<.8)houseJ(x,z,6.5,6.5,ry);}
   // ---- 商店街: すずらん灯・のぼり・自転車・自販機 ----
   for(let x=-E+10;x<OA.coast-8;x+=12){if(RX.some(([rx,z0,z1,h2,s2])=>Math.abs(x-rx)<h2+s2+3&&z0<0&&z1>0))continue;for(const sd of [-1,1]){const z=sd*4.4;if(K.free(x,z,.6))K.prop('suzuran',x,0,z,sd>0?Math.PI:0);}
-    if(R()<.4){const z=(R()<.5?-1:1)*4.6;if(K.free(x+5,z,1))K.prop('nobori',x+4,0,z,0,{solid:false});}if(R()<.3){const z=(R()<.5?-1:1)*4.8;if(K.free(x+2,z,.8))K.prop('bike',x+2,0,z,Math.PI/2);}
+    if(R()<.4){const z=(R()<.5?-1:1)*4.6;if(K.free(x+5,z,1))K.prop('nobori',x+4,0,z,0);}if(R()<.3){const z=(R()<.5?-1:1)*4.8;if(K.free(x+2,z,.8))K.prop('bike',x+2,0,z,Math.PI/2);}
     if(R()<.25){const z=(R()<.5?-1:1)*4.7;if(K.free(x+7,z,.8))K.prop(['vend_r','vend_b','vend_w'][R()*3|0],x+7,0,z,z>0?Math.PI:0);}}
   // ---- 電柱と電線 ----
   const poles=(P,ry)=>{P.forEach(([x,z],i)=>{if(!K.free(x,z,.6))return;K.prop(R()<.3?'pole_jp_t':'pole_jp',x,0,z,ry);
@@ -960,13 +962,13 @@ function buildCity(){
   for(let x=-60;x>-E;x-=16)for(const sd of [-1,1])K.prop('lamp_eu',x,0,sd*12.5,0,{s:1.7});
   const park=(x0,x1,z0,z1,n)=>{for(let i=0,c=0;i<n*6&&c<n;i++){const x=x0+R()*(x1-x0),z=z0+R()*(z1-z0);if(onRoad(x,z,1.5)||!K.free(x,z,2.6))continue;
       K.prop(R()<.4?'linden':'tree_broad',x,0,z,R()*6.3,{s:.9+R()*.5});c++;}
-    for(let i=0;i<n/3;i++){const x=x0+R()*(x1-x0),z=z0+R()*(z1-z0);if(!onRoad(x,z,1)&&K.free(x,z,1))K.prop('bush',x,0,z,R()*6.3,{s:1+R(),solid:false});}};
+    for(let i=0;i<n/3;i++){const x=x0+R()*(x1-x0),z=z0+R()*(z1-z0);if(!onRoad(x,z,1)&&K.free(x,z,1))K.prop('bush',x,0,z,R()*6.3,{s:1+R()});}};
   K.plane('grass',E+EB-9,E-14,(-E+EB-9)/2,-(E+14)/2,.02,3);K.plane('grass',E+EB-9,52,(-E+EB-9)/2,40,.02,3);
   // ---- 連邦議会議事堂(西正面のポルティコ)・共和国広場の芝生・シュプレー川 ----
   K.prop('reichstag',-98,0,104,0);K.plane('grass',20,56,-146,106,.02,3);K.plane('cobble',20,52,-128,104,.03,4);
   for(let z=82;z<132;z+=10)K.prop('linden',-150,0,z,R()*6.3,{s:.9});
   {K.plane('water',E*2,40,0,RIV+20,-1.2,8);K.box('quay',E*2,3,1,0,-1,RIV-.5,0,4,4);K.solid(0,RIV+10,E*2,20,-.4);
-   for(let x=-E+2;x<E-2;x+=4)K.prop('quay_rail',x,.15,RIV-1,Math.PI,{solid:false});K.prop('boat',-30,-1.15,RIV+6,Math.PI/2,{solid:false});}
+   for(let x=-E+2;x<E-2;x+=4)K.prop('quay_rail',x,.15,RIV-1,Math.PI);K.prop('boat',-30,-1.15,RIV+6,Math.PI/2);}
   // ---- 街区(軒の高さのそろった中庭型): 外周に建物、通りに正面 ----
   const bld=(x,z,w,d,ry,kind)=>{const v=R()*3|0;let H;
     if(kind==='mod'){H=4+5*3.4;K.box('blshop',w,4,d,x,2,z,ry,3.2,4);K.box('blmod',w,5*3.4,d,x,4+2.5*3.4,z,ry,3.2,3.4);K.box('stone',w+.2,.5,d+.2,x,H+.25,z,ry,4,4);K.box('stone',w-3,3,d-3,x,H+1.5,z,ry,4,4);H+=3;}
@@ -1087,13 +1089,13 @@ function buildHills(){
   for(let i=0,n=0;i<300&&n<(MOBILE?6:12);i++){const x=(R()*2-1)*(E-10),z=(R()*2-1)*(E-10);if(tusField(x,z).t!==3||!free(x,z,6))continue;for(let k=0;k<8;k++)K.prop('vine_row',x+k*2.6,G(x+k*2.6,z),z,0);n++;}
   // 谷あいの雑木林(オーク・灌木)
   for(let i=0,n=0;i<2000&&n<(MOBILE?40:90);i++){const x=(R()*2-1)*(E-6),z=(R()*2-1)*(E-6),h=G(x,z),lo=(G(x+12,z)+G(x-12,z)+G(x,z+12)+G(x,z-12))/4-h;
-    if(lo<1.3||!free(x,z,2))continue;K.prop(R()<.7?'tree_broad':'bush',x,h-.2,z,R()*6.3,{s:.8+R()*.4,solid:R()<.7});n++;}
+    if(lo<1.3||!free(x,z,2))continue;K.prop(R()<.7?'tree_broad':'bush',x,h-.2,z,R()*6.3,{s:.8+R()*.4});n++;}
   // ---- 羊の群れと溜め池・葦 ----
   for(let i=0;i<(MOBILE?12:24);i++){const x=50+R()*50,z=-20+R()*40;if(free(x,z,1))K.prop('sheep',x,G(x,z)-.05,z,R()*6.3,{s:.9+R()*.2});}
   {const w=BABYLON.MeshBuilder.CreateDisc('tp',{radius:TUS.pond[2]+1.5,tessellation:40,sideOrientation:2},scene);w.rotation.x=Math.PI/2;w.position.set(TUS.pond[0],TUS_PH+.6,TUS.pond[1]);K.add('water',w);
    for(let i=0;i<(MOBILE?40:90);i++){const a=R()*6.283,d=TUS.pond[2]+.5+R()*2,x=TUS.pond[0]+Math.cos(a)*d,z=TUS.pond[1]+Math.sin(a)*d;K.cyl('reed',.02,.06,1+R()*1.2,x,G(x,z)+.7,z,4,(R()-.5)*.3,(R()-.5)*.3);}}
   // ---- 道ばたの石の標識と木の柵 ----
-  for(let i=0;i<10;i++){const P=ROADS[i%ROADS.length],k=1+(R()*(P.length-2)|0),[x,z]=P[k];const x2=x+3,z2=z+3;if(K.free(x2,z2,1))K.prop('fence_wood',x2,G(x2,z2),z2,R()*3,{solid:false});}
+  for(let i=0;i<10;i++){const P=ROADS[i%ROADS.length],k=1+(R()*(P.length-2)|0),[x,z]=P[k];const x2=x+3,z2=z+3;if(K.free(x2,z2,1))K.prop('fence_wood',x2,G(x2,z2),z2,R()*3);}
   // ---- 素材 ----
   const MM=(k,t,col,o)=>{const m=K.mat(k,t,col,o);return m;};
   const mats={field:MM('field',fieldTex,BABYLON.Color3.White(),{specularColor:BABYLON.Color3.Black()}),tcwall:MM('tcwall',T.rock,new BABYLON.Color3(.95,.85,.68)),tc:fcBump(MM('tc',fcTex('tc_stone').a),fcTex('tc_stone').n),
@@ -1182,7 +1184,10 @@ function prPlacer(ob){
       if(h.box)box(x,z,h.box[0]*sx,h.box[1]*sz,y+h.box[2]*sy);
       if(h.circ)ob.push({x,z,r:h.circ*Math.max(sx,sz),h:y+h.hi*sy,mesh:null});
       (h.boxes||[]).forEach(([a,b,w,d,hh])=>{const [px,pz]=W(a*sx,b*sz);box(px,pz,w*sx,d*sz,y+hh*sy);});
-      (h.circles||[]).forEach(([a,b,r,hh])=>{const [px,pz]=W(a*sx,b*sz);ob.push({x:px,z:pz,r:r*Math.max(sx,sz),h:y+hh*sy,mesh:null});});},
+      (h.circles||[]).forEach(([a,b,r,hh])=>{const [px,pz]=W(a*sx,b*sz);ob.push({x:px,z:pz,r:r*Math.max(sx,sz),h:y+hh*sy,mesh:null});});
+      if(!h.box&&!h.circ&&!h.boxes&&!h.circles){ // 当たり判定の指定がない小物: 形の外形(足元の四角)から自動で作る
+        if(!h._fp){const a=[1e9,-1e9,1e9,-1e9],pv=h.pivots||{};h.parts.forEach(q=>{const o=pv[q.part]||[0,0,0];a[0]=Math.min(a[0],q.lo[0]+o[0]);a[1]=Math.max(a[1],q.lo[0]+q.sc[0]+o[0]);a[2]=Math.min(a[2],q.lo[2]+o[2]);a[3]=Math.max(a[3],q.lo[2]+q.sc[2]+o[2]);});h._fp=a;}
+        const [x0,x1,z0,z1]=h._fp,[px,pz]=W((x0+x1)/2*sx,(z0+z1)/2*sz);box(px,pz,Math.max(.3,(x1-x0)*sx),Math.max(.3,(z1-z0)*sz),y+h.hi*sy);}},
     spin(name,part,f){an.push([name,part,f]);}, // 動く部品: f(経過時間, 何個目) → 回転角
     build(root,upd){const out=prBuild(pl,root,true),tmp=new BABYLON.Matrix();prBuild(far,root,false);
       an.forEach(([name,part,f])=>{const L=pl[name],ms=out[name]&&out[name][part];if(!ms)return;let t=0;
@@ -1573,6 +1578,9 @@ function push(t){ // 障害物・壁との衝突。めり込みを戻し、ぶ�
   const p=t.root.position,fx=Math.sin(t.heading||0),fz=Math.cos(t.heading||0);let hit=0;
   obsNear(p.x,p.z).forEach(o=>{const q=obsPush(o,p.x,p.z,t.r);if(!q)return;p.x+=q.nx*q.dep;p.z+=q.nz*q.dep;
     const into=-(fx*q.nx+fz*q.nz)*Math.sign(t.v||0);if(into>0&&t.v!==undefined){hit=Math.max(hit,Math.abs(t.v)*into);t.v*=1-into*.9;}});
+  // 戦車どうし: 車体は細長いので半径3.1の円で押し合い、互いに半分ずつ戻す
+  [player,...enemies].forEach(o=>{if(!o||o===t||!o.root)return;const q=o.root.position,dx=p.x-q.x,dz=p.z-q.z,d=Math.hypot(dx,dz),min=6.2;
+    if(d<min&&d>1e-4){const k=(min-d)/2;p.x+=dx/d*k;p.z+=dz/d*k;q.x-=dx/d*k;q.z-=dz/d*k;const into=-(fx*dx+fz*dz)/d*Math.sign(t.v||0);if(into>0&&t.v!==undefined){hit=Math.max(hit,Math.abs(t.v)*into);t.v*=1-into*.8;}}});
   p.x=Math.max(-B+3,Math.min(B-3,p.x));p.z=Math.max(-B+3,Math.min(B-3,p.z));
   return hit;
 }
@@ -1942,19 +1950,24 @@ function loadMap(id){
 // ===== 設定メニュー(一時停止)とミニマップ =====
 let paused=false,backArm=0,aoOn=true; // aoOn: SSAO は作った時点でカメラに付いている
 const $=id=>document.getElementById(id),menuEl=$('menu'),mBack=$('mBack');
-const CFG=(()=>{const d={shadow:1,ao:1,mini:1,outline:STYLE.outline?1:0};try{return Object.assign(d,JSON.parse(localStorage.getItem('tank3d_cfg')||'{}'));}catch(e){return d;}})();
+// グラフィックの3段階(端末の性能に合わせる): 描画解像度・影・陰影の強調(SSAO)・輪郭線をまとめて切り替える
+const GQ={light:{res:1,shadow:0,ao:0,outline:0},normal:{res:1.5,shadow:1,ao:0,outline:1},high:{res:2,shadow:1,ao:1,outline:1}};
+const CFG=(()=>{const d={gq:MOBILE?'normal':'high',shadow:1,ao:MOBILE?0:1,mini:1,outline:STYLE.outline?1:0};try{return Object.assign(d,JSON.parse(localStorage.getItem('tank3d_cfg')||'{}'));}catch(e){return d;}})();
 function cfgApply(){
+  RES=(GQ[CFG.gq]||GQ.high).res;applyRes();document.querySelectorAll('#menu .gq button').forEach(b=>b.classList.toggle('on',b.dataset.q===CFG.gq));
   scene.shadowsEnabled=!!CFG.shadow;
   const pm=scene.postProcessRenderPipelineManager;try{if(pm.supportedPipelines.some(p=>p._name==='ssao')&&!!CFG.ao!==aoOn){aoOn=!!CFG.ao;if(aoOn)pm.attachCamerasToRenderPipeline('ssao',cam);else pm.detachCamerasFromRenderPipeline('ssao',cam);}}catch(e){} // 付いている状態と違う時だけ付け外し
   document.body.classList.toggle('nomini',!CFG.mini);outlineSet(CFG.outline);
   [['mShadow','shadow'],['mAo','ao'],['mMini','mini'],['mOutline','outline']].forEach(([b,k])=>{$(b).textContent=CFG[k]?'ON':'OFF';$(b).classList.toggle('off',!CFG[k]);});
   try{localStorage.setItem('tank3d_cfg',JSON.stringify(CFG));}catch(e){}
 }
+document.querySelectorAll('#menu .gq button').forEach(b=>b.onclick=()=>{const q=GQ[b.dataset.q];CFG.gq=b.dataset.q;CFG.shadow=q.shadow;CFG.ao=q.ao;CFG.outline=q.outline;cfgApply();});
 [['mShadow','shadow'],['mAo','ao'],['mMini','mini'],['mOutline','outline']].forEach(([b,k])=>$(b).onclick=()=>{CFG[k]=CFG[k]?0:1;cfgApply();});
 if(MOBILE||engine.webGLVersion<2)$('mAoRow').style.display='none';if(engine.webGLVersion<2)$('mOlRow').style.display='none';
-function setPause(on){paused=on&&mode==='play';menuEl.style.display=paused?'flex':'none';backArm=0;mBack.textContent='戦車選択に戻る';if(paused)SFX.engine(0,0,0,false);}
-$('menuB').onclick=()=>{if(mode==='play')setPause(!paused);};
+function setPause(on){paused=on&&mode==='play';menuEl.style.display=on?'flex':'none';$('mResume').textContent=mode==='play'?'▶ 再開':'閉じる';backArm=0;mBack.textContent='戦車選択に戻る';if(paused)SFX.engine(0,0,0,false);}
+$('menuB').onclick=()=>setPause(menuEl.style.display!=='flex'); // 戦車選択画面でも開ける(戦闘中は一時停止)
 $('mResume').onclick=()=>setPause(false);
+menuEl.onclick=e=>{if(e.target===menuEl)setPause(false);}; // 枠の外を押すと閉じる
 mBack.onclick=()=>{const t=performance.now();if(backArm&&t-backArm<3000){setPause(false);enterSelect();return;}
   backArm=t;mBack.textContent='もう一度押すと戻ります';setTimeout(()=>{if(backArm&&performance.now()-backArm>=2900){backArm=0;mBack.textContent='戦車選択に戻る';}},3000);};
 addEventListener('keydown',e=>{if(e.code==='Escape'&&mode==='play')setPause(!paused);});
@@ -2015,14 +2028,34 @@ function showSel(){
   document.getElementById('selD').textContent=TANKS.map((_,i)=>i===selIdx?'●':'○').join('');
   document.getElementById('selB').innerHTML=B_('速度',t.vmax/15.5,Math.round(t.vmax*4.68)+'km/h')+B_('加速',t.acc/9,'')+B_('旋回',t.turn/1.5,'')+B_('防護',t.hp/12,'HP '+t.hp)+B_('装填',2.2/t.reload,t.reload.toFixed(1)+'秒');
   if(preview)preview.root.dispose();
-  preview=makeTank(t.id);preview.root.position.set(0,gh(0,0),0);preview.turret.rotation.y=0;
+  preview=makeTank(t.id);preview.root.position.set(0,mode==='select'?STAGE_Y:gh(0,0),0);preview.turret.rotation.y=0;
+}
+// ===== 戦車のプレビューステージ(戦車選択画面専用) =====
+// 暗い格納庫の中の回転台。床の格子・琥珀色に光る台の縁・壁の照明の帯・天井の照明。選択中はマップを隠してステージだけを表示する
+const STAGE_Y=.55;let stage=null;
+function buildStage(){
+  const root=new BABYLON.TransformNode('stage',scene),M=(n,c,o)=>{const m=new BABYLON.StandardMaterial('st_'+n,scene);m.diffuseColor=c;m.specularColor=new BABYLON.Color3(.15,.15,.15);if(o)Object.assign(m,o);return m;},add=(m,mt)=>{m.material=mt;m.parent=root;m.isPickable=false;m.receiveShadows=true;return m;};
+  const grid=ctex(256,256,(x,w,h)=>{x.fillStyle='#2a2c2e';x.fillRect(0,0,w,h);grainC(x,w,h,.15,Math.random);x.strokeStyle='rgba(216,164,58,.35)';x.lineWidth=2;for(let i=0;i<=w;i+=64){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.moveTo(0,i);x.lineTo(w,i);x.stroke();}});grid.uScale=grid.vScale=10;
+  add(BABYLON.MeshBuilder.CreateGround('stf',{width:80,height:80},scene),M('floor',new BABYLON.Color3(1,1,1),{diffuseTexture:grid}));
+  add(BABYLON.MeshBuilder.CreateCylinder('stt',{diameter:13,height:.5,tessellation:64},scene),M('table',new BABYLON.Color3(.24,.25,.26))).position.y=.25;   // 回転台
+  add(BABYLON.MeshBuilder.CreateTorus('str',{diameter:13.1,thickness:.18,tessellation:64},scene),M('rim',new BABYLON.Color3(.3,.2,.05),{emissiveColor:new BABYLON.Color3(1,.62,.15)})).position.y=.5;
+  add(BABYLON.MeshBuilder.CreateTorus('str2',{diameter:16,thickness:.08,tessellation:64},scene),M('rim2',new BABYLON.Color3(.2,.15,.05),{emissiveColor:new BABYLON.Color3(.6,.38,.1)})).position.y=.04;
+  const wall=add(BABYLON.MeshBuilder.CreateCylinder('stw',{diameter:70,height:24,tessellation:48,sideOrientation:1,cap:0},scene),M('wall',new BABYLON.Color3(.16,.17,.18),{diffuseTexture:texCopy(T.metal,14,3)}));wall.position.y=12;
+  add(BABYLON.MeshBuilder.CreateDisc('stc',{radius:36,tessellation:48,sideOrientation:1},scene),M('ceil',new BABYLON.Color3(.07,.07,.08))).position.y=24;scene.getMeshByName('stc').rotation.x=-Math.PI/2;
+  for(let i=0;i<12;i++){const a=i/12*6.283,b=add(BABYLON.MeshBuilder.CreateBox('stl',{width:.4,height:16,depth:.2},scene),M('strip'+i,new BABYLON.Color3(.1,.1,.1),{emissiveColor:i%3?new BABYLON.Color3(.28,.32,.4):new BABYLON.Color3(.9,.6,.2)}));b.position.set(Math.sin(a)*34.6,9,Math.cos(a)*34.6);b.rotation.y=a;} // 壁の照明の帯
+  for(let i=0;i<3;i++){const b=add(BABYLON.MeshBuilder.CreateBox('stp',{width:9,height:.3,depth:1.2},scene),M('lamp'+i,new BABYLON.Color3(.2,.2,.2),{emissiveColor:new BABYLON.Color3(1,.95,.85)}));b.position.set(0,20,-8+i*8);}  // 天井の照明
+  root.setEnabled(false);return root;
+}
+function stageOn(on){ // 選択画面: マップを隠してステージを出す / それ以外: ステージを隠す(マップは loadMap が出す)
+  if(on&&!stage)stage=buildStage();if(!stage)return;stage.setEnabled(on);farMt.setEnabled(!on);
+  if(on){Object.keys(MAPS).forEach(k=>{if(isBuilt(k)){const b=mapBuilt(k);b.root.setEnabled(false);(b.fx||[]).forEach(f=>f.stop());}});scene.fogDensity=.004;scene.fogColor.set(.06,.06,.07);}
 }
 function enterSelect(){
   SFX.engine(0,0,0,false);clearBattle();mode='select';over=false;document.getElementById('over').style.display='none';document.body.classList.add('sel');document.body.classList.remove('msel');document.getElementById('selH').textContent='戦車選択';
-  if(!obs.length)genObs();camYaw=0;showSel();
+  if(!obs.length)genObs();camYaw=0;stageOn(true);showSel();
 }
 function enterMapSel(){ // マップ選択(戦車選択の次)。背景は選んだマップの上空から
-  SFX.init();mode='mapsel';document.body.classList.add('msel');document.getElementById('selH').textContent='マップ選択';showMapSel();
+  SFX.init();mode='mapsel';stageOn(false);document.body.classList.add('msel');document.getElementById('selH').textContent='マップ選択';showMapSel();
 }
 function showMapSel(){
   document.querySelectorAll('.mcard').forEach(c=>c.classList.toggle('on',c.dataset.map===mapSel));
@@ -2039,7 +2072,7 @@ document.getElementById('selL').onclick=()=>{selIdx=(selIdx+TANKS.length-1)%TANK
 document.getElementById('selR').onclick=()=>{selIdx=(selIdx+1)%TANKS.length;showSel();};
 document.getElementById('go').onclick=enterMapSel;
 document.querySelectorAll('.mcard').forEach(c=>c.onclick=()=>{mapSel=c.dataset.map;showMapSel();});
-document.getElementById('mback').onclick=()=>{mode='select';document.body.classList.remove('msel');document.getElementById('selH').textContent='戦車選択';};
+document.getElementById('mback').onclick=()=>{mode='select';stageOn(true);if(preview)preview.root.position.y=STAGE_Y;document.body.classList.remove('msel');document.getElementById('selH').textContent='戦車選択';};
 document.getElementById('mgo').onclick=startBattle;
 document.getElementById('snd').onclick=()=>{SFX.init();SFX.mute(!SFX.muted);document.getElementById('snd').textContent=SFX.muted?'🔇':'🔊';};
 addEventListener('pointerdown',()=>SFX.init()); // iOSなどは操作があるまで音が出ないので、触れたら再開
@@ -2052,7 +2085,7 @@ function selectUpdate(dt){
   if(mode==='mapsel'){const a=prevRot*.4,R=MOBILE?95:85;cam.position.set(Math.sin(a)*R,48,Math.cos(a)*R);cam.setTarget(new BABYLON.Vector3(0,0,0));cam.fov=.8;
     if(preview){preview.root.rotation.y=prevRot;}skyT+=dt;skyMat.setFloat('time',skyT);farMt.position.set(cam.position.x,cam.position.y+5,cam.position.z);return;}if(preview){preview.root.rotation.y=prevRot+camYaw;preview.turret.rotation.y=Math.sin(prevRot*.8)*.5;}
   // パネルが右にある横長画面では戦車を左寄りに、下にある縦長画面では上寄りに映す
-  const wide=innerWidth>innerHeight*1.3,a=.7,R=wide?11.5:14,y=gh(0,0);
+  const wide=innerWidth>innerHeight*1.3,a=.7,R=wide?11.5:14,y=STAGE_Y;
   cam.position.set(Math.sin(a)*R,y+3.6,Math.cos(a)*R);
   const right=new BABYLON.Vector3(-Math.cos(a),0,Math.sin(a)); // 画面の右方向(左手座標系)
   cam.setTarget(new BABYLON.Vector3(right.x*(wide?3.2:0),y+(wide?1.1:-1.6),right.z*(wide?3.2:0)));
