@@ -11,7 +11,7 @@ import sys, os, json, gzip, base64, io, re
 from PIL import Image
 
 src, html = sys.argv[1], sys.argv[2]
-ids = ['leo', 'mk4', 't10', 'ab']
+ids = ['leo', 'mk4', 't10', 'ab', 't90', 'cent', 'm4', 'k2', 't99']
 head = {}; blobs = bytearray()
 def put(b):
     while len(blobs) % 4: blobs.append(0)
